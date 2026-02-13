@@ -1,0 +1,124 @@
+{% extends "base_form.html" %}
+
+{% block overview %}
+    <thead>
+      <tr>
+        <th scope="col" style="width: 6%">Nr.</th>
+        <th scope="col" style="width: 10%">Datum</th>
+        <th scope="col" style="width: 80%">Bezeichnung</th>
+        <th scope="col" style="line-height: 1em; width: 8%">Anzahl Plätze</th>
+        <th scope="col" style="line-height: 1em; width: 8%">Anzahl Besucher</th>
+        <th scope="col" style="line-height: 1em; width: 8%">Anzahl Berater</th>
+        <th scope="col" style="line-height: 1em; width: 4%">Än- dern</th>
+      </tr>
+    </thead>
+{% endblock %}
+
+{% block form_input %}
+        <div class="row g-3">
+          <div class="col-sm-3 bg-light ms-2 pb-1">
+            <label for="frm-main-veranstdatum">Datum Veranstaltung</label>
+            <input type="date" class="form-control storaged-elem" name="frm-main-veranstdatum" id="frm-main-veranstdatum" value="{{ conf.today }}" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="inp-time col-sm-2 bg-light ms-2 pb-1">
+            <label for="frm-main-zeit-von">Zeit von</label>
+            <input type="time" class="form-control storaged-elem" name="frm-main-zeit-von" id="frm-main-zeit-von" value="09:30" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="col-sm-2 bg-light ms-2 pb-1">
+            <label for="frm-main-zeit-dauer">Dauer</label>
+            <input type="time" class="form-control storaged-elem" name="frm-main-zeit-dauer" id="frm-main-zeit-dauer" value="03:00" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="col-sm-2 bg-light ms-2 pb-1">
+            <label for="frm-main-zeit-bis">Zeit bis</label>
+            <input type="time" class="form-control storaged-elem" name="frm-main-zeit-bis" id="frm-main-zeit-bis" value="12:30" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="bg-light ms-2 pb-1" style="width: 98%;">
+            <label for="frm-main-typ">Art der Veranstaltung</label>
+            <select class="form-select storaged-elem" name="frm-main-typ" id="frm-main-typ" required>
+              <option value="-1">Bitte auswählen...</option>{% for row in dbdata["types"] %}
+              <option value="{{ row['id'] }}">{{ row['bezeichnung'] }}</option>{% endfor %}
+            </select>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="bg-light ms-2 pb-1" style="width: 98%;">
+            <label for="frm-main-veranstort">Ort der Veranstaltung</label>
+            <select class="form-select storaged-elem" name="frm-main-veranstort" id="frm-main-veranstort" required>
+              <option value="-1" data-max-visiter="-1">Bitte auswählen...</option>{% for row in dbdata["targets"] %}
+              <option value="{{ row['id'] }}">{{ row['bezeichnung'] }} (max.Besucher={{ row['MaxBesucher'] }})</option>{% endfor %}
+            </select>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="bg-light ms-2 pb-1" style="width: 98%;">
+            <label for="frm-main-thema-head">Thema der Veranstaltung</label>
+            <select class="form-select storaged-elem" name="frm-main-thema-head" id="frm-main-thema-head">
+              <option value="-1">Kein Eintrag; wird beim Besucher erfasst</option>{% for row in dbdata["themes"] %}
+              <option value="{{ row['id'] }}">{{ row['bezeichnung'] }}</option>{% endfor %}
+            </select>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="bg-light ms-2 mb-3 pb-1" style="width: 98%;">
+            <fieldset class="storaged-elem" name="frm-main-set-berater" data-collect="frm-main-berater">
+              <table id="tb-berater" class="table table-bordered table-hover caption-top" style="font-size: 0.7em; margin-bottom: 0.2em;">
+                <caption style="padding: 0em;"><h6 class="ps-2 bg-light text-dark" style="margin-bottom: 0.2em;"><span id="frm-main-berater-nbr">0</span> Zuständige Berater / Dozenten</h6></caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Name : Aufgaben</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <select id="frm-main-berater" class="form-select" name="frm-main-berater" data-init-frm="false" data-collect="tb-berater" data-index="0" style="font-size: 0.9rem;" required>
+                        <option value="-1">Keine Auswahl, bitte auswählen ...</option>{% for row in dbdata["coaches"] %}
+                        <option value="{{ row['id'] }}">{{ row['vorname'] }} {{ row['nachname'] }} : {{ row['aktiv'] }} {{ row['tdm'] }} {{ row['berext'] }}</option>{% endfor %}
+                      </select>
+                    </td><td style="width: 2em;"><figure class="text-body-secondary frm-main-berater-remove d-none" data-index="-1" title="Eintrag entfernen"><svg class="bi" width="1.5em" height="1.5em" title="Eintrag entfernen"><use xlink:href="#bi-trash-fill" title="Eintrag entfernen"/></svg></figure></td>
+                  </tr>
+                </tbody>
+              </table>
+            </fieldset>
+            <div class="invalid-feedback"></div>
+          </div>
+          <nav class="navbar navbar-expand-lg bg-body-tertiary" style="margin-left: 0.5em; width: 98%; margin-top: 0em;">
+            <div class="container-fluid">
+              <input class="form-control frm-search" type="search" id="frm-search-ptn" name="frm-search-ptn" placeholder="hier nach Besuchern der Veranstaltung suchen ... oder [+] Schnellerfassung" autocomplete="off">
+              <input class="form-control frm-quick d-none" type="text" id="frm-quick-vorname" name="frm-quick-vorname" placeholder="Vorname" autocomplete="off">
+              <input class="form-control frm-quick d-none" type="text" id="frm-quick-nachname" name="frm-quick-nachname" placeholder="Nachname" autocomplete="off">
+              <input class="form-control frm-quick d-none" type="tel" id="frm-quick-telefon" name="frm-quick-telefon" placeholder="Telefon" autocomplete="off">
+              <input class="form-control frm-quick d-none" type="email" id="frm-quick-email" name="frm-quick-email" placeholder="E-Mail" autocomplete="off">
+              <button class="btn btn-outline-success ms-1" id="btn-search-visiter" type="button" title="Suche starten, oder Enter"><svg class="bi" width="16" height="16" title="Suche starten, oder Enter"><use xlink:href="#bi-search" title="Suche starten, oder Enter"/></svg></button>
+              <button class="btn btn-outline-success ms-1" id="btn-insert-visiter" type="button" title="Schnellerfassung"><svg class="bi" width="16" height="16" title="Schnellerfassung"><use xlink:href="#bi-plus-lg" title="Schnellerfassung"/></svg></button>
+            </div>
+          </nav>
+          <div id="frm-main-besucher-ergebnis-head" class="bg-light ms-2 pb-1 d-none" style="width: 98%; margin-top: 0em;">
+            <label for="frm-main-besucher-ergebnis" class="ps-2"><span id="frm-main-besucher-ergebnis-nbr">0</span> Gefundene Besucher <span class="text-body-emphasis">(Name * E-Mail * Telefon) Zum Übernehmen anklicken ...</span></label>
+            <select class="form-select storaged-elem" id="frm-main-besucher-ergebnis" name="frm-main-besucher-ergebnis" data-collect="populate-visiter" size="3" required>
+            </select>
+          </div>
+          <div class="bg-light ms-2 mb-3 pb-1" style="width: 98%;">
+            <fieldset class="storaged-elem" name="frm-main-set-besucher" data-collect="tb-visiter">
+              <table id="tb-visiter" class="table table-bordered table-hover caption-top" style="font-size: 0.7em;">
+                <caption style="padding: 0em; margin-bottom: 0.2em;"><h6 class="ps-2 bg-light text-dark" style="margin-bottom: 0em;"><span id="frm-main-besucher-nbr">0</span> Besucher der Veranstaltung; maximal = <span id="frm-main-besucher-maxnbr">--</span></h6></caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Vorname<br>Nachname</th>
+                    <th scope="col">Telefon<br>E-Mail</th>
+                    <th scope="col">Spende</th>
+                    <th scope="col">Thema</th>
+                    <th scope="col">Benutztes Gerät</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </fieldset>
+            <div class="invalid-feedback"></div>
+          </div>
+        </div>
+{% endblock %}

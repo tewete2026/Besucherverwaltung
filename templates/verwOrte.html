@@ -1,0 +1,48 @@
+{% extends "base_form.html" %}
+
+{% block overview %}
+    <thead>
+      <tr>
+        <th scope="col" style="width: 6%">Nr.</th>
+        <th scope="col" style="width: 74%">Bezeichnung</th>
+        <th scope="col" style="line-height: 1em; width: 8%">Max. Besucher</th>
+        <th scope="col" style="line-height: 1em; width: 8%">Anzahl Veranst.</th>
+        <th scope="col" style="line-height: 1em; width: 4%">Än- dern</th>
+      </tr>
+    </thead>
+{% endblock %}
+
+{% block form_input %}
+        <div class="row g-3">
+          <div class="bg-light ms-2 pb-1" style="width: 98%;">
+            <label for="frm-main-bezeichnung">Bezeichnung</label>
+            <input type="text" class="form-control storaged-elem" name="frm-main-bezeichnung" id="frm-main-bezeichnung" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="col-sm-2 bg-light ms-2 pb-1">
+            <label for="frm-main-maxbesucher">Anzahl Plätze</label>
+            <input type="text" class="form-control storaged-elem" name="frm-main-maxbesucher" id="frm-main-maxbesucher" placeholder="Keine" required>
+            <div class="invalid-feedback"></div>
+          </div>
+        </div>
+        <hr class="my-2">
+        <div class="row">
+          <div id="frm-main-booked-events" class="bg-light ms-2 mb-3 pb-1" style="width: 98%;">
+            <fieldset class="storaged-elem" name="frm-main-set-events" data-collect="tb-events">
+              <table id="tb-events" class="table table-bordered table-hover caption-top" style="font-size: 0.7em;">
+                <caption style="padding: 0em; margin-bottom: 0.2em;"><h6 class="ps-2 bg-light text-dark" style="margin-bottom: 0em;"><span id="frm-main-veranst-nbr">0</span> zum Ort zugeordnete Veranstaltungen</h6></caption>
+                <thead>
+                  <tr>
+                    <th scope="col" style="width: 5%;">Nr.</th>
+                    <th scope="col" style="width: 10%;">Datum</th>
+                    <th scope="col" style="width: 50%;">Bezeichnung</th>
+                    <th scope="col" style="width: 3%;"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </fieldset>
+          </div>
+        </div>
+{% endblock %}
