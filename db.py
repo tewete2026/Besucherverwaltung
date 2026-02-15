@@ -93,7 +93,7 @@ def init_app(app):
             }
             config_conn = {
                 "user":"pcafe",
-                "password":"u72ggBa5551",
+                "password":"***********",
                 "unix_socket":"/run/mysqld/mysqld.sock",
                 "host":"localhost",
                 "database":"bv",
