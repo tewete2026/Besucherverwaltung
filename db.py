@@ -1,4 +1,6 @@
 import mariadb
+import datetime, pytz
+from dateutil.relativedelta import relativedelta
 from flask import current_app
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -55,6 +57,33 @@ class Configure:
         self.javascript = Javascript(prefix, app, self.credits["user"])
         self.javascript.add({'modname':f"/{current_app.name}/", 'today':self.today, 'min_date':self.min_date, 'max_date':self.max_date, 'link_active':link, 'header':header})
         self.javascript.add({'overview_label':label, 'category':category})
+
+
+class TimeSet:
+    def __init__(self, tz:str):
+        self.__tz = pytz.timezone(tz)
+        self.__dt = datetime.datetime
+    def today(self):
+        # return self.__dt.fromtimestamp(timestamp=datetime.datetime.today().timestamp(), tz=self.__tz)
+        return self.todaytime().today()
+    def todaytime(self):
+        return self.__dt.now(tz=self.__tz)
+    def isocalendar(self, ts=None):
+        if not ts: ts = self.todaytime()
+        return self.__dt.isocalendar(ts)
+    def fromtimestamp(self, ts:float):
+        return self.__dt.fromtimestamp(timestamp=ts, tz=self.__tz)
+    def addtimezone(self, datetime:datetime.datetime):
+        timestamp_float = datetime.timestamp()
+        return self.fromtimestamp(timestamp_float)
+    def delta(self, days=None, years=None, months=None):
+        if days is not None:
+            delta = relativedelta(days=days)
+        elif years is not None:
+            delta = relativedelta(years=years)
+        elif months is not None:
+            delta = relativedelta(months=months)
+        return self.__dt.now() + delta
         
 
 def get_db():

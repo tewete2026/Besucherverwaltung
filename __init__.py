@@ -1,37 +1,9 @@
-import datetime, pytz, os
-from dateutil.relativedelta import relativedelta
+import os
 from flask import Flask, url_for
 from flask import render_template
 from logging.config import dictConfig
 from . import version, credentials
-
-
-class TimeSet:
-    def __init__(self, tz:str):
-        self.__tz = pytz.timezone(tz)
-        self.__dt = datetime.datetime
-    def today(self):
-        # return self.__dt.fromtimestamp(timestamp=datetime.datetime.today().timestamp(), tz=self.__tz)
-        return self.todaytime().today()
-    def todaytime(self):
-        return self.__dt.now(tz=self.__tz)
-    def isocalendar(self, ts=None):
-        if not ts: ts = self.todaytime()
-        return self.__dt.isocalendar(ts)
-    def fromtimestamp(self, ts:float):
-        return self.__dt.fromtimestamp(timestamp=ts, tz=self.__tz)
-    def addtimezone(self, datetime:datetime.datetime):
-        timestamp_float = datetime.timestamp()
-        return self.fromtimestamp(timestamp_float)
-    def delta(self, days=None, years=None, months=None):
-        if days is not None:
-            delta = relativedelta(days=days)
-        elif years is not None:
-            delta = relativedelta(years=years)
-        elif months is not None:
-            delta = relativedelta(months=months)
-        return self.__dt.now() + delta
-
+from .db import TimeSet
 
 def create_app(test_config="DEV"):
     """Create and configure an instance of the Flask application.
