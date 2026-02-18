@@ -1,0 +1,101 @@
+{% extends "base_form.html" %}
+
+{% block overview %}
+    <thead>
+      <tr>
+        <th scope="col" style="line-height: 1em; width: 6%">Kd.- Nr.</th>
+        <th scope="col" style="width: 30%">Name</th>
+        <th scope="col" style="line-height: 1em; width: 10%">Aufnahme Datum</th>
+        <th scope="col" style="width: 15%">Telefon</th>
+        <th scope="col" style="width: 40%">E-Mail</th>
+        <th scope="col" style="line-height: 1em; width: 4%">Anzahl Vernst.</th>
+        <th scope="col" style="line-height: 1em; width: 3%">Än- dern</th>
+      </tr>
+    </thead>
+{% endblock %}
+
+{% block form_input %}
+        <div class="row g-3">
+          <div style="display:flex;">
+            <div class="col-sm-3 bg-light pb-1" style="padding-right: calc(var(--bs-gutter-x) * .5);padding-left: calc(var(--bs-gutter-x) * .5);">
+              <label for="frm-main-datum">Aufnahme Datum</label>
+              <input type="date" class="form-control storaged-elem" name="frm-main-datum" id="frm-main-datum" data-default="{{ conf.today }}" required>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="ms-4 form-check" style="width: 40%;">
+              <label class="form-check-label" for="frm-main-newsl">Soll der Besucher einen Newsletter bekommen?</label>
+              <input type="checkbox" class="form-check-input storaged-elem" name="frm-main-newsl" id="frm-main-newsl">
+            </div>
+            <div class="ms-2 form-check" style="width: 30%;">
+              <label class="form-check-label" for="frm-main-aktiv">Ist der Besucher aktiv ?</label>
+              <input type="checkbox" class="form-check-input storaged-elem" name="frm-main-aktiv" id="frm-main-aktiv" checked>
+            </div>
+          </div>
+          <div class="bg-light ms-2 pb-1" style="width: 98%;">
+            <label for="frm-main-anrede">Anrede</label>
+            <select class="form-select storaged-elem" name="frm-main-anrede" id="frm-main-anrede" required>
+              <option value="-1">Bitte auswählen...</option>{% for row in dbdata["anrede"] %}
+              <option value="{{ row['id'] }}">{{ row['bezeichnung'] }}</option>{% endfor %}
+            </select>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="bg-light ms-2 pb-1" style="width: 98%;">
+            <label for="frm-main-vorname">Vorname</label>
+            <input type="text" class="form-control storaged-elem" name="frm-main-vorname" id="frm-main-vorname" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="bg-light ms-2 pb-1" style="width: 98%;">
+            <label for="frm-main-nachname">Nachname</label>
+            <input type="text" class="form-control storaged-elem" name="frm-main-nachname" id="frm-main-nachname" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="bg-light ms-2 pb-1" style="width: 98%;">
+            <label for="frm-main-strasse">Straße + Haus-Nr.</label>
+            <input type="text" class="form-control storaged-elem" name="frm-main-strasse" id="frm-main-strasse" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="col-sm-2 bg-light ms-2 pb-1">
+            <label for="frm-main-plz">Postleitzahl</label>
+            <input type="text" class="form-control storaged-elem" name="frm-main-plz" id="frm-main-plz" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="bg-light ms-2 pb-1" style="width: 80.5%;">
+            <label for="frm-main-ort">Ort</label>
+            <input type="text" class="form-control storaged-elem" name="frm-main-ort" id="frm-main-ort" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="bg-light ms-2 pb-1" style="width: 51.5%;">
+            <label for="frm-main-email">E-Mail-Adresse <span class="text-body-emphasis">(z.B.: na.me@web.de)</span></label>
+            <input type="email" class="form-control storaged-elem" name="frm-main-email" id="frm-main-email" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="bg-light ms-2 pb-1" style="width: 45.5%;">
+            <label for="frm-main-telefon">Telefon-Nr. <span class="text-body-emphasis">(z.B.: 040.....)</span></label>
+            <input type="tel" class="form-control storaged-elem" name="frm-main-telefon" id="frm-main-telefon" placeholder="mit Vorwahl eingeben ..." required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="bg-light ms-2 pb-1" style="width: 98%;">
+            <label for="frm-main-bemerkung">Bemerkungen</label>
+            <input type="text" class="form-control storaged-elem" name="frm-main-bemerkung" id="frm-main-bemerkung" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div id="frm-main-booked-events" class="bg-light ms-2 mb-3 pb-1" style="width: 98%;">
+            <fieldset class="storaged-elem" name="frm-main-set-events" data-collect="tb-events">
+              <table id="tb-events" class="table table-bordered table-hover caption-top" style="font-size: 0.7em;">
+                <caption style="padding: 0em; margin-bottom: 0.2em;"><h6 class="ps-2 bg-light text-dark" style="margin-bottom: 0em;"><span id="frm-main-veranst-nbr">0</span> vom Besucherin/Besucher gebuchte Veranstaltungen</h6></caption>
+                <thead>
+                  <tr>
+                    <th scope="col" style="width: 5%;">Nr.</th>
+                    <th scope="col" style="width: 10%;">Datum</th>
+                    <th scope="col" style="width: 35%;">Bezeichnung</th>
+                    <th scope="col" style="width: 15%;">Ort</th>
+                    <th scope="col" style="width: 3%;"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </fieldset>
+          </div>
+        </div>
+{% endblock %}

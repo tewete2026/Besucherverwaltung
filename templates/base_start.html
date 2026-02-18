@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Programme für PCafé Norderstedt">
+    <meta name="author" content="Thomas Wachler-Thomsen">
+    <title>PCafe - Norderstedt / Tools</title>
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/css@3.css') }}" rel="stylesheet">
+  
+    <!-- Favicons -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='Favicon_PCafe.png') }}" sizes="29x26" type="image/png">
+      
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+  </head>
+  <body>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+    <symbol id="arrow-right-circle" viewBox="0 0 16 16">
+      <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+    </symbol>
+  </svg>
+
+<div class="col-lg-8 mx-auto p-4 py-md-5">
+  <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
+    <a href="/" class="d-flex align-items-center text-body-emphasis text-decoration-none">
+      <img src="{{ url_for('static', filename='Logo_PCafe.png') }}" alt="Logo_PCafe">
+      <span class="fs-4 ms-5">PC@fé - Tools</span>
+    </a>
+  </header>
+
+  <main>
+    {% block header %}{% endblock %}
+    <hr class="mb-5">
+    <div class="row g-5">
+      <div class="col-md-6">
+        <h2 class="text-body-emphasis">Übersicht der Tools</h2>
+        <p>Bitte wählt eines der gewünschten aus ...</p>
+        <ul class="list-unstyled ps-0">
+          <li>
+            <a class="icon-link mb-1" href="{{ url_for('index') }}" rel="noopener">
+              <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
+              Besucherverwaltung
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </main>
+  <footer class="pt-5 my-5 text-body-secondary border-top">
+    Created by Thomas Wachler-Thomsen &middot; &copy; 2025
+  </footer>
+</div>
+<script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Programm zur Verwaltung der Besuche und der jeweiligen Besucher und Berater im PCafé Norderstedt">
+  <meta name="author" content="Thomas Wachler-Thomsen">
+  <title>Besucherverwaltung PCafe - Norderstedt * {{ conf.credits["title"] }}</title>
+  <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/css@3.css') }}" rel="stylesheet">
+  
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="{{ url_for('static', filename='Favicon_PCafe.png') }}" sizes="29x26" type="image/png">
+  
+  <!-- Custom styles and live script for this template -->
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+  <script>{{ javascript|safe }}</script>
+  </head>
+<body class="bg-dark bg-opacity-25">
+    
+<svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="bi-search" viewBox="0 0 16 16">
+    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+  </symbol>
+  <symbol id="bi-trash-fill" viewBox="0 0 16 16">
+    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+  </symbol>
+  <symbol id="bi-pencil-fill" viewBox="0 0 16 16">
+    <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"/>
+  </symbol>
+  <symbol id="bi-plus-lg" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+  </symbol>
+  <symbol id="bi-chevron-left" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+  </symbol>
+  <symbol id="bi-chevron-double-left" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M8.354 1.646a.5.5 0 0 1 0 .708L2.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+    <path fill-rule="evenodd" d="M12.354 1.646a.5.5 0 0 1 0 .708L6.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+  </symbol>
+  <symbol id="bi bi-chevron-right" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+  </symbol>
+</svg>
+
+<main class="d-flex flex-nowrap">
+  <section id="sec-navigation" class="flex-shrink-0 p-3 ms-3 mt-2 bg-body-tertiary rounded-5" style="width: 12.8%;">
+    <p class="d-flex align-items-center mb-3 text-decoration-none rounded-3 bg-primary bg-opacity-75 text-white p-1">
+      <span class="fs-5 fw-semibold">Besucherverwaltung   </span>
+    </p>
+    <ul class="list-unstyled ps-0">
+      <li class="mb-1">
+        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-expanded="true">
+          Veranstaltungen
+        </button>
+        <div class="collapse show" id="home-collapse">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small nav nav-underline">
+            <li><a id="link-main" href="{{ url_for('index') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded" aria-current="page">Erfassen/Ändern</a></li>
+          </ul>
+        </div>
+      </li>
+      <li class="mb-1">
+        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="true">
+          Verwaltung
+        </button>
+        <div class="collapse show" id="dashboard-collapse">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <li><a id="link-verwbesucher" href="{{ url_for('verwBesucher.main') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Besucher</a></li>
+            <li><a id="link-verwberater" href="{{ url_for('verwBerater.main') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Berater</a></li>
+            <li><a id="link-verwveransttyp" href="{{ url_for('verwVeranstTyp.main') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungsarten</a></li>
+            <li><a id="link-verwveranstort" href="{{ url_for('verwOrte.main') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungsorte</a></li>
+            <li><a id="link-verwthemen" href="{{ url_for('verwThemen.main') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Beratungsthemen/<br>Info-Veranstaltungen</a></li>
+            <li><a id="link-verwgeraete" href="{{ url_for('verwGeraete.main') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Geräte</a></li>
+          </ul>
+        </div>
+      </li>
+      <li class="mb-1">
+        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#services-collapse" aria-expanded="false">
+          Services
+        </button>
+        <div class="collapse" id="services-collapse">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">E-Mails versenden</a></li>
+          </ul>
+        </div>
+      </li>
+      <li class="mb-1">
+        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#orders-collapse" aria-expanded="false">
+          Berichte
+        </button>
+        <div class="collapse" id="orders-collapse">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Besucher-Warteliste</a></li>
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Besuche</a></li>
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungen</a></li>
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Beratungsthemen</a></li>
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Info-Veranstaltungen</a></li>
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Hardware/Geräte</a></li>
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Berater-Kompetenzen</a></li>
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungen nach Art</a></li>
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungen/Berater</a></li>
+          </ul>
+        </div>
+      </li>
+      <li class="mb-1">
+        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#export-collapse" aria-expanded="false">
+          Exportieren
+        </button>
+        <div class="collapse" id="export-collapse">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Berater</a></li>
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Besucher</a></li>
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Besuche</a></li>
+            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungen</a></li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </section>
+  <section id="sec-overview" class="d-flex flex-column align-items-stretch p-3 ms-2 mt-2 flex-shrink-0 bg-white rounded-5" style="width: 44%;">
+    <p class="d-flex align-items-center flex-shrink-0 text-decoration-none bg-secondary text-white rounded-3 p-1">
+      <span class="fs-5 fw-semibold">{{ conf.overview }}</span>
+    </p>
+    <table id="tb-overview-{{ conf.credits["app"] }}" class="table table-bordered table-hover" style="font-size: 0.8em; line-height: 0.6em;">
+      {% block overview %}{% endblock %}
+      <tbody>
+      </tbody>
+    </table>
+    <nav class="d-flex">
+      <ul class="pagination">
+        <li id="page-pag-start" class="page-item" title="Zurück zur ersten Seite"><a class="page-link" style="cursor: pointer;"><svg class="bi" width="16" height="16" title="Zurück zur ersten Seite"><use xlink:href="#bi-chevron-double-left" title="Zurück zur ersten Seite"/></svg></a></li>
+        <li id="page-pag-back" class="page-item" title="Eine Seite zurück"><a class="page-link" style="cursor: pointer;"><svg class="bi" width="16" height="16" title="Eine Seite zurück"><use xlink:href="#bi-chevron-left" title="Eine Seite zurück"/></svg></a></li>
+        <li id="page-pag-current" class="page-item" title="Aktuelle Seite"><a class="page-link">1</a></li>
+        <li id="page-pag-forw" class="page-item" title="Eine Seite weiter"><a class="page-link" style="cursor: pointer;"><svg class="bi" width="16" height="16" title="Eine Seite weiter"><use xlink:href="#bi bi-chevron-right" title="Eine Seite weiter"/></svg></a></li>
+      </ul>
+      <form class="d-flex" id="frm-pag" role="search" novalidate autocomplete="off" onsubmit="return false" style="height: 2.4em; width: 60%;">
+        <label for="frm-pag-search" style="width: 100%; margin-top: 0.5em; margin-left: 1.5em; margin-right: 0.5em; text-align: right;">{{ conf.pag_search }} ...</label>
+        <input class="form-control me-2 w-50" type="{{ conf.pag_type }}" name="frm-pag-search" id="frm-pag-search" autocomplete="off">
+        <button class="btn btn-outline-success" id="btn-frm-pag-search" type="button" title="Suche starten"><svg class="bi" width="16" height="16" title="Suche starten"><use xlink:href="#bi-search" title="Suche starten"/></svg></button>
+      </form>
+    </nav>
+  </section>
+  <section id="sec-form-input" class="d-flex flex-column align-items-stretch p-3 ms-2 mt-2 flex-shrink-0 bg-primary-subtle rounded-5 pd-2" style="width: 41%;">
+    <p class="d-flex align-items-center flex-shrink-0 text-decoration-none bg-dark bg-opacity-75 text-white rounded-3 p-1">
+      <span id="frm-main-caption" class="fs-5 fw-semibold">{{ conf.credits["header"][1] }}</span>
+    </p>
+    <div class="row g-5">
+      <div class="col-md-7 col-lg-12">
+        <form class="needs-validation" id="frm-main" novalidate autocomplete="off" onsubmit="return false">
+          {% block form_input %}{% endblock %}
+          <hr class="my-2">
+          <div id="btn-main-finish" class="fw-bold pb-1" style="width: 98%;"></div>
+          <div class="d-flex justify-content-center" style="width: 98%;">
+            <button class="w-25 btn btn-primary btn-lg" id="btn-frm-main-store" type="{{ conf.btn_type }}" title="Eingaben senden und spreichern"><span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span><span role="status" title="Eingaben senden und spreichern"> Speichern</span></button><button class="w-25 btn btn-warning btn-lg ms-2" id="btn-frm-main-reset" type="button" title="Eingaben löschen, nicht speichern">Zurücksetzen</button>
+          </div>
+          <hr class="my-2">
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section id="sec-footer" class="container">
+  <footer class="d-flex small flex-wrap justify-content-between align-items-center py-3 my-4" style="font-size: 80%;">
+    <div class="d-flex align-items-center">
+      <figure class="mb-3 me-2 mb-md-0">
+        <img src="{{ url_for('static', filename='Logo_PCafe.png') }}" alt="Logo_PCafe">
+      </figure>
+      <span class="mb-3 mb-md-0 text-body-secondary">&copy; PCafé - Norderstedt ** Version: {{ conf.credits["version"] }} ** Erstellt: {{ conf.credits["created"] }} ** {{ conf.credits["author"] }}<br>Remote-IP: {{ conf.credits["addr"] }}</span>
+    </div>
+    {# <!--ul class="nav justify-content-end list-unstyled d-flex">
+    <li class="ms-3"><a class="text-body-secondary" href="{{ url_for('main.kommtNoch') }}"><svg class="bi" width="24" height="24"><use xlink:href="#bi-youtube"/></svg></a></li>
+    <li class="ms-3"><a class="text-body-secondary" href="{{ url_for('main.kommtNoch') }}"><svg class="bi" width="24" height="24"><use xlink:href="#twitter"/></svg></a></li>
+    <li class="ms-3"><a class="text-body-secondary" href="{{ url_for('main.kommtNoch') }}"><svg class="bi" width="24" height="24"><use xlink:href="#instagram"/></svg></a></li>
+    <li class="ms-3"><a class="text-body-secondary" href="{{ url_for('main.kommtNoch') }}"><svg class="bi" width="24" height="24"><use xlink:href="#facebook"/></svg></a></li>
+    </ul --> #}
+  </footer>
+  <div id="main-errors-flashed" class="d-none"></div>
+</section>
+
+<script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utilFunctions.js') }}"></script>
+<script src="{{ url_for('static', filename='js/mainClasses.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

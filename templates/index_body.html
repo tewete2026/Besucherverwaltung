@@ -1,0 +1,10 @@
+{% for row in events %}
+      <tr>
+        <td>{{ row['id'] }}</td>
+        <td>{{ row['datum'] }}</td>
+        <td>{{ row['bezeichnung'] }}</td>
+        <td>{{ row['plaetze'] }}</td>
+        <td>{{ row['anzahl_s'] }}</td>
+        <td>{{ row['anzahl_b'] }}</td>
+        <td><figure class="text-body-secondary frm-main-overview-edit" data-id="{{ row['id'] }}" title="Eintrag ändern"><svg class="bi" width="2em" height="1em" title="Eintrag ändern"><use xlink:href="#bi-pencil-fill" title="Eintrag ändern"/></svg></figure></td>
+      </tr>{% endfor %}
