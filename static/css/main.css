@@ -42,6 +42,10 @@ main {
   padding: 0.7rem 0.8rem;
 }
 
+.bg-input {
+  background-color: rgba(96, 2, 2, 0.69);
+}
+
 .dropdown-toggle { outline: 0; }
 
 .btn-toggle {
