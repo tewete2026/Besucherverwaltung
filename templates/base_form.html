@@ -8,7 +8,6 @@
   <meta name="author" content="Thomas Wachler-Thomsen">
   <title>Besucherverwaltung PCafe - Norderstedt * {{ conf.credits["title"] }}</title>
   <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='css/css@3.css') }}" rel="stylesheet">
   
   <!-- Favicon -->
   <link rel="shortcut icon" href="{{ url_for('static', filename='Favicon_PCafe.png') }}" sizes="29x26" type="image/png">
@@ -142,7 +141,7 @@
     </nav>
   </section>
   <section id="sec-form-input" class="d-flex flex-column align-items-stretch p-3 ms-2 mt-2 flex-shrink-0 bg-primary-subtle rounded-5 pd-2" style="width: 41%;">
-    <p class="d-flex align-items-center flex-shrink-0 text-decoration-none bg-dark bg-opacity-75 text-white rounded-3 p-1">
+    <p class="d-flex align-items-center flex-shrink-0 text-decoration-none bg-input text-white rounded-3 p-1">
       <span id="frm-main-caption" class="fs-5 fw-semibold">{{ conf.credits["header"][1] }}</span>
     </p>
     <div class="row g-5">
