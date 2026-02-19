@@ -37,6 +37,7 @@ class Configure:
             "app":app,
             "user":request.remote_user,
             "addr":request.remote_addr,
+            "hostname":current_app.config['HOSTNAME'],
             "created":version.Configs.APP_CREATED,
             "version":version.Configs.APP_VERSION,
             "author":version.Configs.APP_AUTHOR

@@ -166,7 +166,7 @@
       <figure class="mb-3 me-2 mb-md-0">
         <img src="{{ url_for('static', filename='Logo_PCafe.png') }}" alt="Logo_PCafe">
       </figure>
-      <span class="mb-3 mb-md-0 text-body-secondary">&copy; PCafé - Norderstedt ** Version: {{ conf.credits["version"] }} ** Erstellt: {{ conf.credits["created"] }} ** {{ conf.credits["author"] }}<br>Remote-IP: {{ conf.credits["addr"] }}</span>
+      <span class="mb-3 mb-md-0 text-body-secondary">&copy; PCafé - Norderstedt ** Version: {{ conf.credits["version"] }} ** Erstellt: {{ conf.credits["created"] }} ** {{ conf.credits["author"] }}<br>Remote-IP: {{ conf.credits["addr"] }} - Host Name: {{ conf.credits["hostname"] }}</span>
     </div>
     {# <!--ul class="nav justify-content-end list-unstyled d-flex">
     <li class="ms-3"><a class="text-body-secondary" href="{{ url_for('main.kommtNoch') }}"><svg class="bi" width="24" height="24"><use xlink:href="#bi-youtube"/></svg></a></li>
