@@ -1,8 +1,7 @@
 import mariadb
-import datetime, pytz
-from dateutil.relativedelta import relativedelta
+from datetime import datetime, timedelta
+import pytz
 from flask import current_app
-from datetime import date
 from dateutil.relativedelta import relativedelta
 from . import version, credentials
 
@@ -45,15 +44,15 @@ class Configure:
         ts = current_app.config["TS"]
         if self.credits["user"] is None: self.credits["user"] = "--"
         current_app.logger.info("%s started; Modname=%s; Remote-Addr=%s; Method=%s", title, current_app.name, request.remote_addr, request.method)
-        self.today=date.today()
+        self.today=ts.today()
         self.todaytime=ts.todaytime()
         self.timeformat=self.todaytime.strftime("%Y-%m-%dT%H:%M:%S")
         self.pag_type = pag_type
         self.pag_search = pag_search
         self.btn_type = btn_type
         self.overview = overview
-        self.min_date = self.today - relativedelta(months=12)
-        self.max_date = self.today + relativedelta(months=12)
+        self.min_date = ts.delta(months=12, sub=True)
+        self.max_date = ts.delta(months=12)
         self.javascript = Javascript(prefix, app, self.credits["user"])
         self.javascript.add({'modname':f"/{current_app.name}/", 'today':self.today, 'min_date':self.min_date, 'max_date':self.max_date, 'link_active':link, 'header':header})
         self.javascript.add({'overview_label':label, 'category':category})
@@ -62,10 +61,15 @@ class Configure:
 class TimeSet:
     def __init__(self, tz:str):
         self.__tz = pytz.timezone(tz)
-        self.__dt = datetime.datetime
+        self.__dt = datetime
+    def setRecordunlock(self, value:int):
+        self.__recordunlock = value
+    def getRecordunlock(self):
+        return (self.todaytime() + timedelta(minutes=self.__recordunlock)).strftime("%Y%m%d%H%M%S%f")
     def today(self):
-        # return self.__dt.fromtimestamp(timestamp=datetime.datetime.today().timestamp(), tz=self.__tz)
         return self.todaytime().today()
+    def todaydate(self):
+        return self.todaytime().today().date()
     def todaytime(self):
         return self.__dt.now(tz=self.__tz)
     def isocalendar(self, ts=None):
@@ -73,17 +77,19 @@ class TimeSet:
         return self.__dt.isocalendar(ts)
     def fromtimestamp(self, ts:float):
         return self.__dt.fromtimestamp(timestamp=ts, tz=self.__tz)
-    def addtimezone(self, datetime:datetime.datetime):
+    def addtimezone(self, datetime:datetime):
         timestamp_float = datetime.timestamp()
         return self.fromtimestamp(timestamp_float)
-    def delta(self, days=None, years=None, months=None):
+    def delta(self, days:int=None, years:int=None, months:int=None, sub:bool=False) -> datetime:
         if days is not None:
             delta = relativedelta(days=days)
-        elif years is not None:
-            delta = relativedelta(years=years)
         elif months is not None:
             delta = relativedelta(months=months)
-        return self.__dt.now() + delta
+        elif years is not None:
+            delta = relativedelta(years=years)
+        if sub: ret = self.__dt.now() - delta
+        else: ret = self.__dt.now() + delta
+        return ret
         
 
 def get_db():

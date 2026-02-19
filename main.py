@@ -5,7 +5,6 @@ from flask import request
 from flask import render_template
 from flask import redirect, url_for
 from werkzeug.exceptions import abort
-from werkzeug.exceptions import abort
 from .db import get_db, Javascript, Configure
 from . import version
 

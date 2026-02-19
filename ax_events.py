@@ -3,13 +3,11 @@ from flask import Blueprint
 from flask import current_app
 from flask import request
 from flask import render_template
-from datetime import date
 from dateutil import parser
 import sys
 
 from .db import get_db
 from . import version
-from . import tools
 
 bp = Blueprint("ax_events", __name__, url_prefix=f"/{version.Configs.APP_NAME}")
 
@@ -18,7 +16,8 @@ def ax_get_veranst_edit():
     result = request.get_json()
     result_map = dict(result)
     main_id = result_map["main-id"]
-    timestamp_N = tools.getTS(current_app.config)
+    ts = current_app.config["TS"]
+    timestamp_N = ts.getRecordunlock()
     timestamp_P = None
 
     dbdata={}
@@ -161,9 +160,10 @@ def ax_submit_veranst():
     rc_code = {"status":"OK", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
     berater = []
     besucher = {}
-    today_day = date.today().day
-    today_month = date.today().month
-    today_year = date.today().year
+    ts = current_app.config["TS"]
+    today_day = ts.todaydate().day
+    today_month = ts.todaydate().month
+    today_year = ts.todaydate().year
 
     try:
         veranst_id = None

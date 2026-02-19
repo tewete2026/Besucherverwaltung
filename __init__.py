@@ -98,6 +98,9 @@ def create_app(test_config="DEV"):
     if db.init_app(app) == "ERR":
         app.config.from_mapping(NO_POOL_AVAILABLE=True)
 
+    ts = app.config["TS"]
+    ts.setRecordunlock(int(app.config["wait-for-unlock-record"]))
+
     # apply the blueprints to the app
     from . import main,ax_visiter,ax_events,ax_coaches,ax_devices,ax_eventtypes,ax_themes,ax_targets,ax_default,yx_gen_service,verwBesucher,verwBerater,verwVeranstTyp,verwThemen,verwGeraete,verwOrte
     app.register_blueprint(main.bp)

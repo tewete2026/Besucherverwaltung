@@ -3,13 +3,10 @@ from flask import Blueprint
 from flask import render_template
 from flask import current_app
 from flask import request
-from datetime import datetime
-from datetime import timedelta
 import sys
 
 from .db import get_db
 from . import version
-from . import tools
 
 bp = Blueprint("ax_targets", __name__, url_prefix=f"/{version.Configs.APP_NAME}")
 
@@ -19,7 +16,8 @@ def ax_get_targets_edit():
     result = request.get_json()
     result_map = dict(result)
     target_id = result_map["main-id"]
-    timestamp_N = tools.getTS(current_app.config)
+    ts = current_app.config["TS"]
+    timestamp_N = ts.getRecordunlock()
     timestamp_P = None
     item_id_head = None
     dbdata={}

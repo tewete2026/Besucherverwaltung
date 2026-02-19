@@ -3,7 +3,6 @@ from flask import Blueprint
 from flask import render_template
 from flask import current_app
 from flask import request
-from datetime import date
 import sys
 
 from .db import get_db
@@ -69,7 +68,8 @@ def ax_submit_quick_visiter():
     rc_code = {"status":"OK", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
     result = request.get_json()
     result_map = dict(result)
-    today=date.today()
+    ts = current_app.config["TS"]
+    today=ts.todaydate()
     newsletter = True
     if result_map["email"] is None:
         newsletter = False
@@ -108,7 +108,8 @@ def ax_get_visiter_edit():
     result = request.get_json()
     result_map = dict(result)
     visiter_id = result_map["main-id"]
-    timestamp_N = tools.getTS(current_app.config)
+    ts = current_app.config["TS"]
+    timestamp_N = ts.getRecordunlock()
     timestamp_P = None
     item_id_head = None
     dbdata={}

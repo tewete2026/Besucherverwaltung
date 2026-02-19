@@ -2,11 +2,6 @@ import mariadb
 from datetime import datetime
 from datetime import timedelta
 
-def getTS(config):
-    period = int(config["wait-for-unlock-record"])
-    ts = datetime.now() + timedelta(minutes=period)
-    return ts.strftime("%Y%m%d%H%M%S%f")
-
 def getParmMap(request):
     req_data_map = {}
     req_data = request.get_data(as_text=True)
