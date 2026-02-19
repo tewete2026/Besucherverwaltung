@@ -45,7 +45,7 @@ class Configure:
         ts = current_app.config["TS"]
         if self.credits["user"] is None: self.credits["user"] = "--"
         current_app.logger.info("%s started; Modname=%s; Remote-Addr=%s; Method=%s", title, current_app.name, request.remote_addr, request.method)
-        self.today=ts.today()
+        self.today=ts.todaydate()
         self.todaytime=ts.todaytime()
         self.timeformat=self.todaytime.strftime("%Y-%m-%dT%H:%M:%S")
         self.pag_type = pag_type
@@ -88,8 +88,8 @@ class TimeSet:
             delta = relativedelta(months=months)
         elif years is not None:
             delta = relativedelta(years=years)
-        if sub: ret = self.__dt.now() - delta
-        else: ret = self.__dt.now() + delta
+        if sub: ret = self.__dt.now().date() - delta
+        else: ret = self.__dt.now().date() + delta
         return ret
         
 
