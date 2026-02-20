@@ -5,9 +5,9 @@ Es können in dieser Pre-Version nur Veranstaltungen, Berater, Besucher verwalte
 
 ## Wichtig
 
-### Diese Version ist für Desktops optimiert. Für Tablets oder Smartphone Displays müssen bei Bedarf Anpassungen erfolgen
+### Diese Pre-Version ist für Desktops optimiert. Für Tablets oder Smartphone Displays müssen bei Bedarf Anpassungen erfolgen
 
-## PCafe Bersucherverwaltung – Funktionen
+## PCafe Bersucherverwaltung – (Funktionen der VBA-Version)
 
 ### Registrierung der Besucher
 
