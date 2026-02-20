@@ -1,4 +1,4 @@
-# Besucherverwaltung
+# Besucherverwaltung für PCafé
 
 Dieses ist zunächst ein Prototyp von Otto's VBA-Anwendung als webbasierte Ausführung.  
 Es können in dieser Version nur Veranstaltungen, Berater, Besucher verwaltet werden.
