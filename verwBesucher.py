@@ -10,13 +10,7 @@ from . import version
 
 bp = Blueprint("verwBesucher", __name__, url_prefix=f"/{version.Configs.APP_NAME}")
 
-@bp.after_app_request
-def add_security_headers(response):
-    response.headers['Cache-Control']='no-cache'
-    response.headers['Pragma']='no-cache'
-    return response
-
-@bp.route("/Verwalten-Besucher/", methods=['GET', 'POST'])
+@bp.route("/Verwalten-Besucher", methods=['GET', 'POST'])
 def main():
     if current_app.config["NO_POOL_AVAILABLE"]:
         return redirect(url_for("internal_server_error"))

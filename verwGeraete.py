@@ -9,12 +9,6 @@ from . import version
 
 bp = Blueprint("verwGeraete", __name__, url_prefix=f"/{version.Configs.APP_NAME}")
 
-@bp.after_app_request
-def add_security_headers(response):
-    response.headers['Cache-Control']='no-cache'
-    response.headers['Pragma']='no-cache'
-    return response
-
 @bp.route("/Verwalten-Geraete", methods=['GET', 'POST'])
 def main():
     if current_app.config["NO_POOL_AVAILABLE"]:

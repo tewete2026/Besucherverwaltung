@@ -62,6 +62,12 @@ def create_app(test_config="DEV"):
         NO_POOL_AVAILABLE=False
     )
 
+    @app.after_request
+    def add_several_headers(response):
+        response.headers['Cache-Control']='no-cache'
+        response.headers['Pragma']='no-cache'
+        return response
+
     @app.route("/")
     def default():
         return render_template("starter.html")
