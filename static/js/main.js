@@ -72,7 +72,15 @@ const tb_overview_coaches = this.document.getElementById("tb-overview-coaches");
 const tb_overview_visiter = this.document.getElementById("tb-overview-visiter");
 const tb_overview_devices = this.document.getElementById("tb-overview-devices");
 const tb_overview_targets = this.document.getElementById("tb-overview-targets");
-const table_overview = tb_overview_events ? tb_overview_events : tb_overview_coaches ? tb_overview_coaches : tb_overview_visiter ? tb_overview_visiter : tb_overview_devices ? tb_overview_devices : tb_overview_targets ? tb_overview_targets : null;
+const tb_overview_theme = this.document.getElementById("tb-overview-theme");
+const tb_overview_type = this.document.getElementById("tb-overview-veransttyp");
+const table_overview = tb_overview_events ? tb_overview_events : 
+                       tb_overview_coaches ? tb_overview_coaches : 
+                       tb_overview_visiter ? tb_overview_visiter : 
+                       tb_overview_devices ? tb_overview_devices : 
+                       tb_overview_targets ? tb_overview_targets : 
+                       tb_overview_theme ? tb_overview_theme : 
+                       tb_overview_type ? tb_overview_type : null;
 const table_overview_body = table_overview ? table_overview.tBodies[0] : null;
 
 const tb_coached_themes = this.document.getElementById("tb-coached-themes");
@@ -87,11 +95,6 @@ const coaches_themes_elem_map = new Coaches_Elements(frm_main_coached_themes, tb
 const coaches_info_elem_map = new Coaches_Elements(frm_main_info_themes, tb_info_themes);
 const coaches_devices_elem_map = new Coaches_Elements(frm_main_coached_devices, tb_coached_devices);
 const coaches_devices_map = new Coaches_Elements(frm_main_coaches, tb_coaches);
-
-// const fillOverwiewParms = {"url":HTTP.getURL("ax-get-events-overview/"), "table_target":table_overview_body, "setClickEvent":setClickEventVeranst, "label":"Veranstaltungen"};
-// const fillOverwiewParms = {"url":HTTP.getURL("ax-get-coaches-overview/"), "table_target":table_overview, "setClickEvent":setClickEventCoaches, "label":"Berater"};
-// const fillOverwiewParms = {"url":HTTP.getURL("ax-get-visiter-overview/"), "table_target":table_overview_body, "setClickEvent":setClickEventVisiter, "label":"Besucher"};
-// const fillOverwiewParms = {"url":HTTP.getURL("ax-get-devices-overview/"), "table_target":table_overview, "setClickEvent":setClickEventDevices, "label":"Geräte"};
 
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -166,22 +169,22 @@ window.addEventListener('load', () => {
     if (page_pag_back.classList.contains("disabled")) return false;
     const overview_page = parseInt(extStorage.getItem("overview-page", "1"));
     extStorage.setItem("overview-page", overview_page - 1);
-    fillOverwiew();
+    fillOverview();
   });
   page_pag_start.addEventListener("click", (event) => {
     if (page_pag_start.classList.contains("disabled")) return false;
     extStorage.setItem("overview-page", 1);
-    fillOverwiew();
+    fillOverview();
   });
   page_pag_forw.addEventListener("click", (event) => {
     if (page_pag_forw.classList.contains("disabled")) return false;
     const overview_page = parseInt(extStorage.getItem("overview-page", "1"));
     extStorage.setItem("overview-page", overview_page + 1);
-    fillOverwiew();
+    fillOverview();
   });
   
   /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
-  fillOverwiew();
+  fillOverview();
   env_init();
 });
 
@@ -304,7 +307,7 @@ function fillCoaches(is_collect, elem_map, frm_main_nbr, table_source, static_na
 /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
 /* -----Füllen der Übersichtsspalte mit Blätterfunktion---------------------------------------------------------------------------------------------*/
 /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
-async function fillOverwiew() {
+async function fillOverview() {
   const overview_search = extStorage.getItem("overview-search-item", "ALL");
   const overview_page = extStorage.getItem("overview-page", "1");
   const submit_map = new SubmitParm([["overview-search", overview_search], ["overview-page", overview_page]]);
@@ -794,7 +797,7 @@ function searchOverview(event) {
     else if (frm_main_bezeichnung) frm_main_bezeichnung.focus();
     extStorage.setItem("overview-search-item", frm_pag_search.value);
     extStorage.removeItem("overview-page");
-    fillOverwiew();
+    fillOverview();
   }
 }
 
@@ -1261,6 +1264,14 @@ async function setClickForEdit(event) {
         events_elem_map.append(elem.VeranstID.toString(), [elem.id.toString(), elem.datum.toString(), elem.Bezeichnung, elem.ort], elem.WL);
       }
       events_elem_map.commit();
+    }
+    if (typeof result_data.theme !== 'undefined') {
+      extStorage.setItem("frm-main-id", result_data.theme.id);
+      extStorage.setItem("frm-main-bezeichnung", result_data.theme.bezeichnung);
+    }
+    if (typeof result_data.veransttyp !== 'undefined') {
+      extStorage.setItem("frm-main-id", result_data.veransttyp.id);
+      extStorage.setItem("frm-main-bezeichnung", result_data.veransttyp.Bezeichnung);
     }
     if (typeof result_data.device !== 'undefined') {
       extStorage.setItem("frm-main-id", result_data.device.id);

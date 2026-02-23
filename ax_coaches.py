@@ -85,10 +85,10 @@ def ax_get_coaches_overview():
     sql_parms = ""
     if overview_search is not None and len(overview_search) > 0 and overview_search != "ALL":
         if overview_search.isnumeric():
-            sql_parms = f"WHERE id={overview_search}"
+            sql_parms = f"WHERE a.id={overview_search}"
         elif not overview_search.isspace():
             search_like = "'%" +  overview_search + "%'"
-            sql_parms = f"WHERE (vorname like {search_like} or nachname like {search_like})"
+            sql_parms = f"WHERE (Vorname like {search_like} or Nachname like {search_like})"
 
     dbdata={}
     try:

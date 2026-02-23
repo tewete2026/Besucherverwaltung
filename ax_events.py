@@ -117,7 +117,7 @@ def ax_get_events_overview():
     sql_parms = ""
     if overview_search is not None and len(overview_search) > 0 and overview_search != "ALL":
         if not overview_search.isspace():
-            sql_parms = f"WHERE Datum<='{overview_search}'"
+            sql_parms = f"WHERE a.datum<='{overview_search}'"
 
     dbdata={}
     try:
