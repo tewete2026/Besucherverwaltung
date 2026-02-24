@@ -5,6 +5,7 @@ from flask import current_app
 from flask import request
 import sys
 
+from .ax_default import mx_get_overview
 from .db import get_db
 from . import version
 
@@ -74,49 +75,9 @@ def ax_get_coaches_edit():
 
 @bp.route("/ax-get-coaches-overview/", methods=['POST'])
 def ax_get_coaches_overview():
-    result_map = dict(request.get_json())
-    rc_code = {"status":"OK", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
-    overview_search = result_map["overview-search"]
-    overview_page = int(result_map["overview-page"])
-    overview_maxlines = int(current_app.config["max-line-overview"])
-    overview_offset = (overview_page - 1) * overview_maxlines
-    overview_readlines = overview_maxlines + 1
-
-    sql_parms = ""
-    if overview_search is not None and len(overview_search) > 0 and overview_search != "ALL":
-        if overview_search.isnumeric():
-            sql_parms = f"WHERE a.id={overview_search}"
-        elif not overview_search.isspace():
-            search_like = "'%" +  overview_search + "%'"
-            sql_parms = f"WHERE (Vorname like {search_like} or Nachname like {search_like})"
-
-    dbdata={}
-    try:
-        db = get_db()
-        if not db:
-            raise mariadb.PoolError()
-        cur = db.cursor(dictionary=True)
-        is_more_lines = False
-
-        cur.execute(f"SELECT a.id,Vorname,Nachname,IF(Telefon='','--',Telefon) as Telefon,IFNULL(EMail,'--') as EMail,IFNULL(Mobil,'--') as Mobil,IF(Aktiv=TRUE,'**','-') as Aktiv \
-                    from tBerater a \
-                    {sql_parms} \
-                    ORDER BY a.Nachname, a.Vorname LIMIT {overview_offset}, {overview_readlines}")
-        dbdata.update({"coaches":cur.fetchall()})
-        len_vis = len(dbdata["coaches"])
-        show_lines = len_vis
-        if len_vis > overview_maxlines:
-            show_lines = overview_maxlines
-            is_more_lines = True
-            
-        rc_code["html"] = render_template("verwBerater_body.html", coaches=dbdata["coaches"][0:show_lines])
-        rc_code["pagination"] = is_more_lines
-        cur.close()
-        db.close()
-    except mariadb.Error as err:
-        db.close()
-        current_app.logger.error("Datenbank-Fehler: %s/%s", bp.name, err)
-        rc_code["status"] = "ERR"
+    rc_code = mx_get_overview(request, current_app, html_template_body="verwBerater_body.html", 
+                              sql=["SELECT a.id,Vorname,Nachname,IF(Telefon='','--',Telefon) as Telefon,IFNULL(EMail,'--') as EMail,IFNULL(Mobil,'--') as Mobil,IF(Aktiv=TRUE,'**','-') as Aktiv from tBerater a", 
+                                   "ORDER BY a.Nachname, a.Vorname"], search_field=["Vorname", "Nachname"])
 
     return rc_code
 

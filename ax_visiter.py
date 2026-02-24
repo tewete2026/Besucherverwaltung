@@ -5,6 +5,7 @@ from flask import current_app
 from flask import request
 import sys
 
+from .ax_default import mx_get_overview
 from .db import get_db
 from . import version
 from . import tools
@@ -211,51 +212,11 @@ def ax_submit_visiter_release():
 
 @bp.route("/ax-get-visiter-overview/", methods=['POST'])
 def ax_get_visiter_overview():
-    result_map = dict(request.get_json())
-    rc_code = {"status":"OK", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
-    overview_search = result_map["overview-search"]
-    overview_page = int(result_map["overview-page"])
-    overview_maxlines = int(current_app.config["max-line-overview"])
-    overview_offset = (overview_page - 1) * overview_maxlines
-    overview_readlines = overview_maxlines + 1
-
-    sql_parms = ""
-    if overview_search is not None and len(overview_search) > 0 and overview_search != "ALL":
-        if overview_search.isnumeric():
-            sql_parms = f"WHERE a.KundenNr={overview_search}"
-        elif not overview_search.isspace():
-            search_like = "'%" +  overview_search + "%'"
-            sql_parms = f"WHERE (a.Vorname like {search_like} or a.Nachname like {search_like})"
-
-    dbdata={}
-    try:
-        db = get_db()
-        if not db:
-            raise mariadb.PoolError()
-        cur = db.cursor(dictionary=True)
-        is_more_lines = False
-
-        cur.execute(f"SELECT a.id,a.KundenNr,a.Vorname,a.Nachname,IF(a.Telefon='','--',Telefon) as Telefon,IFNULL(a.EMail,'--') as EMail, \
-                    DATE_FORMAT(DATE(a.AufnDatum),'%d.%m.%Y') as datum,IFNULL(b.anzahl,'--') as Anzahl \
-                    from tBesucher a \
-                    left join (select g.BesucherID,count(*) as anzahl from (select VeranstID,BesucherID from tBesuche group by BesucherID,VeranstID) g group by g.BesucherID) b ON a.id=b.BesucherID \
-                    {sql_parms} \
-                    ORDER BY a.AufnDatum DESC LIMIT {overview_offset}, {overview_readlines}")
-        dbdata.update({"visiters":cur.fetchall()})
-        len_vis = len(dbdata["visiters"])
-        show_lines = len_vis
-        if len_vis > overview_maxlines:
-            show_lines = overview_maxlines
-            is_more_lines = True
-            
-        rc_code["html"] = render_template("verwBesucher_body.html", visiters=dbdata["visiters"][0:show_lines])
-        rc_code["pagination"] = is_more_lines
-        cur.close()
-        db.close()
-    except mariadb.Error as err:
-        db.close()
-        current_app.logger.error("Datenbank-Fehler: %s/%s", bp.name, err)
-        rc_code["status"] = "ERR"
+    rc_code = mx_get_overview(request, current_app, html_template_body="verwBesucher_body.html", 
+                              sql=["SELECT a.id,a.KundenNr,a.Vorname,a.Nachname,IF(a.Telefon='','--',Telefon) as Telefon,IFNULL(a.EMail,'--') as EMail, \
+                    DATE_FORMAT(DATE(a.AufnDatum),'%d.%m.%Y') as datum,IFNULL(b.anzahl,'--') as Anzahl from tBesucher a \
+                    left join (select g.BesucherID,count(*) as anzahl from (select VeranstID,BesucherID from tBesuche group by BesucherID,VeranstID) g group by g.BesucherID) b ON a.id=b.BesucherID", 
+                    "ORDER BY a.AufnDatum DESC"], search_field=["a.Vorname", "a.Nachname"], primary="KundenNr")
 
     return rc_code
 
