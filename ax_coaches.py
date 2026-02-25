@@ -1,11 +1,10 @@
-import mariadb
+import mariadb, sys
 from flask import Blueprint
 from flask import render_template
 from flask import current_app
 from flask import request
-import sys
 
-from .ax_default import mx_get_overview
+from .ax_default import mx_get_overview, mx_submit_release
 from .db import get_db
 from . import version
 
@@ -78,53 +77,12 @@ def ax_get_coaches_overview():
     rc_code = mx_get_overview(request, current_app, html_template_body="verwBerater_body.html", 
                               sql=["SELECT a.id,Vorname,Nachname,IF(Telefon='','--',Telefon) as Telefon,IFNULL(EMail,'--') as EMail,IFNULL(Mobil,'--') as Mobil,IF(Aktiv=TRUE,'**','-') as Aktiv from tBerater a", 
                                    "ORDER BY a.Nachname, a.Vorname"], search_field=["Vorname", "Nachname"])
-
     return rc_code
 
 
 @bp.route("/ax-submit-coaches-release/", methods=['POST'])
 def ax_submit_coaches_release():
-    result = request.get_json()
-    current_app.logger.info("Empfangene Daten: " + request.headers.get('Content-Type') + "; Remote-Addr=" + request.remote_addr + "; Method=" + request.method + "; Content-length=" + str(request.content_length) + "; Remote-User=" + str(request.remote_user))
-    rc_code = {"status":"OK", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
-    try:
-        berater_id = None
-        berater_timestamp = None
-        for pkey, parm in result:
-            if pkey == "item-id":
-                berater_id = parm
-            elif pkey == "item-timestamp":
-                berater_timestamp = parm
-        try:
-            db = get_db()
-            if not db:
-                raise mariadb.PoolError()
-            db.begin()
-            cur = db.cursor(dictionary=True)
-
-            if berater_id is not None:
-                rc_code["id"] = berater_id
-                cur.execute("SELECT IFNULL(sperre,'IGNORE') as sperre FROM tBerater WHERE id=? FOR UPDATE", (berater_id,))
-                timestamp = str(cur.fetchone()["sperre"])
-                if timestamp == berater_timestamp:
-                    cur.execute("update tBerater set sperre=null where id=? and sperre=?", (berater_id, berater_timestamp))
-                    current_app.logger.debug("RELEASE: Timestamp entfernt. Id=%s, Timestamp=%s, RowCount=%s, Warnings=%s", berater_id, berater_timestamp, cur.rowcount, cur.warnings)
-                else:
-                    rc_code["status"] = "IGNORE"
-            db.commit()
-            cur.close()
-            db.close()
-        except mariadb.Error as err:
-            current_app.logger.error("Datenbank-Fehler: %s/ax-submit-berater-release/%s", bp.name, err)
-            rc_code["status"] = "ERR"
-            db.rollback()
-            db.close()
-            current_app.logger.error("Datenbank-Rollback")
-    except:
-        (type, value, traceback) = sys.exc_info()
-        current_app.logger.critical("Unexpected error: Type=%s; Exception=%s; Trace-Line=%s",type, value, traceback.tb_lineno)
-        rc_code["status"] = "ERR"
-
+    rc_code = mx_submit_release(request, current_app, table_name="tBerater")
     return rc_code
 
 

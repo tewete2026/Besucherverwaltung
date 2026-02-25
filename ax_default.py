@@ -1,4 +1,4 @@
-import mariadb, re
+import mariadb, re, sys
 from flask import Blueprint
 from flask import render_template
 from flask import current_app
@@ -77,7 +77,53 @@ def mx_get_overview(request, current_app, **kwargs):
         db.close()
     except mariadb.Error as err:
         db.close()
-        current_app.logger.error("Datenbank-Fehler: %s/%s", bp.name, err)
+        current_app.logger.error("Datenbank-Fehler: %s/mx_get_overview/%s", bp.name, err)
+        rc_code["status"] = "ERR"
+
+    return rc_code
+
+
+def mx_submit_release(request, current_app, **kwargs):
+    table_name = kwargs['table_name']
+    result = request.get_json()
+    current_app.logger.info("Empfangene Daten: " + request.headers.get('Content-Type') + "; Remote-Addr=" + request.remote_addr + "; Method=" + request.method + "; Content-length=" + str(request.content_length) + "; Remote-User=" + str(request.remote_user))
+    rc_code = {"status":"OK", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
+    try:
+        item_id = None
+        item_timestamp = None
+        for pkey, parm in result:
+            if pkey == "item-id":
+                item_id = parm
+            elif pkey == "item-timestamp":
+                item_timestamp = parm
+        try:
+            db = get_db()
+            if not db:
+                raise mariadb.PoolError()
+            db.begin()
+            cur = db.cursor(dictionary=True)
+
+            if item_id is not None:
+                rc_code["id"] = item_id
+                cur.execute("SELECT IFNULL(sperre,'IGNORE') as sperre FROM ? WHERE id=? FOR UPDATE", (table_name, item_id))
+                timestamp = str(cur.fetchone()["sperre"])
+                if timestamp == item_timestamp:
+                    cur.execute("update ? set sperre=null where id=? and sperre=?", (table_name, item_id, item_timestamp))
+                    current_app.logger.debug("RELEASE: Timestamp in %s entfernt. Id=%s, Timestamp=%s, RowCount=%s, Warnings=%s", table_name, item_id, item_timestamp, cur.rowcount, cur.warnings)
+                else:
+                    rc_code["status"] = "IGNORE"
+            db.commit()
+            cur.close()
+            db.close()
+        except mariadb.Error as err:
+            current_app.logger.error("Datenbank-Fehler: %s/mx_submit_release/%s", bp.name, err)
+            rc_code["status"] = "ERR"
+            db.rollback()
+            db.close()
+            current_app.logger.error("Datenbank-Rollback")
+    except:
+        (type, value, traceback) = sys.exc_info()
+        current_app.logger.critical("Unexpected error: Type=%s; Exception=%s; Trace-Line=%s",type, value, traceback.tb_lineno)
         rc_code["status"] = "ERR"
 
     return rc_code

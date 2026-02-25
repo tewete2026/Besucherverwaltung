@@ -1,11 +1,10 @@
-import mariadb
+import mariadb, sys
 from flask import Blueprint
 from flask import render_template
 from flask import current_app
 from flask import request
-import sys
 
-from .ax_default import mx_get_overview
+from .ax_default import mx_get_overview, mx_submit_release
 from .db import get_db
 from . import version
 from . import tools
@@ -166,47 +165,7 @@ def ax_get_visiter_edit():
 
 @bp.route("/ax-submit-visiter-release/", methods=['POST'])
 def ax_submit_visiter_release():
-    result = request.get_json()
-    current_app.logger.info("Empfangene Daten: " + request.headers.get('Content-Type') + "; Remote-Addr=" + request.remote_addr + "; Method=" + request.method + "; Content-length=" + str(request.content_length) + "; Remote-User=" + str(request.remote_user))
-    rc_code = {"status":"OK", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
-    try:
-        besucher_id = None
-        besucher_timestamp = None
-        for pkey, parm in result:
-            if pkey == "item-id":
-                besucher_id = parm
-            elif pkey == "item-timestamp":
-                besucher_timestamp = parm
-        try:
-            db = get_db()
-            if not db:
-                raise mariadb.PoolError()
-            db.begin()
-            cur = db.cursor(dictionary=True)
-
-            if besucher_id is not None:
-                rc_code["id"] = besucher_id
-                cur.execute("SELECT IFNULL(sperre,'IGNORE') as sperre FROM tBesucher WHERE id=? FOR UPDATE", (besucher_id,))
-                timestamp = str(cur.fetchone()["sperre"])
-                if timestamp == besucher_timestamp:
-                    cur.execute("update tBesucher set sperre=null where id=? and sperre=?", (besucher_id, besucher_timestamp))
-                    current_app.logger.debug("RELEASE: Timestamp entfernt. Id=%s, Timestamp=%s, RowCount=%s, Warnings=%s", besucher_id, besucher_timestamp, cur.rowcount, cur.warnings)
-                else:
-                    rc_code["status"] = "IGNORE"
-            db.commit()
-            cur.close()
-            db.close()
-        except mariadb.Error as err:
-            current_app.logger.error("Datenbank-Fehler: %s/ax-submit-besucher-release/%s", bp.name, err)
-            rc_code["status"] = "ERR"
-            db.rollback()
-            db.close()
-            current_app.logger.error("Datenbank-Rollback")
-    except:
-        (type, value, traceback) = sys.exc_info()
-        current_app.logger.critical("Unexpected error: Type=%s; Exception=%s; Trace-Line=%s",type, value, traceback.tb_lineno)
-        rc_code["status"] = "ERR"
-
+    rc_code = mx_submit_release(request, current_app, table_name="tBesucher")
     return rc_code
 
 
@@ -217,7 +176,6 @@ def ax_get_visiter_overview():
                     DATE_FORMAT(DATE(a.AufnDatum),'%d.%m.%Y') as datum,IFNULL(b.anzahl,'--') as Anzahl from tBesucher a \
                     left join (select g.BesucherID,count(*) as anzahl from (select VeranstID,BesucherID from tBesuche group by BesucherID,VeranstID) g group by g.BesucherID) b ON a.id=b.BesucherID", 
                     "ORDER BY a.AufnDatum DESC"], search_field=["a.Vorname", "a.Nachname"], primary="KundenNr")
-
     return rc_code
 
 

@@ -1,11 +1,10 @@
-import mariadb
+import mariadb, sys
 from flask import Blueprint
 from flask import render_template
 from flask import current_app
 from flask import request
-import sys
 
-from .ax_default import mx_get_overview
+from .ax_default import mx_get_overview, mx_submit_release
 from .db import get_db
 from . import version
 
@@ -72,53 +71,12 @@ def ax_get_targets_overview():
                               sql=["SELECT a.id,a.Bezeichnung,IFNULL(a.MaxBesucher,'--') as MaxBesucher,IFNULL(c.anzahl_veranst,'--') as anzahl_veranst from tOrte a \
                     left join (select Ort,count(id) as anzahl_veranst from tVeranst group by Ort) c on c.Ort=a.id", 
                     "ORDER BY a.Bezeichnung"], search_field=["a.Bezeichnung"])
-
     return rc_code
 
 
 @bp.route("/ax-submit-targets-release/", methods=['POST'])
 def ax_submit_targets_release():
-    result = request.get_json()
-    current_app.logger.info("Empfangene Daten: " + request.headers.get('Content-Type') + "; Remote-Addr=" + request.remote_addr + "; Method=" + request.method + "; Content-length=" + str(request.content_length) + "; Remote-User=" + str(request.remote_user))
-    rc_code = {"status":"OK", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
-    try:
-        orte_id = None
-        item_timestamp = None
-        for pkey, parm in result:
-            if pkey == "item-id":
-                orte_id = parm
-            elif pkey == "item-timestamp":
-                item_timestamp = parm
-        try:
-            db = get_db()
-            if not db:
-                raise mariadb.PoolError()
-            db.begin()
-            cur = db.cursor(dictionary=True)
-
-            if orte_id is not None:
-                rc_code["id"] = orte_id
-                cur.execute("SELECT IFNULL(sperre,'IGNORE') as sperre FROM tOrte WHERE id=? FOR UPDATE", (orte_id,))
-                timestamp = str(cur.fetchone()["sperre"])
-                if timestamp == item_timestamp:
-                    cur.execute("update tOrte set sperre=null where id=? and sperre=?", (orte_id, item_timestamp))
-                    current_app.logger.debug("RELEASE: Timestamp entfernt. Id=%s, Timestamp=%s, RowCount=%s, Warnings=%s", orte_id, item_timestamp, cur.rowcount, cur.warnings)
-                else:
-                    rc_code["status"] = "IGNORE"
-            db.commit()
-            cur.close()
-            db.close()
-        except mariadb.Error as err:
-            current_app.logger.error("Datenbank-Fehler: %s/ax-submit-targets-release/%s", bp.name, err)
-            rc_code["status"] = "ERR"
-            db.rollback()
-            db.close()
-            current_app.logger.error("Datenbank-Rollback")
-    except:
-        (type, value, traceback) = sys.exc_info()
-        current_app.logger.critical("Unexpected error: Type=%s; Exception=%s; Trace-Line=%s",type, value, traceback.tb_lineno)
-        rc_code["status"] = "ERR"
-
+    rc_code = mx_submit_release(request, current_app, table_name="tOrte")
     return rc_code
 
 
