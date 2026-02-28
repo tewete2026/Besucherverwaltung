@@ -4,7 +4,7 @@ from flask import render_template
 from flask import current_app
 from flask import request
 
-from .ax_default import mx_get_overview, mx_submit_release
+from .ax_default import mx_get_overview, mx_submit_release, mx_get_edit
 from .db import get_db
 from . import version
 from . import tools
@@ -105,62 +105,16 @@ def ax_submit_quick_visiter():
 
 @bp.route("/ax-get-visiter-edit/", methods=['POST'])
 def ax_get_visiter_edit():
-    result = request.get_json()
-    result_map = dict(result)
-    visiter_id = result_map["main-id"]
-    ts = current_app.config["TS"]
-    timestamp_N = ts.getRecordunlock()
-    timestamp_P = None
-    item_id_head = None
-    dbdata={}
-    try:
-        dbdata.update({"status":"OK"})
-        db = get_db()
-        if not db:
-            raise mariadb.PoolError()
-        db.begin()
-        cur = db.cursor(dictionary=True)
-        
-        if "timestamp" in result_map:
-            timestamp_P = result_map["timestamp"]
-        if "item_id_head" in result_map:
-            item_id_head = result_map["item_id_head"]
-            if timestamp_P is not None and item_id_head != visiter_id:
-                """ Vorherige Besucher-ID entsperren """
-                cur.execute("update tBesucher set sperre=null where id=? and sperre IS NOT NULL and sperre=?", (item_id_head, timestamp_P))
-                current_app.logger.debug("Vorherige Sperre=%s für Besucher=%s aufgehoben.", timestamp_P, item_id_head)
-            
-        cur.execute("UPDATE tBesucher SET Sperre=? WHERE Sperre IS NULL AND id=?", (timestamp_N, visiter_id))
-        db.commit()
-        cur.execute("SELECT id,KundenNr,sperre,Nachname,Vorname,IFNULL(Anrede,-1) as Anrede,IFNULL(Strasse,'') as Strasse,IFNULL(Ort,'') as Ort,IFNULL(PLZ,'') as PLZ,IFNULL(EMail,'') as EMail,Telefon,\
-                    IF(Aktiv=TRUE,TRUE,FALSE) as Aktiv,IF(Newsletter=TRUE,TRUE,FALSE) as Newsletter,IFNULL(Bemerkung,'') as Bemerkung,DATE_FORMAT(DATE(AufnDatum),'%Y-%m-%d') as datum \
-                    FROM tBesucher WHERE id=?", (visiter_id,))
-        dbdata.update({"visiter":cur.fetchone()})
-
-        act_timestamp = str(dbdata["visiter"]["sperre"])
-        if act_timestamp == timestamp_N:
-            dbdata.update({"timestamp":timestamp_N})
-            current_app.logger.debug("Neue Sperre=%s für Besucher=%s eingerichtet.", timestamp_N, visiter_id)
-        elif timestamp_P is not None and act_timestamp == timestamp_P:
-            dbdata.update({"timestamp":timestamp_P})
-        else:
-            dbdata.update({"status":"LCK"})
-
-        cur.execute("SELECT distinct a.id,a.VeranstID,b.Bezeichnung,IFNULL(c.Bezeichnung,'--') as ort,DATE_FORMAT(DATE(b.Datum),'%d.%m.%Y') as datum, \
+    queries={}
+    queries['events'] = {'sql':"SELECT distinct a.id,a.VeranstID,b.Bezeichnung,IFNULL(c.Bezeichnung,'--') as ort,DATE_FORMAT(DATE(b.Datum),'%d.%m.%Y') as datum, \
                     IF(a.BesucherWL=true,true,false) as WL \
                     FROM tBesuche a \
                     JOIN tVeranst b ON a.VeranstID=b.id \
                     LEFT JOIN tOrte c ON b.Ort=c.id \
-                    WHERE a.BesucherID=? ORDER BY b.id DESC", (visiter_id,))
-        dbdata.update({"events":cur.fetchall()})
-        
-        cur.close()
-        db.close()
-    except mariadb.Error as err:
-        current_app.logger.error("Datenbank-Fehler: %s/ax-get-visiter-edit/%s/%s", bp.name, visiter_id, err)
-        dbdata.update({"status":"ERR"})
-
-    return dbdata
+                    WHERE a.BesucherID=? ORDER BY b.id DESC"}
+    select_field = "KundenNr,Nachname,Vorname,IFNULL(Anrede,-1) as Anrede,IFNULL(Strasse,'') as Strasse,IFNULL(Ort,'') as Ort,IFNULL(PLZ,'') as PLZ,IFNULL(EMail,'') as EMail,Telefon,\
+                    IF(Aktiv=TRUE,TRUE,FALSE) as Aktiv,IF(Newsletter=TRUE,TRUE,FALSE) as Newsletter,IFNULL(Bemerkung,'') as Bemerkung,DATE_FORMAT(DATE(AufnDatum),'%Y-%m-%d') as datum"
+    return mx_get_edit(request, current_app, table_name="tBesucher", data_key="visiter", queries=queries, select_field=select_field)
 
 
 @bp.route("/ax-submit-visiter-release/", methods=['POST'])

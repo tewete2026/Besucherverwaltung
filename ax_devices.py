@@ -4,7 +4,7 @@ from flask import render_template
 from flask import current_app
 from flask import request
 
-from .ax_default import mx_get_overview, mx_submit_release
+from .ax_default import mx_get_overview, mx_submit_release, mx_get_edit
 from .db import get_db
 from . import version
 
@@ -13,57 +13,10 @@ bp = Blueprint("ax_devices", __name__, url_prefix=f"/{version.Configs.APP_NAME}"
 
 @bp.route("/ax-get-devices-edit/", methods=['POST'])
 def ax_get_devices_edit():
-    result = request.get_json()
-    result_map = dict(result)
-    device_id = result_map["main-id"]
-    ts = current_app.config["TS"]
-    timestamp_N = ts.getRecordunlock()
-    timestamp_P = None
-    item_id_head = None
-    dbdata={}
-    try:
-        dbdata.update({"status":"OK"})
-        db = get_db()
-        if not db:
-            raise mariadb.PoolError()
-        db.begin()
-        cur = db.cursor(dictionary=True)
-        
-        if "timestamp" in result_map:
-            timestamp_P = result_map["timestamp"]
-        if "item_id_head" in result_map:
-            item_id_head = result_map["item_id_head"]
-            if timestamp_P is not None and item_id_head != device_id:
-                """ Vorherige Geräte-ID entsperren """
-                cur.execute("update tGeraete set sperre=null where id=? and sperre IS NOT NULL and sperre=?", (item_id_head, timestamp_P))
-                current_app.logger.debug("Vorherige Sperre=%s für Gerät=%s aufgehoben.", timestamp_P, item_id_head)
-            
-        cur.execute("UPDATE tGeraete SET Sperre=? WHERE Sperre IS NULL AND id=?", (timestamp_N, device_id))
-        db.commit()
-        cur.execute("SELECT id,sperre,Bezeichnung FROM tGeraete WHERE id=?", (device_id,))
-        dbdata.update({"device":cur.fetchone()})
-
-        act_timestamp = str(dbdata["device"]["sperre"])
-        if act_timestamp == timestamp_N:
-            dbdata.update({"timestamp":timestamp_N})
-            current_app.logger.debug("Neue Sperre=%s für Gerät=%s eingerichtet.", timestamp_N, device_id)
-        elif timestamp_P is not None and act_timestamp == timestamp_P:
-            dbdata.update({"timestamp":timestamp_P})
-        else:
-            dbdata.update({"status":"LCK"})
-        
-        cur.execute("SELECT a.id,a.BeraterID,b.Vorname,b.Nachname,IFNULL(b.Telefon,'--') as Telefon,IFNULL(b.EMail,'--') as EMail FROM tBeraterGer a \
-                     join tBerater b on b.id=a.BeraterID \
-                     WHERE GeraeteID=? ", (device_id,))
-        dbdata.update({"coached_devices":cur.fetchall()})
-
-        cur.close()
-        db.close()
-    except mariadb.Error as err:
-        current_app.logger.error("Datenbank-Fehler: %s/ax-get-devices-edit/%s/%s", bp.name, device_id, err)
-        dbdata.update({"status":"ERR"})
-
-    return dbdata
+    queries={}
+    queries['coached_devices'] = {'sql':"SELECT a.id,a.BeraterID,b.Vorname,b.Nachname,IFNULL(b.Telefon,'--') as Telefon,IFNULL(b.EMail,'--') as EMail FROM tBeraterGer a \
+                     join tBerater b on b.id=a.BeraterID WHERE GeraeteID=?"}
+    return mx_get_edit(request, current_app, table_name="tGeraete", data_key="device", queries=queries, select_field="Bezeichnung")
 
 
 @bp.route("/ax-get-devices-overview/", methods=['POST'])

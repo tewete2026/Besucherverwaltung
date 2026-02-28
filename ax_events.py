@@ -5,7 +5,7 @@ from flask import request
 from flask import render_template
 from dateutil import parser
 
-from .ax_default import mx_get_overview, mx_submit_release
+from .ax_default import mx_get_overview, mx_submit_release, mx_get_edit
 from .db import get_db
 from . import version
 
@@ -13,59 +13,12 @@ bp = Blueprint("ax_events", __name__, url_prefix=f"/{version.Configs.APP_NAME}")
 
 @bp.route("/ax-get-events-edit/", methods=['POST'])
 def ax_get_veranst_edit():
-    result = request.get_json()
-    result_map = dict(result)
-    main_id = result_map["main-id"]
-    ts = current_app.config["TS"]
-    timestamp_N = ts.getRecordunlock()
-    timestamp_P = None
-
-    dbdata={}
-    try:
-        dbdata.update({"status":"OK"})
-        db = get_db()
-        if not db:
-            raise mariadb.PoolError()
-        db.begin()
-        cur = db.cursor(dictionary=True)
-        
-        if "timestamp" in result_map:
-            timestamp_P = result_map["timestamp"]
-        if "item_id_head" in result_map:
-            item_id_head = result_map["item_id_head"]
-            if timestamp_P is not None and item_id_head != main_id:
-                """ Vorherige Besucher-ID entsperren """
-                cur.execute("update tVeranst set sperre=null where id=? and sperre IS NOT NULL and sperre=?", (item_id_head, timestamp_P))
-                current_app.logger.debug("Vorherige Sperre=%s für Veranst=%s aufgehoben.", timestamp_P, item_id_head)
-            
-        cur.execute("UPDATE tVeranst SET Sperre=? WHERE Sperre IS NULL AND id=?", (timestamp_N, main_id))
-        db.commit()
-        cur.execute("SELECT id,sperre,typ,IFNULL(ort,-1) as ort,DATE_FORMAT(DATE(datum),'%Y-%m-%d') as datum,von,bis,dauer,IFNULL(thema,-1) as thema \
-                    FROM tVeranst WHERE id=?", (main_id,))
-        dbdata.update({"veranst":cur.fetchone()})
-
-        act_timestamp = str(dbdata["veranst"]["sperre"])
-        if act_timestamp == timestamp_N:
-            dbdata.update({"timestamp":timestamp_N})
-            current_app.logger.debug("Neue Sperre=%s für Veranst=%s eingerichtet.", timestamp_N, main_id)
-        elif timestamp_P is not None and act_timestamp == timestamp_P:
-            dbdata.update({"timestamp":timestamp_P})
-        else:
-            dbdata.update({"status":"LCK"})
-
-        cur.execute("SELECT id,BeraterID FROM tBeraterVer WHERE VeranstID=?", (main_id,))
-        dbdata.update({"berater":cur.fetchall()})
-        cur.execute("SELECT id,BesucherID,IFNULL(ThemenID,-1) as ThemenID,IFNULL(GeraeteID,-1) as GeraeteID,spende,IF(BesucherWL=true,true,false) as BesucherWL \
-                    FROM tBesuche WHERE VeranstID=?", (main_id,))
-        dbdata.update({"besucher":cur.fetchall()})
-        
-        cur.close()
-        db.close()
-    except mariadb.Error as err:
-        current_app.logger.error("Datenbank-Fehler: %s/ax-get-veranst-edit/%s/%s", bp.name, main_id, err)
-        dbdata.update({"status":"ERR"})
-
-    return dbdata
+    queries={}
+    queries['berater'] = {'sql':"SELECT id,BeraterID FROM tBeraterVer WHERE VeranstID=?"}
+    queries['besucher'] = {'sql':"SELECT id,BesucherID,IFNULL(ThemenID,-1) as ThemenID,IFNULL(GeraeteID,-1) as GeraeteID,spende,IF(BesucherWL=true,true,false) as BesucherWL \
+                    FROM tBesuche WHERE VeranstID=?"}
+    select_field = "typ,IFNULL(ort,-1) as ort,DATE_FORMAT(DATE(datum),'%Y-%m-%d') as datum,von,bis,dauer,IFNULL(thema,-1) as thema"
+    return mx_get_edit(request, current_app, table_name="tVeranst", data_key="veranst", queries=queries, select_field=select_field)
 
 
 @bp.route("/ax-check-veranstort/", methods=['POST'])

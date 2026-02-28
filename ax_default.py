@@ -105,10 +105,10 @@ def mx_submit_release(request, current_app, **kwargs):
 
             if item_id is not None:
                 rc_code["id"] = item_id
-                cur.execute("SELECT IFNULL(sperre,'IGNORE') as sperre FROM ? WHERE id=? FOR UPDATE", (table_name, item_id))
+                cur.execute(f"SELECT IFNULL(sperre,'IGNORE') as sperre FROM {table_name} WHERE id=? FOR UPDATE", (item_id,))
                 timestamp = str(cur.fetchone()["sperre"])
                 if timestamp == item_timestamp:
-                    cur.execute("update ? set sperre=null where id=? and sperre=?", (table_name, item_id, item_timestamp))
+                    cur.execute(f"update {table_name} set sperre=null where id=? and sperre=?", (item_id, item_timestamp))
                     current_app.logger.debug("RELEASE: Timestamp in %s entfernt. Id=%s, Timestamp=%s, RowCount=%s, Warnings=%s", table_name, item_id, item_timestamp, cur.rowcount, cur.warnings)
                 else:
                     rc_code["status"] = "IGNORE"
@@ -127,3 +127,61 @@ def mx_submit_release(request, current_app, **kwargs):
         rc_code["status"] = "ERR"
 
     return rc_code
+
+
+def mx_get_edit(request, current_app, **kwargs):
+    table_name = kwargs['table_name']
+    data_key = kwargs['data_key']
+    select_field = kwargs['select_field']
+    result = request.get_json()
+    result_map = dict(result)
+    main_id = result_map["main-id"]
+    ts = current_app.config["TS"]
+    timestamp_N = ts.getRecordunlock()
+    timestamp_P = None
+
+    dbdata={}
+    try:
+        dbdata.update({"status":"OK"})
+        db = get_db()
+        if not db:
+            raise mariadb.PoolError()
+        db.begin()
+        cur = db.cursor(dictionary=True)
+        
+        if "timestamp" in result_map:
+            timestamp_P = result_map["timestamp"]
+        if "item_id_head" in result_map:
+            item_id_head = result_map["item_id_head"]
+            if timestamp_P is not None and item_id_head != main_id:
+                """ Vorherige ID entsperren """
+                cur.execute(f"update {table_name} set sperre=null where id=? and sperre IS NOT NULL and sperre=?", (item_id_head, timestamp_P))
+                current_app.logger.debug("Vorherige Sperre=%s für ID=%s aufgehoben.", timestamp_P, item_id_head)
+            
+        cur.execute(f"UPDATE {table_name} SET Sperre=? WHERE Sperre IS NULL AND id=?", (timestamp_N, main_id))
+        db.commit()
+        cur.execute(f"SELECT id,sperre,{select_field} FROM {table_name} WHERE id=?", (main_id,))
+        dbdata.update({data_key:cur.fetchone()})
+
+        act_timestamp = str(dbdata[data_key]["sperre"])
+        if act_timestamp == timestamp_N:
+            dbdata.update({"timestamp":timestamp_N})
+            current_app.logger.debug("Neue Sperre=%s für ID=%s eingerichtet.", timestamp_N, main_id)
+        elif timestamp_P is not None and act_timestamp == timestamp_P:
+            dbdata.update({"timestamp":timestamp_P})
+        else:
+            dbdata.update({"status":"LCK"})
+
+        if 'queries' in kwargs:
+            queries = kwargs['queries']
+            for key, item in queries.items():
+                cur.execute(item['sql'], (main_id,))
+                dbdata.update({key:cur.fetchall()})
+
+        cur.close()
+        db.close()
+    except mariadb.Error as err:
+        current_app.logger.error("Datenbank-Fehler: %s/ax-get-edit/%s/%s", bp.name, main_id, err)
+        dbdata.update({"status":"ERR"})
+
+    return dbdata
