@@ -25,6 +25,9 @@ def main():
         dbdata.update({"anrede":cur.fetchall()})
         cur.close()
         db.close()
+    except mariadb.PoolError as err:
+        current_app.logger.error("Pool-Fehler: %s/%s", bp.name, err)
+        abort(500)
     except mariadb.Error as err:
         db.close()
         current_app.logger.error("Datenbank-Fehler: %s/%s", bp.name, err)

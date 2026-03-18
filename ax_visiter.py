@@ -27,9 +27,13 @@ def ax_fd_visiter(pattern):
         db.close()
         anzahl_fetched = len(dbdata["visiter"])
         current_app.logger.info("Suchen Besucher mit Pattern: %s, Anzahl gelesen=%s", pattern, anzahl_fetched)
+    except mariadb.PoolError as err:
+        current_app.logger.error("Pool-Fehler: %s/ax-fd-visiter/%s/%s", bp.name, pattern, err)
+        dbdata.update({"status":"ERR"})
     except mariadb.Error as err:
         current_app.logger.error("Datenbank-Fehler: %s/ax-fd-visiter/%s/%s", bp.name, pattern, err)
         dbdata.update({"status":"ERR"})
+        db.close()
 
     return dbdata
 
@@ -56,9 +60,13 @@ def ax_get_visiter(pattern):
         cur.close()
         db.close()
         current_app.logger.info("Einlesen Besucher mit Pattern: %s, Anzahl gelesen=%s", pattern, seq - 1)
+    except mariadb.PoolError as err:
+        current_app.logger.error("Pool-Fehler: %s/ax-get-visiter/%s/%s", bp.name, pattern, err)
+        dbdata.update({"status":"ERR"})
     except mariadb.Error as err:
         current_app.logger.error("Datenbank-Fehler: %s/ax-get-visiter/%s/%s", bp.name, pattern, err)
         dbdata.update({"status":"ERR"})
+        db.close()
 
     return dbdata
 
@@ -93,8 +101,11 @@ def ax_submit_quick_visiter():
         cur.close()
         db.close()
         current_app.logger.info("Quick-Insert: Besucher hinzugefügt, ID=%s, Vorname=%s, Nachname=%s, Telefon=%s, E-Mail=%s", last_id, result_map["vorname"], result_map["nachname"], result_map["telefon"], result_map["email"])
+    except mariadb.PoolError as err:
+        current_app.logger.error("Pool-Fehler: ax-submit-quick-visiter= %s", err)
+        rc_code["status"] = "ERR"
     except mariadb.Error as err:
-        current_app.logger.error("Datenbankfehler: ax-submit-quick-visiter= %s", err)
+        current_app.logger.error("Datenbank-Fehler: ax-submit-quick-visiter= %s", err)
         rc_code["status"] = "ERR"
         db.rollback()
         db.close()
@@ -241,6 +252,9 @@ def ax_submit_visiter():
             db.commit()
             cur.close()
             db.close()
+        except mariadb.PoolError as err:
+            current_app.logger.error("Pool-Fehler: %s/ax-submit-besucher/%s", bp.name, err)
+            rc_code["status"] = "ERR"
         except mariadb.IntegrityError as err:
             rc_code["status"] = "DBL"
             current_app.logger.warning("Datenbank-doppelter Eintrag: %s/ax-submit-besucher/%s", bp.name, err)

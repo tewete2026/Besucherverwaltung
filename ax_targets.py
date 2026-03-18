@@ -102,6 +102,9 @@ def ax_submit_targets():
             db.commit()
             cur.close()
             db.close()
+        except mariadb.PoolError as err:
+            current_app.logger.error("Pool-Fehler: %s/ax-submit-targets/%s", bp.name, err)
+            rc_code["status"] = "ERR"
         except mariadb.IntegrityError as err:
             rc_code["status"] = "DBL"
             current_app.logger.warning("Datenbank-doppelter Eintrag: %s/ax-submit-targets/%s", bp.name, err)

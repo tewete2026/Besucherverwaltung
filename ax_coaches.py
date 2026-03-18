@@ -65,7 +65,11 @@ def ax_get_coaches_edit():
 
         cur.close()
         db.close()
+    except mariadb.PoolError as err:
+        current_app.logger.error("Pool-Fehler: %s/ax-get-coaches-edit/%s/%s", bp.name, coache_id, err)
+        dbdata.update({"status":"ERR"})
     except mariadb.Error as err:
+        db.close()
         current_app.logger.error("Datenbank-Fehler: %s/ax-get-coaches-edit/%s/%s", bp.name, coache_id, err)
         dbdata.update({"status":"ERR"})
 
@@ -181,6 +185,9 @@ def ax_submit_coaches():
             db.commit()
             cur.close()
             db.close()
+        except mariadb.PoolError as err:
+            current_app.logger.error("Pool-Fehler: %s/ax-submit-coaches/%s", bp.name, err)
+            rc_code["status"] = "ERR"
         except mariadb.IntegrityError as err:
             rc_code["status"] = "DBL"
             current_app.logger.warning("Datenbank-doppelter Eintrag: %s/ax-submit-coaches/%s", bp.name, err)

@@ -1,7 +1,7 @@
 import mariadb
 from datetime import datetime, timedelta
 import pytz
-from flask import current_app
+from flask import current_app, g
 from dateutil.relativedelta import relativedelta
 from . import version, credentials
 
@@ -98,7 +98,12 @@ def get_db():
         pool=current_app.config["DB_POOL"]
         if pool is not None:
             db = pool.get_connection()
-            current_app.logger.debug("Create Connection von Pool: %s, ID=%s", pool.pool_name, db.connection_id)
+            if 'DB_ID' not in g:
+                g.setdefault('DB_ID', {})
+            db_id = g.get('DB_ID')
+            if db.connection_id not in db_id:
+                db_id[db.connection_id] = db
+            current_app.logger.debug("Create Connection of Pool: %s, ID=%s, Count=%s, Max=%s, Size=%s, Reset=%s", pool.pool_name, db.connection_id, pool.connection_count, pool.max_size, pool.pool_size, pool.pool_reset_connection)
         else:
             db = None
     except mariadb.Error as e:
@@ -116,7 +121,7 @@ def init_app(app):
         if not app.config["DB_POOL"]:
             config_pool = {
                 "pool_name":app.name,
-                "pool_size":20
+                "pool_size":3
             }
             config_conn = {
                 "user":credentials.Passwords.MYSQL_USER,
@@ -139,8 +144,11 @@ def init_app(app):
             cur.close()
             db.close()
             rc = "OK"
+    except mariadb.PoolError as err:
+        app.logger.critical("Pool-Fehler: Anlegen Pool nicht möglich:  %s", err)
+        rc = "ERR"
     except mariadb.Error as err:
-        app.logger.critical("Anlegen Pool nicht möglich!")
+        app.logger.critical("Datenbank-Fehler: %s", err)
         rc = "ERR"
 
     return rc

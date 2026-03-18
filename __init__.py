@@ -1,6 +1,6 @@
 import os
 from flask import Flask, url_for
-from flask import render_template
+from flask import render_template, g, current_app
 from logging.config import dictConfig
 from . import version, credentials
 from .db import TimeSet
@@ -86,6 +86,14 @@ def create_app(test_config="DEV"):
     def method_not_valid(e):
         # note that we set the 500 status explicitly
         return render_template('internalError.html'), 500
+    
+    @app.teardown_appcontext
+    def teardown_db(exception):
+        if 'DB_ID' in g:
+            db_id = g.pop('DB_ID')
+            for id, conn in db_id.items():
+                conn.reset()
+                current_app.logger.debug("Connection-ID %s cleared at end of context", id)
 
     app.logger.info("Name=%s; Version detected=%s; Created=%s", version.Configs.APP_NAME, version.Configs.APP_VERSION, version.Configs.APP_CREATED)
 
@@ -101,8 +109,9 @@ def create_app(test_config="DEV"):
 
     # register the database commands
     from . import db
-    if db.init_app(app) == "ERR":
-        app.config.from_mapping(NO_POOL_AVAILABLE=True)
+    with app.app_context():
+        if db.init_app(app) == "ERR":
+            app.config.from_mapping(NO_POOL_AVAILABLE=True)
 
     ts = app.config["TS"]
     ts.setRecordunlock(int(app.config["wait-for-unlock-record"]))

@@ -49,8 +49,11 @@ def ax_submit_check_veranstort():
 
         cur.close()
         db.close()
+    except mariadb.PoolError as err:
+        current_app.logger.error("Pool-Fehler: ax-check-veranstort= %s", err)
+        rc_code["status"] = "ERR"
     except mariadb.Error as err:
-        current_app.logger.error("Datenbankfehler: ax-check-veranstort= %s", err)
+        current_app.logger.error("Datenbank-Fehler: ax-check-veranstort= %s", err)
         rc_code["status"] = "ERR"
         db.close()
     
@@ -175,6 +178,9 @@ def ax_submit_veranst():
             db.commit()
             cur.close()
             db.close()
+        except mariadb.PoolError as err:
+            current_app.logger.error("Pool-Fehler: %s/ax-submit-veranst/%s", bp.name, err)
+            rc_code["status"] = "ERR"
         except mariadb.Error as err:
             current_app.logger.error("Datenbank-Fehler: %s/ax-submit-veranst/%s", bp.name, err)
             rc_code["status"] = "ERR"

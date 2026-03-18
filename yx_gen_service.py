@@ -41,6 +41,8 @@ def yx_gen_berater_make():
         cur_i.close()
         cur_o.close()
         db.close()
+    except mariadb.PoolError as err:
+        rc_code = "ERR - Datenbankfehler: {}".format(err)
     except mariadb.Error as err:
         rc_code = "ERR - Datenbankfehler: {}".format(err)
         db.rollback()
@@ -66,8 +68,10 @@ def yx_gen_init_wl():
         cur_i.close()
         cur_o.close()
         db.close()
+    except mariadb.PoolError as err:
+        rc_code = "ERR - Pool-Fehler: {}".format(err)
     except mariadb.Error as err:
-        rc_code = "ERR - Datenbankfehler: {}".format(err)
+        rc_code = "ERR - Datenbank.Fehler: {}".format(err)
         db.rollback()
         db.close()
 

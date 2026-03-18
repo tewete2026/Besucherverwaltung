@@ -75,6 +75,9 @@ def mx_get_overview(request, current_app, **kwargs):
         rc_code["pagination"] = is_more_lines
         cur.close()
         db.close()
+    except mariadb.PoolError as err:
+        current_app.logger.error("Pool-Fehler: %s/mx_get_overview/%s", bp.name, err)
+        rc_code["status"] = "ERR"
     except mariadb.Error as err:
         db.close()
         current_app.logger.error("Datenbank-Fehler: %s/mx_get_overview/%s", bp.name, err)
@@ -115,12 +118,15 @@ def mx_submit_release(request, current_app, **kwargs):
             db.commit()
             cur.close()
             db.close()
+        except mariadb.PoolError as err:
+            current_app.logger.error("Pool-Fehler: %s/mx_submit_release/%s", bp.name, err)
+            rc_code["status"] = "ERR"
         except mariadb.Error as err:
             current_app.logger.error("Datenbank-Fehler: %s/mx_submit_release/%s", bp.name, err)
             rc_code["status"] = "ERR"
             db.rollback()
-            db.close()
             current_app.logger.error("Datenbank-Rollback")
+            db.close()
     except:
         (type, value, traceback) = sys.exc_info()
         current_app.logger.critical("Unexpected error: Type=%s; Exception=%s; Trace-Line=%s",type, value, traceback.tb_lineno)
@@ -180,8 +186,12 @@ def mx_get_edit(request, current_app, **kwargs):
 
         cur.close()
         db.close()
+    except mariadb.PoolError as err:
+        current_app.logger.error("Pool-Fehler: %s/ax-get-edit/%s/%s", bp.name, main_id, err)
+        dbdata.update({"status":"ERR"})
     except mariadb.Error as err:
         current_app.logger.error("Datenbank-Fehler: %s/ax-get-edit/%s/%s", bp.name, main_id, err)
         dbdata.update({"status":"ERR"})
+        db.close()
 
     return dbdata
