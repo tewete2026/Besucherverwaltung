@@ -7,7 +7,7 @@ from flask import redirect, url_for
 from .db import Configure
 from . import version
 
-bp = Blueprint("verwVeranstTyp", __name__, url_prefix=f"/{version.Configs.APP_NAME}")
+bp = Blueprint("verwVeranstTyp", __name__)
 
 @bp.route("/Verwalten-VeranstTyp", methods=['GET', 'POST'])
 def main():

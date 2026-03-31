@@ -125,7 +125,7 @@ class SessionStorage {
 /* -----Define Global Values and Functions----------------------------------------------------------------------------------------------------------*/
 /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
 const STORAGE_AVAILABLE = storageAvailable("sessionStorage");
-const HTTP = new HttpUrl(prefix=SERVER_OPTIONS.modname);
+const HTTP = new HttpUrl();
 
 const extStorage = new SessionStorage(SERVER_OPTIONS.PREFIX + "_", STORAGE_AVAILABLE);
 const nav_item_active = "bg-secondary-subtle";

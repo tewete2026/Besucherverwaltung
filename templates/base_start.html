@@ -6,9 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Programme für PCafé Norderstedt">
     <meta name="author" content="Thomas Wachler-Thomsen">
-    <title>PCafe - Norderstedt / Tools</title>
+    <title>PCafe - Norderstedt / Besucherverwaltung</title>
     <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/css@3.css') }}" rel="stylesheet">
   
     <!-- Favicons -->
     <link rel="shortcut icon" href="{{ url_for('static', filename='Favicon_PCafe.png') }}" sizes="29x26" type="image/png">
@@ -24,33 +23,48 @@
   </svg>
 
 <div class="col-lg-8 mx-auto p-4 py-md-5">
-  <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
+  <header class="d-flex align-items-center pb-3 mb-3 border-bottom">
     <a href="/" class="d-flex align-items-center text-body-emphasis text-decoration-none">
       <img src="{{ url_for('static', filename='Logo_PCafe.png') }}" alt="Logo_PCafe">
-      <span class="fs-4 ms-5">PC@fé - Tools</span>
+      <span class="fs-4 ms-5">PC@fé - Besucherverwaltung</span>
     </a>
   </header>
 
   <main>
-    {% block header %}{% endblock %}
-    <hr class="mb-5">
     <div class="row g-5">
       <div class="col-md-6">
-        <h2 class="text-body-emphasis">Übersicht der Tools</h2>
-        <p>Bitte wählt eines der gewünschten aus ...</p>
+        <p>Bitte einen der gewünschten Menüpunkte auswählen:</p>
         <ul class="list-unstyled ps-0">
           <li>
-            <a class="icon-link mb-1" href="{{ url_for('index') }}" rel="noopener">
+            <a class="icon-link mb-1" href="{{ url_for('main.index') }}" rel="noopener" target="_blank">
               <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
-              Besucherverwaltung
+              Veranstaltungen
+            </a>
+          </li>
+          <li>
+            <a class="icon-link mb-1" href="{{ url_for('verwBerater.main') }}" rel="noopener" target="_blank">
+              <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
+              Berater
+            </a>
+          </li>
+          <li>
+            <a class="icon-link mb-1" href="{{ url_for('verwBesucher.main') }}" rel="noopener" target="_blank">
+              <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
+              Besucher
+            </a>
+          </li>
+          <li>
+            <a class="icon-link mb-1" href="{{ url_for('verwThemen.main') }}" rel="noopener" target="_blank">
+              <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
+              Themen
             </a>
           </li>
         </ul>
       </div>
     </div>
   </main>
-  <footer class="pt-5 my-5 text-body-secondary border-top">
-    Created by Thomas Wachler-Thomsen &middot; &copy; 2025
+  <footer class="my-2 text-body-secondary border-top">
+    &copy; by Thomas Wachler-Thomsen &middot; 2026
   </footer>
 </div>
 <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>

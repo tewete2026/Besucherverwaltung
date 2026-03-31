@@ -8,7 +8,7 @@ from .ax_default import mx_get_overview, mx_submit_release
 from .db import get_db
 from . import version
 
-bp = Blueprint("ax_coaches", __name__, url_prefix=f"/{version.Configs.APP_NAME}")
+bp = Blueprint("ax_coaches", __name__)
 
 
 @bp.route("/ax-get-coaches-edit/", methods=['POST'])

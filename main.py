@@ -8,7 +8,7 @@ from werkzeug.exceptions import abort
 from .db import get_db, Javascript, Configure
 from . import version
 
-bp = Blueprint("main", __name__, url_prefix=f"/{version.Configs.APP_NAME}")
+bp = Blueprint("main", __name__)
 
 
 @bp.route("/kommtNoch")
@@ -16,7 +16,7 @@ def kommtNoch():
     """Ein Dummy-Eintrag für ein Tool, das noch nicht erstellt ist."""
     return render_template("kommtNoch.html")
 
-@bp.route("/")
+@bp.route("/Verwalten-Veranstaltungen")
 def index():
     if current_app.config["NO_POOL_AVAILABLE"]:
         return redirect(url_for("internal_server_error"))

@@ -9,7 +9,7 @@ from .db import get_db
 from . import version
 from . import tools
 
-bp = Blueprint("ax_visitor", __name__, url_prefix=f"/{version.Configs.APP_NAME}")
+bp = Blueprint("ax_visitor", __name__)
 
 @bp.route("/ax-fd-visiter/<pattern>")
 def ax_fd_visiter(pattern):

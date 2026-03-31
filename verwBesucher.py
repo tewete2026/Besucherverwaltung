@@ -8,7 +8,7 @@ from werkzeug.exceptions import abort
 from .db import get_db, Configure
 from . import version
 
-bp = Blueprint("verwBesucher", __name__, url_prefix=f"/{version.Configs.APP_NAME}")
+bp = Blueprint("verwBesucher", __name__)
 
 @bp.route("/Verwalten-Besucher", methods=['GET', 'POST'])
 def main():

@@ -121,7 +121,7 @@ def init_app(app):
         if not app.config["DB_POOL"]:
             config_pool = {
                 "pool_name":app.name,
-                "pool_size":3
+                "pool_size":30
             }
             config_conn = {
                 "user":credentials.Passwords.MYSQL_USER,
@@ -132,7 +132,7 @@ def init_app(app):
                 "autocommit":False
             }
             pool = mariadb.ConnectionPool(**config_pool, **config_conn)
-            app.logger.debug("Created Pool: Name=%s, connection_count=%s", pool.pool_name, pool.connection_count)
+            app.logger.info("Created Pool: Name=%s, connection_count=%s", pool.pool_name, pool.connection_count)
             app.config.update({"DB_POOL":pool})
             db = pool.get_connection()
             if not db:

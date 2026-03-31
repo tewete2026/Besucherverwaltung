@@ -8,7 +8,7 @@ from .db import get_db
 from .ax_default import mx_get_overview, mx_submit_release, mx_get_edit
 from . import version
 
-bp = Blueprint("ax_eventtypes", __name__, url_prefix=f"/{version.Configs.APP_NAME}")
+bp = Blueprint("ax_eventtypes", __name__)
 
 
 @bp.route("/ax-get-veransttyp-edit/", methods=['POST'])

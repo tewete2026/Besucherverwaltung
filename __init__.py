@@ -36,22 +36,22 @@ def create_app(test_config="DEV"):
                 "formatter": "default",
                 'level': 'ERROR'
             },
-            "smtp": {
-                "class": "logging.handlers.SMTPHandler",
-                "mailhost": ("localhost",825),
-                "fromaddr": f"{version.Configs.APP_NAME}-noreply@tewete.de",
-                "toaddrs": credentials.EMails.SMTPHandler,
-                "subject": "Flask-Mail-Handler",
-                "formatter": "mail",
-                'level': 'ERROR'
-            },
+            # "smtp": {
+            #     "class": "logging.handlers.SMTPHandler",
+            #     "mailhost": ("localhost",825),
+            #     "fromaddr": f"{version.Configs.APP_NAME}-noreply@tewete.de",
+            #     "toaddrs": credentials.EMails.SMTPHandler,
+            #     "subject": "Flask-Mail-Handler",
+            #     "formatter": "mail",
+            #     'level': 'ERROR'
+            # },
         },
         'root': {
             'level': 'INFO',
-            'handlers': ['wsgi', 'file1', 'file2', 'smtp']
+            'handlers': ['wsgi', 'file1', 'file2']
         }
     })
-    app = Flask(version.Configs.APP_NAME, instance_relative_config=True, static_url_path=f"/{version.Configs.APP_NAME}/src")
+    app = Flask(version.Configs.APP_NAME, instance_relative_config=True, static_url_path=f"/src")
     app.config.from_mapping(
         # a default secret that should be overridden by instance config
         SECRET_KEY=credentials.Passwords.SECRET_KEY,
@@ -69,7 +69,7 @@ def create_app(test_config="DEV"):
         return response
 
     @app.route("/")
-    def default():
+    def index():
         return render_template("starter.html")
 
     @app.errorhandler(404)
@@ -93,17 +93,17 @@ def create_app(test_config="DEV"):
             db_id = g.pop('DB_ID')
             for id, conn in db_id.items():
                 conn.reset()
-                current_app.logger.debug("Connection-ID %s cleared at end of context", id)
+                current_app.logger.info("Connection-ID %s cleared at end of context", id)
 
     app.logger.info("Name=%s; Version detected=%s; Created=%s", version.Configs.APP_NAME, version.Configs.APP_VERSION, version.Configs.APP_CREATED)
 
     if test_config == "DEV":
         app.config.from_mapping(TEST_RUN=True)
         app.logger.info("Test-Dev active; Logger=%s; Parent-Logger=%s", app.logger.name, app.logger.parent.name)
-        for hdlr in app.logger.parent.handlers:
-            if hdlr.get_name() == "smtp":
-                app.logger.parent.removeHandler(hdlr)
-                app.logger.debug("Handler %s aus %s entfernt.", hdlr.get_name(), app.logger.parent.name)
+        # for hdlr in app.logger.parent.handlers:
+        #     if hdlr.get_name() == "smtp":
+        #         app.logger.parent.removeHandler(hdlr)
+        #         app.logger.debug("Handler %s aus %s entfernt.", hdlr.get_name(), app.logger.parent.name)
     else:
         app.logger.info("Production active")
 
@@ -141,6 +141,6 @@ def create_app(test_config="DEV"):
     for hdlr in app.logger.parent.handlers:
         app.logger.debug("Registered Handler in %s: %s", app.logger.parent.name, hdlr.get_name())
 
-    app.add_url_rule(f"/{version.Configs.APP_NAME}/", view_func=main.index)
+    app.add_url_rule("/", view_func=index)
 
     return app
