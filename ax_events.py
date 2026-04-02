@@ -1,4 +1,5 @@
 import mariadb, sys
+from caldav import davclient
 from flask import Blueprint
 from flask import current_app
 from flask import request
@@ -7,7 +8,7 @@ from dateutil import parser
 
 from .ax_default import mx_get_overview, mx_submit_release, mx_get_edit
 from .db import get_db
-from . import version
+from . import credentials
 
 bp = Blueprint("ax_events", __name__)
 
@@ -126,6 +127,7 @@ def ax_submit_veranst():
             bezeichnung = f"{veranst_bez}, {parser.parse(veranst_datum).strftime('%d.%m.%Y')}, {veranst_zeit_von} bis {veranst_zeit_bis}"
 
             update_allowed = True
+            insert_done = False
             if veranst_id is not None:
                 cur.execute("SELECT IFNULL(sperre,'INVALID') as sperre FROM tVeranst WHERE id=? FOR UPDATE", (veranst_id,))
                 timestamp = str(cur.fetchone()["sperre"])
@@ -146,6 +148,7 @@ def ax_submit_veranst():
                 cur.execute("insert into tVeranst(typ,ort,thema,datum,von,bis,dauer,bezeichnung) values(?,?,NULLIF(?,-1),?,?,?,?,?)", (veranst_typ, veranst_ort, veranst_thema, veranst_datum, veranst_zeit_von, veranst_zeit_bis, veranst_zeit_dauer, bezeichnung))
                 last_id = cur.lastrowid
                 rc_code["id"] = last_id
+                insert_done = True
 
             if update_allowed:
                 for berId in berater:
@@ -175,6 +178,37 @@ def ax_submit_veranst():
                 else:
                     current_app.logger.info("Datensatz hinzugefügt: ID=%s, Bezeichnung=%s", last_id, bezeichnung)
                     rc_code["mode"] = "INS"
+            
+            try:
+                if not current_app.config['TEST_RUN'] and insert_done:
+                    # 1. Verbindung herstellen
+                    url = credentials.Passwords.NC_URL
+                    username = credentials.Passwords.NC_USER
+                    password = credentials.Passwords.NC_PWD
+                    client = davclient.DAVClient(url, username=username, password=password)
+                    print(client)
+                    # 2. Kalender auswählen
+                    principal = client.get_principal()
+                    print(principal)
+                    calendars = principal.get_calendars()
+                    print(calendars)
+                    calendar = calendars[0]
+                    print(calendar)
+                    # 3. Termin-Daten erstellen
+                    start = ts.todaytime()
+                    end = ts.deltatime(hours=1)
+                    cal_event = calendar.add_event(dtstart = start, dtend = end, summary = bezeichnung)
+                    print(cal_event)
+                    print(veranst_datum, veranst_zeit_von, veranst_zeit_bis) # 2026-04-04 09:30 12:30
+                    current_app.logger.info("Termin erfolgreich erstellt: %s %s %s %s", bezeichnung, veranst_datum, veranst_zeit_von, veranst_zeit_bis)
+            except:
+                (type, value, traceback) = sys.exc_info()
+                current_app.logger.critical("Unexpected error: Type=%s; Exception=%s; Trace-Line=%s",type, value, traceback.tb_lineno)
+                rc_code["status"] = "ERR"
+                db.rollback()
+                db.close()
+                current_app.logger.error("Datenbank-Rollback")
+
             db.commit()
             cur.close()
             db.close()

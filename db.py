@@ -71,7 +71,7 @@ class TimeSet:
         return self.todaytime().today()
     def todaydate(self):
         return self.todaytime().today().date()
-    def todaytime(self):
+    def todaytime(self) -> datetime:
         return self.__dt.now(tz=self.__tz)
     def isocalendar(self, ts=None):
         if not ts: ts = self.todaytime()
@@ -81,15 +81,30 @@ class TimeSet:
     def addtimezone(self, datetime:datetime):
         timestamp_float = datetime.timestamp()
         return self.fromtimestamp(timestamp_float)
-    def delta(self, days:int=None, years:int=None, months:int=None, sub:bool=False) -> datetime:
+    def delta(self, days:int=None, years:int=None, months:int=None, hours:int=None, sub:bool=False) -> datetime.date:
         if days is not None:
             delta = relativedelta(days=days)
+        elif hours is not None:
+            delta = relativedelta(hours=hours)
         elif months is not None:
             delta = relativedelta(months=months)
         elif years is not None:
             delta = relativedelta(years=years)
         if sub: ret = self.__dt.now().date() - delta
         else: ret = self.__dt.now().date() + delta
+        return ret
+    def deltatime(self, dt:datetime=None, days:int=None, years:int=None, months:int=None, hours:int=None, sub:bool=False) -> datetime:
+        if days is not None:
+            delta = relativedelta(days=days)
+        elif hours is not None:
+            delta = relativedelta(hours=hours)
+        elif months is not None:
+            delta = relativedelta(months=months)
+        elif years is not None:
+            delta = relativedelta(years=years)
+        if dt is None: dt = self.todaytime()
+        if sub: ret = dt - delta
+        else: ret = dt + delta
         return ret
         
 
