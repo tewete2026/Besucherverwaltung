@@ -106,7 +106,13 @@ class TimeSet:
         if sub: ret = dt - delta
         else: ret = dt + delta
         return ret
-        
+    def convert(self, date:str, time_from:str, time_to:str):
+        dates = date.split('-')
+        times_from = time_from.split(':')
+        times_to = time_to.split(':')
+        tmfrom = datetime(int(dates[0]), int(dates[1]), int(dates[2]), int(times_from[0]), int(times_from[1]), tzinfo=self.__tz)
+        tmto = datetime(int(dates[0]), int(dates[1]), int(dates[2]), int(times_to[0]), int(times_to[1]), tzinfo=self.__tz)
+        return (tmfrom, tmto)
 
 def get_db():
     try:

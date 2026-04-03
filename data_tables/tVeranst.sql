@@ -38,6 +38,7 @@ CREATE TABLE `tVeranst` (
   `Monat` smallint(6) DEFAULT NULL,
   `Jahr` smallint(6) DEFAULT NULL,
   `Sortier` int(11) DEFAULT NULL,
+  `cal_uid` varchar(36) DEFAULT NULL COMMENT 'Calendar-UUID',
   `Sperre` decimal(20,0) unsigned DEFAULT NULL COMMENT 'Enthält Timestamp, wenn Satz gesperrt ist',
   PRIMARY KEY (`id`),
   KEY `index_ort` (`Ort`),

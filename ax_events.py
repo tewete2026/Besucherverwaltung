@@ -179,10 +179,11 @@ def ax_submit_veranst():
                     current_app.logger.info("Datensatz hinzugefügt: ID=%s, Bezeichnung=%s", last_id, bezeichnung)
                     rc_code["mode"] = "INS"
             
-            try:
-                if not current_app.config['TEST_RUN'] and insert_done:
+            if insert_done:
+                try:
                     # 1. Verbindung herstellen
-                    url = credentials.Passwords.NC_URL
+                    if not current_app.config['TEST_RUN']: url = credentials.Passwords.NC_URL
+                    else: url = credentials.Passwords.NC_URL_DEV
                     username = credentials.Passwords.NC_USER
                     password = credentials.Passwords.NC_PWD
                     client = davclient.DAVClient(url, username=username, password=password)
@@ -195,19 +196,20 @@ def ax_submit_veranst():
                     calendar = calendars[0]
                     print(calendar)
                     # 3. Termin-Daten erstellen
-                    start = ts.todaytime()
-                    end = ts.deltatime(hours=1)
-                    cal_event = calendar.add_event(dtstart = start, dtend = end, summary = bezeichnung)
+                    (datfrom, datto) = ts.convert(veranst_datum, veranst_zeit_von, veranst_zeit_bis)
+                    print(datfrom, datto)
+                    cal_event = calendar.add_event(dtstart=datfrom, dtend=datto, summary=bezeichnung, description="Von Besucherverwaltung automatisch angelegt", location=veranst_ort)
                     print(cal_event)
-                    print(veranst_datum, veranst_zeit_von, veranst_zeit_bis) # 2026-04-04 09:30 12:30
+                    cur.execute("update tVeranst set cal_uid=? where id=?", (cal_event.id, last_id))
+                    current_app.logger.debug("Cal_Event_Id in tVeranst eingefügt: RowCount=%s, Warnings=%s, VeranstID=%s", cur.rowcount, cur.warnings, last_id)
                     current_app.logger.info("Termin erfolgreich erstellt: %s %s %s %s", bezeichnung, veranst_datum, veranst_zeit_von, veranst_zeit_bis)
-            except:
-                (type, value, traceback) = sys.exc_info()
-                current_app.logger.critical("Unexpected error: Type=%s; Exception=%s; Trace-Line=%s",type, value, traceback.tb_lineno)
-                rc_code["status"] = "ERR"
-                db.rollback()
-                db.close()
-                current_app.logger.error("Datenbank-Rollback")
+                except:
+                    (type, value, traceback) = sys.exc_info()
+                    current_app.logger.critical("Unexpected error: Type=%s; Exception=%s; Trace-Line=%s",type, value, traceback.tb_lineno)
+                    rc_code["status"] = "ERR"
+                    db.rollback()
+                    db.close()
+                    current_app.logger.error("Datenbank-Rollback")
 
             db.commit()
             cur.close()
