@@ -81,6 +81,7 @@ def ax_submit_veranst():
     berater = []
     besucher = {}
     ts = current_app.config["TS"]
+    add_calevent = bool(current_app.config["add-new-calevent"] == '1')
     today_day = ts.todaydate().day
     today_month = ts.todaydate().month
     today_year = ts.todaydate().year
@@ -179,7 +180,7 @@ def ax_submit_veranst():
                     current_app.logger.info("Datensatz hinzugefügt: ID=%s, Bezeichnung=%s", last_id, bezeichnung)
                     rc_code["mode"] = "INS"
             
-            if insert_done:
+            if add_calevent and insert_done:
                 try:
                     # 1. Verbindung herstellen
                     if not current_app.config['TEST_RUN']: url = credentials.Passwords.NC_URL

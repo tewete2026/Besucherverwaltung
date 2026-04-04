@@ -1,17 +1,43 @@
 import mariadb
-from flask import Blueprint
-
+from flask import Blueprint, current_app
 from .db import get_db
-from . import version, tools
+from . import tools
 
-bp = Blueprint("yx_gen_service", __name__, url_prefix=f"/{version.Configs.APP_NAME}")
+bp = Blueprint("yx_gen_service", __name__)
 
 
-@bp.after_app_request
-def add_security_headers(response):
-    response.headers['Cache-Control']='no-cache'
-    response.headers['Pragma']='no-cache'
-    return response
+@bp.route("/yx-reload-config/", methods=['GET'])
+def yx_reload_config():
+    rc_code = {"status":"OK"}
+    try:
+        db = get_db()
+        if not db:
+            raise mariadb.PoolError()
+        db.begin()
+        cur = db.cursor()
+        """ Einlesen Konfigurations-Elemente aus der Datenbanktabelle _Config """
+        cur.execute("select item,value from _Config order by id")
+        result = cur.fetchall()
+        current_app.config.update(result)
+        rc_code["Number Rows"] = len(result)
+        for entry in result:
+            (k, v) = entry
+            rc_code[k] = v
+            current_app.logger.debug("Relod Config: %s=%s", k, v)
+        db.commit()
+        cur.close()
+        db.close()
+    except mariadb.PoolError as err:
+        rc_code["status"] = "ERR"
+        rc_code["message"] = "Datenbankfehler: {}".format(err)
+    except mariadb.Error as err:
+        rc_code["status"] = "ERR"
+        rc_code["message"] = "Datenbankfehler: {}".format(err)
+        db.rollback()
+        db.close()
+
+    return rc_code
+
 
 
 @bp.route("/yx-gen-berater-make/", methods=['GET'])
