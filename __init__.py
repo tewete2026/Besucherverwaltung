@@ -1,6 +1,6 @@
 import os
 from flask import Flask, url_for
-from flask import render_template, g, current_app
+from flask import render_template, g, current_app, session, redirect, request
 from logging.config import dictConfig
 from . import version, credentials
 from .db import TimeSet
@@ -55,12 +55,35 @@ def create_app(test_config="DEV"):
     app.config.from_mapping(
         # a default secret that should be overridden by instance config
         SECRET_KEY=credentials.Passwords.SECRET_KEY,
+        SESSION_COOKIE_NAME="drk-bv-session",
         TS=TimeSet("Europe/Berlin"),
         HOSTNAME = os.uname().nodename,
         TEST_RUN=False,
         DB_POOL=None,
-        NO_POOL_AVAILABLE=False
+        NO_POOL_AVAILABLE=False,
+        COOKIE_PREFIX='drk-bv'
     )
+
+    @app.before_request
+    def before_request():
+        if request.method == 'GET' and not current_app.config['COOKIE_PREFIX'] + '-is-logged-in' in request.cookies:
+            lurl = request.url.rsplit('/')
+            uri = lurl.pop()
+            if current_app.config['TEST_RUN']: module = ''
+            else: module = lurl.pop()
+            if len(uri) > 0:
+                found = False
+                for suffix in ['.css', '.jpg', '.js', '.png']:
+                    if uri.endswith(suffix): found = True
+                if not found:
+                    if len(module) == 0: last_uri = '/' + uri
+                    else: last_uri = '/' + module + '/' + uri
+                    session['last-modname'] = '/' + module
+                    if uri != 'login':
+                        session['last-uri'] = last_uri
+                        return redirect(url_for('login.login'))
+                    else:
+                        if not 'last-uri' in session: session['last-uri'] = '/' + module
 
     @app.after_request
     def add_several_headers(response):
@@ -117,8 +140,9 @@ def create_app(test_config="DEV"):
     ts.setRecordunlock(int(app.config["wait-for-unlock-record"]))
 
     # apply the blueprints to the app
-    from . import main,ax_visiter,ax_events,ax_coaches,ax_devices,ax_eventtypes,ax_themes,ax_targets,ax_default,yx_gen_service,verwBesucher,verwBerater,verwVeranstTyp,verwThemen,verwGeraete,verwOrte
+    from . import main,login,ax_visiter,ax_events,ax_coaches,ax_devices,ax_eventtypes,ax_themes,ax_targets,ax_default,yx_gen_service,verwBesucher,verwBerater,verwVeranstTyp,verwThemen,verwGeraete,verwOrte
     app.register_blueprint(main.bp)
+    app.register_blueprint(login.bp)
     app.register_blueprint(ax_visiter.bp)
     app.register_blueprint(ax_events.bp)
     app.register_blueprint(ax_coaches.bp)
