@@ -116,7 +116,7 @@ def create_app(test_config="DEV"):
             db_id = g.pop('DB_ID')
             for id, conn in db_id.items():
                 conn.reset()
-                current_app.logger.info("Connection-ID %s cleared at end of context", id)
+                current_app.logger.debug("Connection-ID %s cleared at end of context", id)
 
     app.logger.info("Name=%s; Version detected=%s; Created=%s", version.Configs.APP_NAME, version.Configs.APP_VERSION, version.Configs.APP_CREATED)
 
