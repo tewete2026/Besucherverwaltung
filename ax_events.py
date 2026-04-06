@@ -188,14 +188,13 @@ def ax_submit_veranst():
                     username = credentials.Passwords.NC_USER
                     password = credentials.Passwords.NC_PWD
                     client = davclient.DAVClient(url, username=username, password=password)
-                    print(client)
                     # Benutzer auswählen
                     principal = client.get_principal()
                     print(principal)
                     calendars = principal.get_calendars()
                     print(calendars)
-                    # Den ersten verfügbaren Kalender auswählen
-                    calendar = calendars[0]
+                    # Den 2.Kalender=Terminplanung auswählen
+                    calendar = calendars[1]
                     print(calendar)
                     # Termin-Daten erstellen
                     (datfrom, datto) = ts.convert(veranst_datum, veranst_zeit_von, veranst_zeit_bis)
