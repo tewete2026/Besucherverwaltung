@@ -65,7 +65,7 @@ def create_app(test_config="DEV"):
     )
 
     @app.before_request
-    def before_request():
+    def check_login():
         if request.method == 'GET' and not current_app.config['COOKIE_PREFIX'] + '-is-logged-in' in request.cookies:
             lurl = request.url.rsplit('/')
             uri = lurl.pop()
@@ -93,6 +93,10 @@ def create_app(test_config="DEV"):
 
     @app.route("/")
     def index():
+        return redirect(url_for('main.index'))
+
+    @app.route("/nc-short-view")
+    def nc_short_view():
         return render_template("starter.html")
 
     @app.errorhandler(404)
