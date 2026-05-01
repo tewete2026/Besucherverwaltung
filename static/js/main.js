@@ -14,25 +14,17 @@ const frm_main_berater = this.document.getElementById("frm-main-berater");
 const frm_main_berater_nbr = this.document.getElementById("frm-main-berater-nbr");
 const frm_main_besucher_nbr = this.document.getElementById("frm-main-besucher-nbr");
 const frm_main_besucher_nbr_result = this.document.getElementById("frm-main-besucher-ergebnis-nbr");
-const frm_main_besucher_nbrmax = this.document.getElementById("frm-main-besucher-maxnbr");
+// const frm_main_besucher_nbrmax = this.document.getElementById("frm-main-besucher-maxnbr");
 const frm_main_bezeichnung = this.document.getElementById("frm-main-bezeichnung");
 const frm_main_booked_events = this.document.getElementById("frm-main-booked-events");
-const frm_main_coached_devices = this.document.getElementById("frm-main-coached-devices");
-const frm_main_coached_devices_nbr = this.document.getElementById("frm-main-coached-devices-nbr");
-const frm_main_coached_themes = this.document.getElementById("frm-main-coached-themes");
-const frm_main_coached_themes_nbr = this.document.getElementById("frm-main-coached-themes-nbr");
 const frm_main_coaches = this.document.getElementById("frm-main-coaches");
 const frm_main_coaches_nbr = this.document.getElementById("frm-main-coaches-nbr");
 const frm_main_datum = this.document.getElementById("frm-main-datum");
 const frm_main_veranstdatum = this.document.getElementById("frm-main-veranstdatum");
 const frm_main_email = this.document.getElementById("frm-main-email");
-const frm_main_info_themes = this.document.getElementById("frm-main-info-themes");
-const frm_main_info_themes_nbr = this.document.getElementById("frm-main-info-themes-nbr");
+const frm_main_thema_head = this.document.getElementById("frm-main-thema-head");
 const frm_main_maxbesucher = this.document.getElementById("frm-main-maxbesucher");
 const frm_main_nachname = this.document.getElementById("frm-main-nachname");
-const frm_main_ort = this.document.getElementById("frm-main-ort");
-const frm_main_plz = this.document.getElementById("frm-main-plz");
-const frm_main_strasse = this.document.getElementById("frm-main-strasse");
 const frm_main_telefon = this.document.getElementById("frm-main-telefon");
 const frm_main_veranst_nbr = this.document.getElementById("frm-main-veranst-nbr");
 const frm_main_veranstort = this.document.getElementById("frm-main-veranstort");
@@ -82,19 +74,6 @@ const table_overview = tb_overview_events ? tb_overview_events :
                        tb_overview_theme ? tb_overview_theme : 
                        tb_overview_type ? tb_overview_type : null;
 const table_overview_body = table_overview ? table_overview.tBodies[0] : null;
-
-const tb_coached_themes = this.document.getElementById("tb-coached-themes");
-const table_coached_themes = tb_coached_themes ? tb_coached_themes.tBodies[0] : null;
-const tb_info_themes = this.document.getElementById("tb-info-themes");
-const table_info_themes = tb_info_themes ? tb_info_themes.tBodies[0] : null;
-const tb_coached_devices = this.document.getElementById("tb-coached-devices");
-const table_coached_devices = tb_coached_devices ? tb_coached_devices.tBodies[0] : null;
-const tb_coaches = this.document.getElementById("tb-coaches");
-const table_device_coaches = tb_coaches ? tb_coaches.tBodies[0] : null;
-const coaches_themes_elem_map = new Coaches_Elements(frm_main_coached_themes, tb_coached_themes);
-const coaches_info_elem_map = new Coaches_Elements(frm_main_info_themes, tb_info_themes);
-const coaches_devices_elem_map = new Coaches_Elements(frm_main_coached_devices, tb_coached_devices);
-const coaches_devices_map = new Coaches_Elements(frm_main_coaches, tb_coaches);
 
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -165,6 +144,12 @@ window.addEventListener('load', () => {
   frm_pag_search.addEventListener("focus", (event) => {
     event.target.value = null;
   });
+  if (frm_pag_search_nbr) {
+    frm_pag_search_nbr.addEventListener("keydown", searchOverview);
+    frm_pag_search_nbr.addEventListener("focus", (event) => {
+      event.target.value = null;
+    });
+  }
   page_pag_back.addEventListener("click", (event) => {
     if (page_pag_back.classList.contains("disabled")) return false;
     const overview_page = parseInt(extStorage.getItem("overview-page", "1"));
@@ -236,18 +221,6 @@ async function env_init() {
           }
         }
       }
-      else if (coaches_devices_map.match(is_collect)) {
-        let row_index = 0;
-        frm_main_coaches_nbr.innerText = coaches_devices_map.size();
-        table_device_coaches.replaceChildren();
-        for (const id of coaches_devices_map.map_order) {
-          const newtr = table_device_coaches.insertRow();
-          const row = coaches_devices_map.map.get(id);
-          static_coaches_list(row, newtr, row_index++);
-          const figure = newtr.cells[3].firstElementChild;
-          figure.addEventListener("click", setClickForCoach);
-        }
-      }
       else if (events_elem_map.match(is_collect)) {
         let row_index = 0;
         frm_main_veranst_nbr.innerText = events_elem_map.size();
@@ -259,15 +232,6 @@ async function env_init() {
           const figure = newtr.cells[ind].firstElementChild;
           figure.addEventListener("click", setClickForEvents);
         }
-      }
-      else if (coaches_themes_elem_map.match(is_collect)) {
-        fillCoaches(is_collect, coaches_themes_elem_map, frm_main_coached_themes_nbr, table_coached_themes, "coached-themes", setClickEventCoacheTheme);
-      }
-      else if (coaches_info_elem_map.match(is_collect)) {
-        fillCoaches(is_collect, coaches_info_elem_map, frm_main_info_themes_nbr, table_info_themes, "info-themes", setClickEventCoacheInfo);
-      }
-      else if (coaches_devices_elem_map.match(is_collect)) {
-        fillCoaches(is_collect, coaches_devices_elem_map, frm_main_coached_devices_nbr, table_coached_devices, "coached-devices", setClickEventCoacheDevices);
       }
       else if (coaches_elem_map.match(is_collect)) {
         fillCoaches(is_collect, coaches_elem_map, frm_main_berater_nbr, table_coaches, "berater", setClickEventCoach);
@@ -311,6 +275,8 @@ async function fillOverview() {
   const overview_search = extStorage.getItem("overview-search-item", "ALL");
   const overview_page = extStorage.getItem("overview-page", "1");
   const submit_map = new SubmitParm([["overview-search", overview_search], ["overview-page", overview_page]]);
+  const overview_search_nbr = extStorage.getItem("overview-search-item-nbr");
+  if (overview_search_nbr) submit_map.add("overview-search-nbr", overview_search_nbr);
   const result_data = await execFetch(HTTP.getURL("ax-get-" + SERVER_OPTIONS.APP + "-overview/"), submit_map.getString());
   if (result_data.status == "OK") {
     table_overview_body.innerHTML = result_data.html
@@ -368,8 +334,8 @@ async function performSubmit(event) {
   btn_main_store.setAttribute("disabled", true);
   btn_main_finish.replaceChildren();
   const item_id_head = extStorage.getItem("frm-main-id");
-  let is_error = false, is_plz = false, is_ort = false, is_str = false, is_telef = false, is_mail = false, is_addr = false;
-  let summary_berater = true, unknown_value_berater = false, summary_besucher = true, unknown_value_besucher = false, unknown_spende = false;
+  let is_error = false, is_telef = false, is_mail = false, errors = {};
+  let summary_berater = true, summary_besucher = true, summary_ort = true;
   let value_von, value_bis, value_veranstort, value_datum;
   for (const elem of frm_main.elements) {
     if (["button", "fieldset", "checkbox"].includes(elem.type)) continue;
@@ -381,12 +347,17 @@ async function performSubmit(event) {
         is_error = true;
       }
     }
-    else if (elem.name == "frm-main-veranstort") {
-      value_veranstort = elem;
+    else if (elem.name == "frm-main-thema-head") {
       if (elem.value == '' || elem.value < 0) {
         elem.classList.add("is-invalid");
-        elem.nextElementSibling.innerText = "Die Angabe " + SERVER_OPTIONS.category + "-Ort ist erforderlich."
+        elem.nextElementSibling.innerText = "Die Angabe des Themas der " + SERVER_OPTIONS.category + " ist erforderlich."
         is_error = true;
+      }
+    }
+    else if (elem.name == "frm-main-veranstort") {
+      if (elem.value != '' && elem.value >= 0) {
+        value_veranstort = elem;
+        summary_ort = false;
       }
     }
     else if (elem.name == "frm-main-zeit-von") {
@@ -437,21 +408,23 @@ async function performSubmit(event) {
       }
     }
     else if (elem.name == "frm-main-berater") {
-      if (elem.value == '') {
-        unknown_value_berater = true;
-      }
-      else if (elem.value >= 0) {
+      if (elem.value != '' && elem.value >= 0) {
         summary_berater = false;
       }
     }
-    else if (["frm-main-spende", "frm-main-thema", "frm-main-geraet"].includes(elem.name)) {
-      if (elem.value == '') {
-        unknown_value_besucher = true;
-      } else summary_besucher = false;
-      if (elem.name == "frm-main-spende") {
-        if (!validateNumber(elem.value, allowZero=true)) {
-          unknown_spende = true;
-        }
+    else if (elem.name == "frm-main-spende") {
+      initDomCurrency(elem);
+      summary_besucher = false;
+      // if (!validateCurrency(elem.value)) {
+      //   errors['frm-main-spende'] = true;
+      // }
+    }
+    else if (elem.name == "frm-main-spende-head") {
+      initDomCurrency(elem);
+      if (!validateCurrency(elem.value)) {
+        elem.classList.add("is-invalid");
+        elem.nextElementSibling.innerText = "Die Angabe Spende gesamt ist nicht korrekt.";
+        is_error = true;
       }
     }
     else if (elem.name == "frm-main-vorname") {
@@ -489,15 +462,6 @@ async function performSubmit(event) {
         is_error = true;
       }
     }
-    else if (elem.name == "frm-main-plz") {
-      is_plz = elem.value != "";
-      if (is_plz) is_addr = true;
-      if (!validatePLZ(elem.value)) {
-        elem.classList.add("is-invalid");
-        elem.nextElementSibling.innerText = "Die Angabe Postleitzahl ist nicht korrekt.";
-        is_error = true;
-      }
-    }
     else if (elem.name == "frm-main-email") {
       is_mail = elem.value != "";
       if (!validateEmail(elem.value)) {
@@ -514,14 +478,6 @@ async function performSubmit(event) {
         is_error = true;
       }
     }
-    else if (elem.name == "frm-main-strasse" && elem.value) {
-      is_str = true;
-      is_addr = true;
-    }
-    else if (elem.name == "frm-main-ort" && elem.value) {
-      is_ort = true;
-      is_addr = true;
-    }
     else if (elem.name == "frm-main-maxbesucher") {
       if (!validateNumber(elem.value)) {
         elem.classList.add("is-invalid");
@@ -537,93 +493,54 @@ async function performSubmit(event) {
       }
     }
   }
-  if (SERVER_OPTIONS.PREFIX == "01") {
+  if (SERVER_OPTIONS.PREFIX == "01" && !is_error) {
     const elem_berater_set = frm_main.elements.namedItem("frm-main-set-berater");
     const elem_besucher_set = frm_main.elements.namedItem("frm-main-set-besucher");
     elem_berater_set.classList.remove("is-invalid","is-valid");
     elem_besucher_set.classList.remove("is-invalid","is-valid");
     if (summary_berater) {
-      elem_berater_set.classList.add("is-invalid");
-      elem_berater_set.nextElementSibling.innerText = "Die Angabe mindestens 1 Berater ist erforderlich."
-      is_error = true;
-    }
-    if (unknown_value_berater) {
-      elem_berater_set.classList.add("is-invalid");
-      elem_berater_set.nextElementSibling.innerText = "Die Angabe enthält mindestens 1 unbekannten Berater."
-      is_error = true;
+      extStorage.addHint("Noch Keine Berater erfasst, bitte später erfassen.");
+      // elem_berater_set.classList.add("is-invalid");
+      // elem_berater_set.nextElementSibling.innerText = "Die Angabe mindestens 1 Berater ist erforderlich."
+      // is_error = true;
     }
     if (summary_besucher) {
-      elem_besucher_set.classList.add("is-invalid");
-      elem_besucher_set.nextElementSibling.innerText = "Die Angabe mindestens 1 Besucher ist erforderlich."
-      is_error = true;
+      extStorage.addHint("Noch keine Besucher erfasst, bitte später erfassen.");
+      // elem_besucher_set.classList.add("is-invalid");
+      // elem_besucher_set.nextElementSibling.innerText = "Die Angabe mindestens 1 Besucher ist erforderlich."
+      // is_error = true;
     }
-    if (unknown_spende) {
-      elem_besucher_set.classList.add("is-invalid");
-      elem_besucher_set.nextElementSibling.innerText = "Die Angabe Spende enthält ungültige Angaben."
-      is_error = true;
+    if (summary_ort) {
+      extStorage.addHint("Noch kein Veranstaltungsort erfasst, bitte später erfassen.");
+      // elem_besucher_set.classList.add("is-invalid");
+      // elem_besucher_set.nextElementSibling.innerText = "Die Angabe mindestens 1 Besucher ist erforderlich."
+      // is_error = true;
     }
-    if (unknown_value_besucher) {
-      elem_besucher_set.classList.add("is-invalid");
-      elem_besucher_set.nextElementSibling.innerText = "Die Angabe enthält mindestens 1 ungültigen Wert."
-      is_error = true;
-    }
+    // if ('frm-main-spende' in errors) {
+    //   elem_besucher_set.classList.add("is-invalid");
+    //   elem_besucher_set.nextElementSibling.innerText = "Die Angabe Spende enthält ungültige Angaben."
+    //   is_error = true;
+    // }
   }
   if (SERVER_OPTIONS.PREFIX == "01" && !is_error) {
-    const rc_code = await checkVeranstOrt(value_datum, value_veranstort, value_von, value_bis, item_id_head);
-    if (rc_code == "ERR") {
-      appendAlert("Das Prüfen Ort der " + SERVER_OPTIONS.category + " konnte nicht erfolgreich beendet werden!", 'danger');
-      is_error = true;
-    }
-    else if (rc_code == "INV") {
-      value_veranstort.classList.add("is-invalid");
-      value_veranstort.nextElementSibling.innerText = "Für Ort ist in dem Zeitraum bereits eine " + SERVER_OPTIONS.category + " vorhanden."
-      is_error = true;
+    if (!value_veranstort && value_veranstort >= 0) {
+      const rc_code = await checkVeranstOrt(value_datum, value_veranstort, value_von, value_bis, item_id_head);
+      if (rc_code == "ERR") {
+        appendAlert("Das Prüfen Ort der " + SERVER_OPTIONS.category + " konnte nicht erfolgreich beendet werden!", 'danger');
+        is_error = true;
+      }
+      else if (rc_code == "INV") {
+        value_veranstort.classList.add("is-invalid");
+        value_veranstort.nextElementSibling.innerText = "Für Ort ist in dem Zeitraum bereits eine " + SERVER_OPTIONS.category + " vorhanden."
+        is_error = true;
+      }
     }
   }
   if (SERVER_OPTIONS.PREFIX == "02" && !is_error) {
-    if (is_plz && (!is_ort || !is_str)) {
-      if (!is_ort) {
-        frm_main_ort.nextElementSibling.innerText = "Wenn PLZ angegeben, muss auch Ort angegeben werden.";
-        frm_main_ort.classList.add("is-invalid");
-        is_error = true;
-      }
-      if (!is_str) {
-        frm_main_strasse.nextElementSibling.innerText = "Wenn PLZ angegeben, muss auch Straße angegeben werden.";
-        frm_main_strasse.classList.add("is-invalid");
-        is_error = true;
-      }
-    }
-    else if (is_ort && (!is_str || !is_plz)) {
-      if (!is_str) {
-        frm_main_strasse.nextElementSibling.innerText = "Wenn Ort angegeben, muss auch Straße angegeben werden.";
-        frm_main_strasse.classList.add("is-invalid");
-        is_error = true;
-      }
-      if (!is_plz) {
-        frm_main_plz.nextElementSibling.innerText = "Wenn Ort angegeben, muss auch PLZ angegeben werden.";
-        frm_main_plz.classList.add("is-invalid");
-        is_error = true;
-      }
-    }
-    else if (is_str && (!is_ort || !is_plz)) {
-      if (!is_ort) {
-        frm_main_ort.nextElementSibling.innerText = "Wenn Straße angegeben, muss auch Ort angegeben werden.";
-        frm_main_ort.classList.add("is-invalid");
-        is_error = true;
-      }
-      if (!is_plz) {
-        frm_main_plz.nextElementSibling.innerText = "Wenn Straße angegeben, muss auch PLZ angegeben werden.";
-        frm_main_plz.classList.add("is-invalid");
-        is_error = true;
-      }
-    }
-    else if (!is_addr && !is_telef && !is_mail) {
-      if (!is_str) frm_main_strasse.classList.add("is-invalid");
-      if (!is_ort) frm_main_ort.classList.add("is-invalid");
-      if (!is_plz) frm_main_plz.classList.add("is-invalid");
+    if (!is_telef && !is_mail) {
       if (!is_telef) frm_main_telefon.classList.add("is-invalid");
       if (!is_mail) frm_main_email.classList.add("is-invalid");
-      appendAlert('Es muss mindestens Adresse oder Telefon oder E-Mail angegeben werden.', 'warning');
+      appendAlert('Es muss mindestens Telefon oder E-Mail angegeben werden.', 'warning');
       is_error = true;
     }
   }
@@ -636,9 +553,6 @@ async function performSubmit(event) {
     const submit_map = new SubmitParm();
     const besucher_map = new Map();
     const berater_arr = new Array();
-    const coaches_themes_arr = new Array();
-    const coaches_info_arr = new Array();
-    const coaches_devices_arr = new Array();
     for (const elem of frm_main.elements) {
       if (["BUTTON", "FIELDSET"].includes(elem.nodeName)) continue;
       const data_id = elem.getAttribute("data-id");
@@ -648,7 +562,9 @@ async function performSubmit(event) {
         submit_map.add_if("veranst-zeit-dauer", elem, "frm-main-zeit-dauer") ||
         submit_map.add_if("veranst-typ", elem, "frm-main-typ") ||
         submit_map.add_if("veranst-ort", elem, "frm-main-veranstort") ||
+        submit_map.add_if("veranst-cal_uid", elem, "frm-main-veranst-cal_uid") ||
         submit_map.add_if("veranst-thema", elem, "frm-main-thema-head") ||
+        submit_map.add_if("veranst-spende", elem, "frm-main-spende-head") ||
         submit_map.add_if("vorname", elem, "frm-main-vorname") ||
         submit_map.add_if("nachname", elem, "frm-main-nachname") ||
         submit_map.add_if("email", elem, "frm-main-email") ||
@@ -656,20 +572,12 @@ async function performSubmit(event) {
         submit_map.add_if("mobil", elem, "frm-main-mobil") ||
         submit_map.add_if("datum", elem, "frm-main-datum") ||
         submit_map.add_if("anrede", elem, "frm-main-anrede") ||
-        submit_map.add_if("strasse", elem, "frm-main-strasse") ||
-        submit_map.add_if("plz", elem, "frm-main-plz") ||
-        submit_map.add_if("ort", elem, "frm-main-ort") ||
         submit_map.add_if("bemerkung", elem, "frm-main-bemerkung") ||
         submit_map.add_if("bezeichnung", elem, "frm-main-bezeichnung") ||
         submit_map.add_if("maxbesucher", elem, "frm-main-maxbesucher") ||
-        submit_map.add_if("tdm", elem, "frm-main-tdm") ||
-        submit_map.add_if("ext", elem, "frm-main-ext") ||
         submit_map.add_if("newsl", elem, "frm-main-newsl") ||
         submit_map.add_if("aktiv", elem, "frm-main-aktiv") ||
-        add_To_Array(berater_arr, elem.value, elem.name == "frm-main-berater") ||
-        add_To_Array(coaches_themes_arr, elem.value, elem.name == "frm-main-coached-themes") ||
-        add_To_Array(coaches_info_arr, elem.value, elem.name == "frm-main-info-themes") ||
-        add_To_Array(coaches_devices_arr, elem.value, elem.name == "frm-main-coached-devices");
+        add_To_Array(berater_arr, elem.value, elem.name == "frm-main-berater")
       if (!chk) {
         if (elem.name == "frm-main-spende") {
           if (!besucher_map.has(data_id)) besucher_map.set(data_id, new Map());
@@ -686,28 +594,12 @@ async function performSubmit(event) {
           besucher_inhalt_map.set("wl", wl);
           besucher_inhalt_map.set("wl-prev", wl_prev);
         }
-        else if (elem.name == "frm-main-thema") {
-          if (!besucher_map.has(data_id)) besucher_map.set(data_id, new Map());
-          const besucher_inhalt_map = besucher_map.get(data_id);
-          if (elem.getAttribute("data-rowid")) besucher_inhalt_map.set("id", elem.getAttribute("data-rowid"));
-          besucher_inhalt_map.set("thema", elem.value);
-        }
-        else if (elem.name == "frm-main-geraet") {
-          if (!besucher_map.has(data_id)) besucher_map.set(data_id, new Map());
-          const besucher_inhalt_map = besucher_map.get(data_id);
-          if (elem.getAttribute("data-rowid")) besucher_inhalt_map.set("id", elem.getAttribute("data-rowid"));
-          besucher_inhalt_map.set("geraet", elem.value);
-        }
       }
     }
     if (berater_arr.length > 0) submit_map.add("berater", berater_arr);
     if (besucher_map.size > 0) submit_map.add("besucher", besucher_map);
     if (visiter_elem_map.init) submit_map.add("besucher-remove", visiter_elem_map.map_remove);
-    if (coaches_themes_arr.length > 0) submit_map.add("coached-themes", coaches_themes_arr);
-    if (coaches_info_arr.length > 0) submit_map.add("info-themes", coaches_info_arr);
-    if (coaches_devices_arr.length > 0) submit_map.add("coached-devices", coaches_devices_arr);
     if (events_elem_map.init) submit_map.add("veranst-remove", events_elem_map.map_remove);
-    if (coaches_devices_map.init) submit_map.add("coaches-remove", coaches_devices_map.map_remove);
     const item_timestamp = extStorage.getItem("timestamp");
     if (item_id_head) submit_map.add("main-id", item_id_head);
     if (item_timestamp) submit_map.add("item-timestamp", item_timestamp);
@@ -715,7 +607,7 @@ async function performSubmit(event) {
     const result_data = await execFetch(HTTP.getURL("ax-submit-" + SERVER_OPTIONS.APP + "/"), submit_map.getString());
     spinner_btn_store.classList.add("d-none");
     if (result_data.status == "OK") {
-      extStorage.clear(["overview-search-item", "overview-page"]);
+      extStorage.clear(["overview-search-item", "overview-page", "hints"]);
       extStorage.setItem("last_stored", result_data.status);
       extStorage.setItem("last_stored_mode", result_data.mode);
       extStorage.setItem("last_stored_id", result_data.id);
@@ -796,6 +688,7 @@ function searchOverview(event) {
     else if (frm_main_vorname) frm_main_vorname.focus();
     else if (frm_main_bezeichnung) frm_main_bezeichnung.focus();
     extStorage.setItem("overview-search-item", frm_pag_search.value);
+    if (frm_pag_search_nbr) extStorage.setItem("overview-search-item-nbr", frm_pag_search_nbr.value);
     extStorage.removeItem("overview-page");
     fillOverview();
   }
@@ -994,15 +887,6 @@ async function setChangeEvent(event) {
     else if (coaches_elem_map.match_target(is_collect)) {
       rtn = setCoachesChangeEvent(target, index, init_attr, elem_value, coaches_elem_map, frm_main_berater_nbr, table_coaches, "berater", setClickEventCoach);
     }
-    else if (coaches_themes_elem_map.match_target(is_collect)) {
-      rtn = setCoachesChangeEvent(target, index, init_attr, elem_value, coaches_themes_elem_map, frm_main_coached_themes_nbr, table_coached_themes, "coached-themes", setClickEventCoacheTheme);
-    }
-    else if (coaches_info_elem_map.match_target(is_collect)) {
-      rtn = setCoachesChangeEvent(target, index, init_attr, elem_value, coaches_info_elem_map, frm_main_info_themes_nbr, table_info_themes, "info-themes", setClickEventCoacheInfo);
-    }
-    else if (coaches_devices_elem_map.match_target(is_collect)) {
-      rtn = setCoachesChangeEvent(target, index, init_attr, elem_value, coaches_devices_elem_map, frm_main_coached_devices_nbr, table_coached_devices, "coached-devices", setClickEventCoacheDevices);
-    }
   }
   return rtn;
 }
@@ -1061,44 +945,8 @@ function setClickForEvents(event) {
 }
 
 
-function setClickForCoach(event) {
-  let target = event.target;
-  while (target.nodeName != "FIGURE") {
-    target = target.parentNode;
-  }
-  const index = target.getAttribute("data-index");
-  table_device_coaches.deleteRow(index);
-  const max_rows = table_device_coaches.rows.length;
-  frm_main_coaches_nbr.innerText = max_rows;
-  let row_index = 0;
-  for (const row of table_device_coaches.rows) {
-    row.cells[3].firstElementChild.setAttribute("data-index", row_index++);
-  }
-  const item_id = target.getAttribute("data-id");
-  if (coaches_devices_map.has(item_id)) {
-    coaches_devices_map.remove(item_id);
-    coaches_devices_map.commit();
-  }
-}
-
-
 function setClickEventCoach(event) {
   setClickEventCoacheElements(event, coaches_elem_map, table_coaches, frm_main_berater_nbr)
-}
-
-
-function setClickEventCoacheTheme(event) {
-  setClickEventCoacheElements(event, coaches_themes_elem_map, table_coached_themes, frm_main_coached_themes_nbr)
-}
-
-
-function setClickEventCoacheInfo(event) {
-  setClickEventCoacheElements(event, coaches_info_elem_map, table_info_themes, frm_main_info_themes_nbr)
-}
-
-
-function setClickEventCoacheDevices(event) {
-  setClickEventCoacheElements(event, coaches_devices_elem_map, table_coached_devices, frm_main_coached_devices_nbr)
 }
 
 
@@ -1198,8 +1046,10 @@ async function setClickForEdit(event) {
       extStorage.setItem("frm-main-zeit-bis", result_data.veranst.bis);
       extStorage.setItem("frm-main-zeit-dauer", result_data.veranst.dauer);
       extStorage.setItem("frm-main-thema-head", result_data.veranst.thema);
+      extStorage.setItem("frm-main-spende-head", result_data.veranst.spenden);
       extStorage.setItem("frm-main-typ", result_data.veranst.typ);
       extStorage.setItem("frm-main-veranstort", result_data.veranst.ort);
+      extStorage.setItem("frm-main-veranst-cal_uid", result_data.veranst.cal_uid);
       coaches_elem_map.clear();
       for (const elem of result_data.berater) {
         coaches_elem_map.append(elem.BeraterID);
@@ -1210,8 +1060,6 @@ async function setClickForEdit(event) {
         const parmMap = new Map();
         parmMap.set("id", elem.id.toString());
         parmMap.set("frm-main-spende", elem.spende.toString());
-        parmMap.set("frm-main-thema", elem.ThemenID.toString());
-        parmMap.set("frm-main-geraet", elem.GeraeteID.toString());
         parmMap.set("wl", elem.BesucherWL);
         visiter_elem_map.append(elem.BesucherID.toString(), parmMap);
       }
@@ -1224,36 +1072,17 @@ async function setClickForEdit(event) {
       extStorage.setItem("frm-main-email", result_data.coache.EMail);
       extStorage.setItem("frm-main-mobil", result_data.coache.Mobil);
       extStorage.setItem("frm-main-telefon", result_data.coache.Telefon);
-      extStorage.setItem("frm-main-tdm", result_data.coache.TdM);
       extStorage.setItem("frm-main-aktiv", result_data.coache.Aktiv);
-      extStorage.setItem("frm-main-ext", result_data.coache.BerExt);
-      coaches_themes_elem_map.clear();
-      for (const elem of result_data.coached_themes) {
-        coaches_themes_elem_map.append(elem.ThemenID.toString());
-      }
-      coaches_themes_elem_map.commit();
-      coaches_info_elem_map.clear();
-      for (const elem of result_data.info_themes) {
-        coaches_info_elem_map.append(elem.ThemenID.toString());
-      }
-      coaches_info_elem_map.commit();
-      coaches_devices_elem_map.clear();
-      for (const elem of result_data.coached_devices) {
-        coaches_devices_elem_map.append(elem.GeraeteID.toString());
-      }
-      coaches_devices_elem_map.commit();
     }
     if (typeof result_data.visiter !== 'undefined') {
       extStorage.setItem("last_stored_kdnr", result_data.visiter.KundenNr);
       extStorage.setItem("frm-main-id", result_data.visiter.id);
       extStorage.setItem("frm-main-kdnr", result_data.visiter.KundenNr);
       extStorage.setItem("frm-main-datum", result_data.visiter.datum);
+      extStorage.setItem("frm-main-letzt-datum", result_data.visiter.letztDatum);
       extStorage.setItem("frm-main-anrede", result_data.visiter.Anrede);
       extStorage.setItem("frm-main-nachname", result_data.visiter.Nachname);
       extStorage.setItem("frm-main-vorname", result_data.visiter.Vorname);
-      extStorage.setItem("frm-main-strasse", result_data.visiter.Strasse);
-      extStorage.setItem("frm-main-ort", result_data.visiter.Ort);
-      extStorage.setItem("frm-main-plz", result_data.visiter.PLZ);
       extStorage.setItem("frm-main-email", result_data.visiter.EMail);
       extStorage.setItem("frm-main-telefon", result_data.visiter.Telefon);
       extStorage.setItem("frm-main-bemerkung", result_data.visiter.Bemerkung);
@@ -1273,24 +1102,10 @@ async function setClickForEdit(event) {
       extStorage.setItem("frm-main-id", result_data.veransttyp.id);
       extStorage.setItem("frm-main-bezeichnung", result_data.veransttyp.Bezeichnung);
     }
-    if (typeof result_data.device !== 'undefined') {
-      extStorage.setItem("frm-main-id", result_data.device.id);
-      extStorage.setItem("frm-main-bezeichnung", result_data.device.Bezeichnung);
-      coaches_devices_map.clear();
-      for (const elem of result_data.coached_devices) {
-        coaches_devices_map.append(elem.id, [elem.id, elem.Vorname, elem.Nachname, elem.Telefon, elem.EMail]);
-      }
-      coaches_devices_map.commit();
-    }
     if (typeof result_data.target !== 'undefined') {
       extStorage.setItem("frm-main-id", result_data.target.id);
       extStorage.setItem("frm-main-bezeichnung", result_data.target.Bezeichnung);
       extStorage.setItem("frm-main-maxbesucher", result_data.target.MaxBesucher);
-      events_elem_map.clear();
-      for (const elem of result_data.events) {
-        events_elem_map.append(elem.id.toString(), [elem.id.toString(), elem.datum.toString(), elem.Bezeichnung, null]);
-      }
-      events_elem_map.commit();
     }
     env_init();
   }
@@ -1319,30 +1134,14 @@ async function fillVisiter(visiterId, elemMap=null) {
         const id = valueMap.get("id");
         const wl = valueMap.get("wl");
         const spende = valueMap.get("frm-main-spende");
-        const thema = valueMap.get("frm-main-thema");
-        const geraet = valueMap.get("frm-main-geraet");
         if (spende) {
-          const elem = newtr.cells.item(2).firstElementChild;
+          const elem = newtr.cells.item(4).firstElementChild;
           if (elem) {
             elem.setAttribute("data-rowid", id);
             elem.value = spende;
             if (wl) {
               elem.setAttribute("data-active-wl", "true");
             }
-          }
-        }
-        if (thema) {
-          const elem = newtr.cells.item(3).firstElementChild;
-          if (elem) {
-            elem.setAttribute("data-rowid", id);
-            elem.value = thema;
-          }
-        }
-        if (geraet) {
-          const elem = newtr.cells.item(4).firstElementChild;
-          if (elem) {
-            elem.setAttribute("data-rowid", id);
-            elem.value = geraet;
           }
         }
         const elem = newtr.cells.item(5).firstElementChild;
@@ -1374,9 +1173,9 @@ function setVisiterWL() {
       }
     }
   }
-  let max_vis = "--";
-  if (max_visiters >= 0) max_vis = max_visiters;
-  frm_main_besucher_nbrmax.innerText = max_vis;
+  // let max_vis = "--";
+  // if (max_visiters >= 0) max_vis = max_visiters;
+  // frm_main_besucher_nbrmax.innerText = max_vis;
 }
 
 

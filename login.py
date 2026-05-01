@@ -57,7 +57,8 @@ def login():
 
         print(session['last-uri'], session['last-modname'])
         resp = make_response(redirect(session['last-uri']))
-        resp.set_cookie(current_app.config['COOKIE_PREFIX'] + '-is-logged-in', 'true', max_age=(60*60*24*360), path=session['last-modname'])
+        # resp.set_cookie(current_app.config['COOKIE_PREFIX'] + '-is-logged-in', 'true', max_age=(60*60*24*360), path=session['last-modname'])
+        resp.set_cookie(current_app.config['COOKIE_PREFIX'] + '-is-logged-in-TEST', 'true', max_age=(60*60*24*5), path=session['last-modname'])
         return resp
 
     # try:
@@ -85,7 +86,7 @@ def login():
 
     # return render_template("service/verwEpisoden.html", conf=conf, javascript=conf.javascript.getOut())
     
-    if current_app.config['COOKIE_PREFIX'] + '-is-logged-in' in request.cookies: mode = 'yes'
+    if current_app.config['COOKIE_PREFIX'] + '-is-logged-in-TEST' in request.cookies: mode = 'yes'
     else: mode = 'no'
     
     return render_template("signIn.html", mode=mode)

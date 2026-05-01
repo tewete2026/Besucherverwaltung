@@ -32,18 +32,18 @@ CREATE TABLE `tBesucher` (
   `Ort` varchar(50) DEFAULT NULL,
   `PLZ` varchar(5) DEFAULT NULL,
   `EMail` varchar(50) DEFAULT NULL,
-  `Telefon` varchar(20) NOT NULL DEFAULT '',
+  `Telefon` varchar(20) DEFAULT NULL,
   `Aktiv` bit(1) DEFAULT NULL,
   `Newsletter` bit(1) DEFAULT NULL,
   `Bemerkung` varchar(255) DEFAULT NULL,
   `AufnDatum` datetime NOT NULL DEFAULT curdate(),
+  `LetztDatum` datetime DEFAULT NULL COMMENT 'Letztes Datum Besuch',
   `Gesendet` bit(1) DEFAULT NULL,
   `Sperre` decimal(20,0) unsigned DEFAULT NULL COMMENT 'Enthält Timestamp, wenn Satz gesperrt ist',
   PRIMARY KEY (`id`),
   UNIQUE KEY `KundenNr` (`KundenNr`),
-  UNIQUE KEY `personal_names` (`Nachname`,`Vorname`,`Telefon`),
   KEY `personal_date` (`AufnDatum`)
-) ENGINE=InnoDB AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1969 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -55,4 +55,4 @@ CREATE TABLE `tBesucher` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-02-25 18:10:45
+-- Dump completed on 2026-04-23 10:55:57

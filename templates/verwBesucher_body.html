@@ -1,10 +1,12 @@
 {% for row in entries %}
       <tr>
         <td>{{ row['KundenNr'] }}</td>
-        <td>{{ row['Vorname'] }} {{ row['Nachname'] }}</td>
-        <td>{{ row['datum'] }}</td>
+        <td>{{ row['anrede'] }}</td>
+        <td>{{ row['Nachname'] }}</td>
+        <td>{{ row['Vorname'] }}</td>
         <td>{{ row['Telefon'] }}</td>
         <td>{{ row['EMail'] }}</td>
+        <td class="text-center">{{ row['Newsletter'] }}</td>
         <td>{{ row['Anzahl'] }}</td>
         <td><figure class="text-body-secondary frm-main-overview-edit" data-id="{{ row['id'] }}" title="Eintrag ändern"><svg class="bi" width="2em" height="1em" title="Eintrag ändern"><use xlink:href="#bi-pencil-fill" title="Eintrag ändern"/></svg></figure></td>
       </tr>{% endfor %}

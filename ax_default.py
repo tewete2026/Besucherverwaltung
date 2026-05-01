@@ -5,7 +5,6 @@ from flask import current_app
 from flask import request
 
 from .db import get_db
-from . import version
 
 bp = Blueprint("ax_default", __name__)
 
@@ -41,23 +40,29 @@ def mx_get_overview(request, current_app, **kwargs):
     result_map = dict(request.get_json())
     rc_code = {"status":"OK", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
     overview_search = result_map["overview-search"]
+    if 'overview-search-nbr' in result_map:
+        overview_search = result_map["overview-search-nbr"]
     overview_page = int(result_map["overview-page"])
     overview_maxlines = int(current_app.config["max-line-overview"])
     overview_offset = (overview_page - 1) * overview_maxlines
     overview_readlines = overview_maxlines + 1
 
-    sql_parms = ""
+    sql_parms = f"{sql[0]} "
+    if len(sql) > 2: 
+        sql_parms += f" {sql[2]} "
+        statmt = "AND ("
+    else: statmt = "WHERE"
     if overview_search is not None and len(overview_search) > 0 and overview_search != "ALL":
         if re.match(r"[1-9][0-9]{3}-[0-9]{2}-[0-9]{2}", overview_search):
-            sql_parms = f"WHERE {search_field[0]}<='{overview_search}'"
+            sql_parms += f"{statmt} {search_field[0]}<='{overview_search}'"
         elif overview_search.isnumeric():
-            sql_parms = f"WHERE a.{primary}={overview_search}"
+            sql_parms += f"{statmt} a.{primary}={overview_search}"
         elif not overview_search.isspace():
             search_like = "'%" +  overview_search + "%'"
-            sql_parms = f"WHERE {search_field[0]} like {search_like}"
+            sql_parms += f"{statmt} {search_field[0]} like {search_like}"
             if len(search_field) > 1:
                 sql_parms += f" or {search_field[1]} like {search_like}"
-
+        if len(sql) > 2: sql_parms += ")"
     dbdata={}
     try:
         db = get_db()
@@ -66,7 +71,7 @@ def mx_get_overview(request, current_app, **kwargs):
         cur = db.cursor(dictionary=True)
         is_more_lines = False
 
-        cur.execute(f'{sql[0]} {sql_parms} {sql[1]} LIMIT {overview_offset}, {overview_readlines}')
+        cur.execute(f'{sql_parms} {sql[1]} LIMIT {overview_offset}, {overview_readlines}')
         dbdata.update({"entries":cur.fetchall()})
         len_vis = len(dbdata["entries"])
         show_lines = len_vis

@@ -21,7 +21,7 @@ def ax_fd_visiter(pattern):
             raise mariadb.PoolError()
         cur = db.cursor(dictionary=True)
         search_like = "%" + pattern + "%"
-        cur.execute("SELECT id,vorname,nachname,IFNULL(email,'--') as email,IF(telefon='','--',Telefon) as telefon FROM tBesucher WHERE (vorname like ? or nachname like ?) ORDER BY nachname,vorname", (search_like, search_like))
+        cur.execute("SELECT id,vorname,nachname,IFNULL(email,'--') as email,IFNULL(Telefon,'--') as telefon FROM tBesucher WHERE (vorname like ? or nachname like ?) ORDER BY nachname,vorname", (search_like, search_like))
         dbdata.update({"visiter":cur.fetchall()})
         cur.close()
         db.close()
@@ -47,7 +47,7 @@ def ax_get_visiter(pattern):
         if not db:
             raise mariadb.PoolError()
         cur = db.cursor(dictionary=True)
-        cur.execute(f"SELECT id,vorname,nachname,IFNULL(email,'--') as email,IF(telefon='','--',Telefon) as telefon FROM tBesucher WHERE id in({pattern})")
+        cur.execute(f"SELECT id,vorname,nachname,IFNULL(email,'--') as email,IFNULL(Telefon,'--') as telefon FROM tBesucher WHERE id in({pattern})")
         pattern_list = pattern.split(",")
         dbdata.update({"visiter":[None] * len(pattern_list)})
         seq = 1
@@ -123,8 +123,8 @@ def ax_get_visiter_edit():
                     JOIN tVeranst b ON a.VeranstID=b.id \
                     LEFT JOIN tOrte c ON b.Ort=c.id \
                     WHERE a.BesucherID=? ORDER BY b.id DESC"}
-    select_field = "KundenNr,Nachname,Vorname,IFNULL(Anrede,-1) as Anrede,IFNULL(Strasse,'') as Strasse,IFNULL(Ort,'') as Ort,IFNULL(PLZ,'') as PLZ,IFNULL(EMail,'') as EMail,Telefon,\
-                    IF(Aktiv=TRUE,TRUE,FALSE) as Aktiv,IF(Newsletter=TRUE,TRUE,FALSE) as Newsletter,IFNULL(Bemerkung,'') as Bemerkung,DATE_FORMAT(DATE(AufnDatum),'%Y-%m-%d') as datum"
+    select_field = "KundenNr,Nachname,Vorname,IFNULL(Anrede,-1) as Anrede,IFNULL(EMail,'') as EMail,IFNULL(Telefon,'') as Telefon,\
+                    IF(Aktiv=TRUE,TRUE,FALSE) as Aktiv,IF(Newsletter=TRUE,TRUE,FALSE) as Newsletter,IFNULL(Bemerkung,'') as Bemerkung,DATE_FORMAT(DATE(AufnDatum),'%Y-%m-%d') as datum,IF(LetztDatum is null,'0000-00-00',DATE_FORMAT(DATE(LetztDatum),'%Y-%m-%d')) as letztDatum"
     return mx_get_edit(request, current_app, table_name="tBesucher", data_key="visiter", queries=queries, select_field=select_field)
 
 
@@ -136,11 +136,14 @@ def ax_submit_visiter_release():
 
 @bp.route("/ax-get-visiter-overview/", methods=['POST'])
 def ax_get_visiter_overview():
+    # Formatierung für ein DATUM:  DATE_FORMAT(DATE(a.AufnDatum),'%d.%m.%Y') as datum,
     rc_code = mx_get_overview(request, current_app, html_template_body="verwBesucher_body.html", 
-                              sql=["SELECT a.id,a.KundenNr,a.Vorname,a.Nachname,IF(a.Telefon='','--',Telefon) as Telefon,IFNULL(a.EMail,'--') as EMail, \
-                    DATE_FORMAT(DATE(a.AufnDatum),'%d.%m.%Y') as datum,IFNULL(b.anzahl,'--') as Anzahl from tBesucher a \
+                              sql=["SELECT a.id,a.KundenNr,IF(a.Vorname='','--',a.Vorname) as Vorname,a.Nachname,IFNULL(Telefon,'--') as Telefon,IFNULL(a.EMail,'--') as EMail, \
+                    IFNULL(c.AnredeBezeichnung, 'keine') as anrede, \
+                    IFNULL(b.anzahl,'--') as Anzahl,IF(a.Newsletter=1,'✓','') as Newsletter from tBesucher a \
+                    left join tAnrede c ON a.Anrede=c.AnredeID \
                     left join (select g.BesucherID,count(*) as anzahl from (select VeranstID,BesucherID from tBesuche group by BesucherID,VeranstID) g group by g.BesucherID) b ON a.id=b.BesucherID", 
-                    "ORDER BY a.AufnDatum DESC"], search_field=["a.Vorname", "a.Nachname"], primary="KundenNr")
+                    "ORDER BY a.Nachname,a.Vorname"], search_field=["a.Vorname", "a.Nachname"], primary="KundenNr")
     return rc_code
 
 
@@ -163,12 +166,6 @@ def ax_submit_visiter():
                 besucher_vorname = parm
             elif pkey == "nachname":
                 besucher_nachname = parm
-            elif pkey == "strasse":
-                besucher_strasse = parm
-            elif pkey == "plz":
-                besucher_plz = parm
-            elif pkey == "ort":
-                besucher_ort = parm
             elif pkey == "email":
                 besucher_email = parm
             elif pkey == "telefon":
@@ -186,7 +183,6 @@ def ax_submit_visiter():
             elif pkey == "veranst-remove":
                 veranst_remove = parm
         
-        print(veranst_remove)
         try:
             db = get_db()
             if not db:
@@ -203,8 +199,8 @@ def ax_submit_visiter():
                 timestamp = str(row_data["sperre"])
                 rc_code["kdnr"] = str(row_data["KundenNr"])
                 if timestamp == item_timestamp:
-                    cur.execute("update tBesucher set sperre=null,Nachname=?,Vorname=?,Anrede=NULLIF(?,-1),Strasse=NULLIF(?,''),Ort=NULLIF(?,''),PLZ=NULLIF(?,''),EMail=NULLIF(?,''),Telefon=?,Aktiv=?,Newsletter=?,Bemerkung=NULLIF(?,''),AufnDatum=? where id=?", 
-                                (besucher_nachname, besucher_vorname, besucher_anrede, besucher_strasse, besucher_ort, besucher_plz, besucher_email, besucher_telefon, besucher_aktiv, besucher_newsl, besucher_bemerkung, besucher_datum, item_id))
+                    cur.execute("update tBesucher set sperre=null,Nachname=?,Vorname=?,Anrede=NULLIF(?,-1),EMail=NULLIF(?,''),Telefon=?,Aktiv=?,Newsletter=?,Bemerkung=NULLIF(?,''),AufnDatum=? where id=?", 
+                                (besucher_nachname, besucher_vorname, besucher_anrede, besucher_email, besucher_telefon, besucher_aktiv, besucher_newsl, besucher_bemerkung, besucher_datum, item_id))
                     if len(veranst_remove) > 0:
                         remove_verId = []
                         remove_rowId = []
@@ -235,9 +231,9 @@ def ax_submit_visiter():
                 is_unlocked = cur.fetchone()
                 if is_unlocked["unlocked"] == 0:
                     current_app.logger.error("Für Datensatz: ID=%s, Name=%s %s, Kd-Nr=%s, konnte kein RELEASE_LOCK ausgeführt werden.", last_id, besucher_vorname, besucher_nachname, max_kdnr)
-                cur.execute("insert into tBesucher(KundenNr,Nachname,Vorname,Anrede,Strasse,Ort,PLZ,EMail,Telefon,Aktiv,Newsletter,Bemerkung,AufnDatum) \
+                cur.execute("insert into tBesucher(KundenNr,Nachname,Vorname,Anrede,EMail,Telefon,Aktiv,Newsletter,Bemerkung,AufnDatum) \
                             values(?,?,?,?,NULLIF(?,''),NULLIF(?,''),NULLIF(?,''),NULLIF(?,''),?,?,?,NULLIF(?,''),?)", 
-                            (max_kdnr, besucher_nachname, besucher_vorname, besucher_anrede, besucher_strasse, besucher_ort, besucher_plz, besucher_email, besucher_telefon, besucher_aktiv, besucher_newsl, besucher_bemerkung, besucher_datum))
+                            (max_kdnr, besucher_nachname, besucher_vorname, besucher_anrede, besucher_email, besucher_telefon, besucher_aktiv, besucher_newsl, besucher_bemerkung, besucher_datum))
                 last_id = cur.lastrowid
                 rc_code["id"] = last_id
                 rc_code["kdnr"] = max_kdnr

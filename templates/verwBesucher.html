@@ -4,10 +4,12 @@
     <thead>
       <tr>
         <th scope="col" style="line-height: 1em; width: 6%">Kd.- Nr.</th>
-        <th scope="col" style="width: 30%">Name</th>
-        <th scope="col" style="line-height: 1em; width: 10%">Aufnahme Datum</th>
+        <th scope="col" style="width: 4%">Anrede</th>
+        <th scope="col" style="width: 18%">Nachname</th>
+        <th scope="col" style="width: 18%">Vorname</th>
         <th scope="col" style="width: 15%">Telefon</th>
-        <th scope="col" style="width: 40%">E-Mail</th>
+        <th scope="col" style="width: 38%">E-Mail</th>
+        <th scope="col" style="line-height: 1em; width: 2%">News- letter</th>
         <th scope="col" style="line-height: 1em; width: 4%">Anzahl Veranst.</th>
         <th scope="col" style="line-height: 1em; width: 3%">Än- dern</th>
       </tr>
@@ -31,13 +33,17 @@
               <input type="checkbox" class="form-check-input storaged-elem" name="frm-main-aktiv" id="frm-main-aktiv" checked>
             </div>
           </div>
-          <div class="bg-light ms-2 pb-1" style="width: 98%;">
+          <div class="bg-light ms-2 pb-1" style="width: 30%;">
             <label for="frm-main-anrede">Anrede</label>
             <select class="form-select storaged-elem" name="frm-main-anrede" id="frm-main-anrede" required>
               <option value="-1">Bitte auswählen...</option>{% for row in dbdata["anrede"] %}
               <option value="{{ row['id'] }}">{{ row['bezeichnung'] }}</option>{% endfor %}
             </select>
             <div class="invalid-feedback"></div>
+          </div>
+          <div class="bg-light ms-5 pb-1 text-secondary" style="width: 25%;">
+            <label for="frm-main-letzt-datum">Letztes Besuchsdatum</label>
+            <input type="date" class="form-control storaged-elem" name="frm-main-letzt-datum" id="frm-main-letzt-datum" disabled>
           </div>
           <div class="bg-light ms-2 pb-1" style="width: 98%;">
             <label for="frm-main-vorname">Vorname</label>
@@ -47,21 +53,6 @@
           <div class="bg-light ms-2 pb-1" style="width: 98%;">
             <label for="frm-main-nachname">Nachname</label>
             <input type="text" class="form-control storaged-elem" name="frm-main-nachname" id="frm-main-nachname" required>
-            <div class="invalid-feedback"></div>
-          </div>
-          <div class="bg-light ms-2 pb-1" style="width: 98%;">
-            <label for="frm-main-strasse">Straße + Haus-Nr.</label>
-            <input type="text" class="form-control storaged-elem" name="frm-main-strasse" id="frm-main-strasse" required>
-            <div class="invalid-feedback"></div>
-          </div>
-          <div class="col-sm-2 bg-light ms-2 pb-1">
-            <label for="frm-main-plz">Postleitzahl</label>
-            <input type="text" class="form-control storaged-elem" name="frm-main-plz" id="frm-main-plz" required>
-            <div class="invalid-feedback"></div>
-          </div>
-          <div class="bg-light ms-2 pb-1" style="width: 80.5%;">
-            <label for="frm-main-ort">Ort</label>
-            <input type="text" class="form-control storaged-elem" name="frm-main-ort" id="frm-main-ort" required>
             <div class="invalid-feedback"></div>
           </div>
           <div class="bg-light ms-2 pb-1" style="width: 51.5%;">

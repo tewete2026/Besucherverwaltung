@@ -15,7 +15,7 @@ def main():
         return redirect(url_for("internal_server_error"))
 
     conf = Configure(request, current_app, title="Verwalten Veranstaltungsarten", header=["Veranstaltungsart Nr.", "Neue Veranstaltungsart erfassen"], prefix="06", app='veransttyp',
-                     link='link-verwveransttyp', label="Veranstaltungsart", category="Veranstaltungsarten", overview="Übersicht Veranstaltungsarten", pag_search="oder Suchbegriff eingeben")
+                     link='link-verwveransttyp', label="Veranstaltungsart", category="Veranstaltungsarten", overview="Übersicht Veranstaltungsarten", pag_search="Suchbegriff eingeben")
 
     return render_template("verwVeranstTyp.html", conf=conf, javascript=conf.javascript.getOut())
 

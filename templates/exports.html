@@ -1,0 +1,85 @@
+{% extends "base_start.html" %}
+{% block header %}
+    <div class="mb-3">
+      <a href="/" class="btn btn-secondary btn-lg px-2">Zurück</a>
+    </div>
+    <hr class="col-3 col-md-2 mb-4">
+{% endblock %}
+{% block content %}
+<div class="col-md-6 mod-exports">
+    <h5>Bitte eine der gewünschten verdichteten Listen auswählen:</h5>
+    <ul class="list-unstyled ps-0">
+        <li class="icon-link mb-3 p-2 bg-body-secondary">
+            <button type="button" class="btn btn-primary" onclick="window.location.assign('/ax-qy-visiter/store-no')">
+                <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
+                Ansehen
+            </button>
+            <button type="button" class="btn btn-secondary me-2" onclick="this.setAttribute('disabled', true);window.location.assign('/ax-qy-visiter/store-yes')">
+                <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
+                Herunterladen
+            </button>
+            <span>Anzahl der Gesamtbesucher im PCafé pro Monat und Jahr mit Spendensumme</span>
+        </li>
+        <li class="icon-link mb-3 p-2 bg-body-secondary">
+            <button type="button" class="btn btn-primary" onclick="window.location.assign('/ax-qy-visiter-info/store-no')">
+                <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
+                Ansehen
+            </button>
+            <button type="button" class="btn btn-secondary me-2" onclick="this.setAttribute('disabled', true);window.location.assign('/ax-qy-visiter-info/store-yes')">
+                <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
+                Herunterladen
+            </button>
+            <span>Anzahl der Besucher bei Infoveranstaltungen gesamt + Anzahl der Besucher pro Thema</span>
+        </li>
+        <li class="icon-link mb-3 p-2 bg-body-secondary">
+            <button type="button" class="btn btn-primary" onclick="window.location.assign('/ax-qy-visiter-ext/store-no')">
+                <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
+                Ansehen
+            </button>
+            <button type="button" class="btn btn-secondary me-2" onclick="this.setAttribute('disabled', true);window.location.assign('/ax-qy-visiter-ext/store-yes')">
+                <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
+                Herunterladen
+            </button>
+            <span>Anzahl der Besucher der externen Orte pro Monat und Jahr</span>
+        </li>
+        <li class="icon-link mb-3 p-2 bg-body-secondary">
+            <button type="button" class="btn btn-primary" onclick="window.location.assign('/ax-qy-visiter-last/store-no')">
+                <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
+                Ansehen
+            </button>
+            <button type="button" class="btn btn-secondary me-2" onclick="this.setAttribute('disabled', true);window.location.assign('/ax-qy-visiter-last/store-yes')">
+                <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
+                Herunterladen
+            </button>
+            <span>Besucher mit Anzahl Veranstaltungen und letzter Besuch</span>
+        </li>
+    </ul>
+</div>
+<div class="col-md-6 mod-exports">
+    <h5>Bitte eine der gewünschten detaillierten Listen auswählen:</h5>
+    <ul class="list-unstyled ps-0">
+        <li class="icon-link mb-3 p-2 bg-body-secondary">
+            <button type="button" class="btn btn-primary" onclick="window.location.assign('/ax-qy-visiter-events/store-no')">
+                <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
+                Ansehen
+            </button>
+            <button type="button" class="btn btn-secondary me-2" onclick="this.setAttribute('disabled', true);window.location.assign('/ax-qy-visiter-events/store-yes')">
+                <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
+                Herunterladen
+            </button>
+            <span>Veranstaltungen im PCafé mit Besuchern</span>
+        </li>
+        <li class="icon-link mb-3 p-2 bg-body-secondary">
+            <button type="button" class="btn btn-primary" onclick="window.location.assign('/ax-qy-coaches-events/store-no')">
+                <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
+                Ansehen
+            </button>
+            <button type="button" class="btn btn-secondary me-2" onclick="this.setAttribute('disabled', true);window.location.assign('/ax-qy-coaches-events/store-yes')">
+                <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
+                Herunterladen
+            </button>
+            <span>Veranstaltungen im PCafé mit Beratern</span>
+        </li>
+    </ul>
+</div>
+{% endblock %}

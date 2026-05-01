@@ -1,7 +1,7 @@
 /*M!999999\- enable the sandbox mode */ 
 -- MariaDB dump 10.19-11.8.3-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: bv
+-- Host: localhost    Database: bv_1
 -- ------------------------------------------------------
 -- Server version	11.8.3-MariaDB-1build1 from Ubuntu
 
@@ -17,18 +17,18 @@
 /*M!100616 SET @OLD_NOTE_VERBOSITY=@@NOTE_VERBOSITY, NOTE_VERBOSITY=0 */;
 
 --
--- Table structure for table `tBeraterGer`
+-- Table structure for table `tThemenGr`
 --
 
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `tBeraterGer` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `BeraterID` int(11) DEFAULT NULL COMMENT 'Verweis auf tBerater',
-  `GeraeteID` int(11) DEFAULT NULL COMMENT 'Verweis auf tGeraete',
-  `Entf` bit(1) DEFAULT NULL,
+CREATE TABLE `tThemenGr` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `Bezeichnung` varchar(50) DEFAULT NULL,
+  `Reihenfolge` smallint(6) DEFAULT NULL,
+  `ThId` smallint(6) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -40,4 +40,4 @@ CREATE TABLE `tBeraterGer` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-02-25 18:10:45
+-- Dump completed on 2026-04-22 15:23:21

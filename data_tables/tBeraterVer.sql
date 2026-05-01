@@ -23,12 +23,13 @@
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tBeraterVer` (
-  `id` int(11) DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `VeranstID` int(11) DEFAULT NULL COMMENT 'Verweis auf tVeranst',
   `BeraterID` int(11) DEFAULT NULL COMMENT 'Verweis auf tBerater',
+  PRIMARY KEY (`id`),
   KEY `berater_ids` (`BeraterID`),
   KEY `veranst_ids` (`VeranstID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1892 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -40,4 +41,4 @@ CREATE TABLE `tBeraterVer` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-02-25 18:10:45
+-- Dump completed on 2026-04-23 10:55:57

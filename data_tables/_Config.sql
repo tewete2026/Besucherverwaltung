@@ -17,18 +17,17 @@
 /*M!100616 SET @OLD_NOTE_VERBOSITY=@@NOTE_VERBOSITY, NOTE_VERBOSITY=0 */;
 
 --
--- Table structure for table `tBeraterInfo`
+-- Table structure for table `_Config`
 --
 
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `tBeraterInfo` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `BeraterID` int(11) DEFAULT NULL COMMENT 'Verweis auf tBerater',
-  `ThemenID` int(11) DEFAULT NULL COMMENT 'Verweis auf tThemen',
-  `Entf` bit(1) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+CREATE TABLE `_Config` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `item` varchar(50) DEFAULT NULL,
+  `value` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -40,4 +39,4 @@ CREATE TABLE `tBeraterInfo` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-02-25 18:10:45
+-- Dump completed on 2026-04-23 10:55:57

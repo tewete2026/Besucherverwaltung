@@ -61,6 +61,7 @@ class Configure:
 
 class TimeSet:
     def __init__(self, tz:str):
+        self.__tzid = tz
         self.__tz = pytz.timezone(tz)
         self.__dt = datetime
     def setRecordunlock(self, value:int):
@@ -73,6 +74,8 @@ class TimeSet:
         return self.todaytime().today().date()
     def todaytime(self) -> datetime:
         return self.__dt.now(tz=self.__tz)
+    def todaytime_utc(self) -> datetime:
+        return self.__dt.now(tz=pytz.timezone('UTC'))
     def isocalendar(self, ts=None):
         if not ts: ts = self.todaytime()
         return self.__dt.isocalendar(ts)
@@ -110,9 +113,11 @@ class TimeSet:
         dates = date.split('-')
         times_from = time_from.split(':')
         times_to = time_to.split(':')
-        tmfrom = datetime(int(dates[0]), int(dates[1]), int(dates[2]), int(times_from[0]), int(times_from[1]), tzinfo=self.__tz)
-        tmto = datetime(int(dates[0]), int(dates[1]), int(dates[2]), int(times_to[0]), int(times_to[1]), tzinfo=self.__tz)
-        return (tmfrom, tmto)
+        tmfrom = self.__dt(int(dates[0]), int(dates[1]), int(dates[2]), int(times_from[0]), int(times_from[1]), tzinfo=self.__tz)
+        tmto = self.__dt(int(dates[0]), int(dates[1]), int(dates[2]), int(times_to[0]), int(times_to[1]), tzinfo=self.__tz)
+        # tmfrom_ical = tmfrom.strftime('%Y%m%dT%H%M%S')
+        # tmto_ical = tmto.strftime('%Y%m%dT%H%M%S')
+        return (tmfrom, tmto, self.__tzid)
 
 def get_db():
     try:

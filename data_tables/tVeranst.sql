@@ -32,7 +32,7 @@ CREATE TABLE `tVeranst` (
   `Dauer` varchar(10) DEFAULT '00:00' COMMENT 'Dauer der Veranstaltung',
   `Bezeichnung` varchar(255) DEFAULT NULL,
   `Thema` int(11) DEFAULT NULL,
-  `Spenden` decimal(18,0) DEFAULT NULL,
+  `Spenden` decimal(18,2) unsigned DEFAULT NULL COMMENT 'Spende gesamt für die Veranstaltung',
   `VorNach` varchar(10) DEFAULT NULL,
   `TagInt` smallint(6) DEFAULT NULL,
   `Monat` smallint(6) DEFAULT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE `tVeranst` (
   KEY `index_datum` (`Datum`),
   KEY `index_von` (`Von`),
   KEY `index_bis` (`Bis`)
-) ENGINE=InnoDB AUTO_INCREMENT=871 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1177 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -57,4 +57,4 @@ CREATE TABLE `tVeranst` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-02-25 18:10:45
+-- Dump completed on 2026-04-23 10:55:57

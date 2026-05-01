@@ -15,7 +15,7 @@ def main():
         return redirect(url_for("internal_server_error"))
 
     conf = Configure(request, current_app, title="Verwalten Orte", header=["Ort Nr.", "Neuen Ort erfassen"], prefix="07", app='targets',
-                     link='link-verwveranstort', label="Orte", category="Orte", overview="Übersicht Orte", pag_search="oder Suchbegriff eingeben")
+                     link='link-verwveranstort', label="Orte", category="Orte", overview="Übersicht Orte", pag_search="Suchbegriff eingeben")
 
     return render_template("verwOrte.html", conf=conf, javascript=conf.javascript.getOut())
 

@@ -1,5 +1,5 @@
 import os
-from flask import Flask, url_for
+from flask import Flask, url_for, send_from_directory
 from flask import render_template, g, current_app, session, redirect, request
 from logging.config import dictConfig
 from . import version, credentials
@@ -36,22 +36,22 @@ def create_app(test_config="DEV"):
                 "formatter": "default",
                 'level': 'ERROR'
             },
-            # "smtp": {
-            #     "class": "logging.handlers.SMTPHandler",
-            #     "mailhost": ("localhost",825),
-            #     "fromaddr": f"{version.Configs.APP_NAME}-noreply@tewete.de",
-            #     "toaddrs": credentials.EMails.SMTPHandler,
-            #     "subject": "Flask-Mail-Handler",
-            #     "formatter": "mail",
-            #     'level': 'ERROR'
-            # },
+            "smtp": {
+                "class": "logging.handlers.SMTPHandler",
+                "mailhost": ("localhost",25),
+                "fromaddr": f"{version.Configs.APP_NAME}-noreply@pcafe-webserver.local",
+                "toaddrs": credentials.EMails.SMTPHandler,
+                "subject": "Flask-Mail-Handler",
+                "formatter": "mail",
+                'level': 'ERROR'
+            },
         },
         'root': {
             'level': 'INFO',
-            'handlers': ['wsgi', 'file1', 'file2']
+            'handlers': ['wsgi', 'file1', 'file2', 'smtp']
         }
     })
-    app = Flask(version.Configs.APP_NAME, instance_relative_config=True, static_url_path=f"/src")
+    app = Flask(version.Configs.APP_NAME, instance_relative_config=False, static_url_path="/src")
     app.config.from_mapping(
         # a default secret that should be overridden by instance config
         SECRET_KEY=credentials.Passwords.SECRET_KEY,
@@ -66,12 +66,12 @@ def create_app(test_config="DEV"):
 
     @app.before_request
     def check_login():
-        if request.method == 'GET' and not current_app.config['COOKIE_PREFIX'] + '-is-logged-in' in request.cookies:
+        if request.method == 'GET' and not current_app.config['COOKIE_PREFIX'] + '-is-logged-in-TEST' in request.cookies:
             lurl = request.url.rsplit('/')
             uri = lurl.pop()
             if current_app.config['TEST_RUN']: module = ''
             else: module = lurl.pop()
-            if len(uri) > 0:
+            if len(uri) > 0 and not uri.startswith('nc-'):
                 found = False
                 for suffix in ['.css', '.jpg', '.js', '.png']:
                     if uri.endswith(suffix): found = True
@@ -95,24 +95,53 @@ def create_app(test_config="DEV"):
     def index():
         return redirect(url_for('main.index'))
 
+    @app.route("/favicon.ico")
+    def favicon():
+        path = current_app.root_path + '/static'
+        return send_from_directory(path, 'Favicon_PCafe.png')
+
     @app.route("/nc-short-view")
     def nc_short_view():
-        return render_template("starter.html")
+        credits = {
+            "created":version.Configs.APP_CREATED,
+            "version":version.Configs.APP_VERSION,
+            "author":version.Configs.APP_AUTHOR,
+            "headline":"Übersicht"
+        }
+        return render_template("starter.html", credits=credits)
 
     @app.errorhandler(404)
     def page_not_found(e):
         # note that we set the 404 status explicitly
-        return render_template('pageNotFound.html'), 404
+        credits = {
+            "created":version.Configs.APP_CREATED,
+            "version":version.Configs.APP_VERSION,
+            "author":version.Configs.APP_AUTHOR,
+            "headline":"Seite nicht gefunden"
+        }
+        return render_template('pageNotFound.html', credits=credits), 404
 
     @app.errorhandler(500)
     def internal_server_error(e):
         # note that we set the 500 status explicitly
-        return render_template('internalError.html'), 500
+        credits = {
+            "created":version.Configs.APP_CREATED,
+            "version":version.Configs.APP_VERSION,
+            "author":version.Configs.APP_AUTHOR,
+            "headline":"Interner Fehler"
+        }
+        return render_template('internalError.html', credits=credits), 500
 
     @app.errorhandler(405)
     def method_not_valid(e):
-        # note that we set the 500 status explicitly
-        return render_template('internalError.html'), 500
+        # note that we set the 405 status explicitly
+        credits = {
+            "created":version.Configs.APP_CREATED,
+            "version":version.Configs.APP_VERSION,
+            "author":version.Configs.APP_AUTHOR,
+            "headline":"Keine Berechtigung"
+        }
+        return render_template('internalError.html', credits=credits), 405
     
     @app.teardown_appcontext
     def teardown_db(exception):
@@ -127,10 +156,10 @@ def create_app(test_config="DEV"):
     if test_config == "DEV":
         app.config.from_mapping(TEST_RUN=True)
         app.logger.info("Test-Dev active; Logger=%s; Parent-Logger=%s", app.logger.name, app.logger.parent.name)
-        # for hdlr in app.logger.parent.handlers:
-        #     if hdlr.get_name() == "smtp":
-        #         app.logger.parent.removeHandler(hdlr)
-        #         app.logger.debug("Handler %s aus %s entfernt.", hdlr.get_name(), app.logger.parent.name)
+        for hdlr in app.logger.parent.handlers:
+            if hdlr.get_name() == "smtp":
+                app.logger.parent.removeHandler(hdlr)
+                app.logger.debug("Handler %s aus %s entfernt.", hdlr.get_name(), app.logger.parent.name)
     else:
         app.logger.info("Production active")
 
@@ -144,23 +173,22 @@ def create_app(test_config="DEV"):
     ts.setRecordunlock(int(app.config["wait-for-unlock-record"]))
 
     # apply the blueprints to the app
-    from . import main,login,ax_visiter,ax_events,ax_coaches,ax_devices,ax_eventtypes,ax_themes,ax_targets,ax_default,yx_gen_service,verwBesucher,verwBerater,verwVeranstTyp,verwThemen,verwGeraete,verwOrte
+    from . import main,login,ax_visiter,ax_events,ax_coaches,ax_eventtypes,ax_themes,ax_targets,ax_default,ax_queries,yx_gen_service,verwBesucher,verwBerater,verwVeranstTyp,verwThemen,verwOrte
     app.register_blueprint(main.bp)
     app.register_blueprint(login.bp)
     app.register_blueprint(ax_visiter.bp)
     app.register_blueprint(ax_events.bp)
     app.register_blueprint(ax_coaches.bp)
-    app.register_blueprint(ax_devices.bp)
     app.register_blueprint(ax_eventtypes.bp)
     app.register_blueprint(ax_themes.bp)
     app.register_blueprint(ax_targets.bp)
     app.register_blueprint(ax_default.bp)
+    app.register_blueprint(ax_queries.bp)
     app.register_blueprint(yx_gen_service.bp)
     app.register_blueprint(verwBesucher.bp)
     app.register_blueprint(verwBerater.bp)
     app.register_blueprint(verwVeranstTyp.bp)
     app.register_blueprint(verwThemen.bp)
-    app.register_blueprint(verwGeraete.bp)
     app.register_blueprint(verwOrte.bp)
     
     app.logger.debug(f"Registered Blueprint Count: {len(app.blueprints.items())}")

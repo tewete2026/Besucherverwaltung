@@ -28,7 +28,7 @@ CREATE TABLE `tBesuche` (
   `VeranstID` int(11) DEFAULT NULL COMMENT 'Verweis auf tVeranst',
   `ThemenID` int(11) DEFAULT NULL COMMENT 'Verweis auf tThemen',
   `GeraeteID` int(11) DEFAULT NULL COMMENT 'Verweis auf tGeraete',
-  `Spende` decimal(18,0) DEFAULT NULL,
+  `Spende` decimal(18,2) unsigned DEFAULT NULL COMMENT 'Spende für die Beratung',
   `Dauer` smallint(6) DEFAULT NULL,
   `VorNach` varchar(10) DEFAULT NULL,
   `TagInt` smallint(6) DEFAULT NULL,
@@ -39,10 +39,8 @@ CREATE TABLE `tBesuche` (
   `BesucherWL` bit(1) DEFAULT b'0' COMMENT 'Besucher auf der Warteliste',
   PRIMARY KEY (`id`),
   KEY `besucher_ids` (`BesucherID`),
-  KEY `veranst_ids` (`VeranstID`),
-  KEY `themen_ids` (`ThemenID`),
-  KEY `geraete_ids` (`GeraeteID`)
-) ENGINE=InnoDB AUTO_INCREMENT=19466 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+  KEY `veranst_ids` (`VeranstID`)
+) ENGINE=InnoDB AUTO_INCREMENT=20576 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -54,4 +52,4 @@ CREATE TABLE `tBesuche` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-02-25 18:10:45
+-- Dump completed on 2026-04-23 10:55:57

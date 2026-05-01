@@ -34,7 +34,7 @@ def main():
         abort(500)
 
     conf = Configure(request, current_app, title="Verwalten Besucher", header=["Besucherin/Besucher Kund.-Nr.", "Neuen Besucherin/Besucher erfassen"], prefix="02", app='visiter',
-                     link='link-verwbesucher', label="Besucher", category="Besucherin/Besucher", overview="Übersicht Besucherin/Besucher", pag_search="oder Suchbegriff eingeben")
+                     link='link-verwbesucher', label="Besucher", category="Besucherin/Besucher", overview="Übersicht Besucherin/Besucher", pag_search="Suchbegriff eingeben")
     conf.javascript.add({'style_bg_visiter_wl':current_app.config["style-bg-visiter-wl"]})
 
     return render_template("verwBesucher.html", dbdata=dbdata, credits=conf.credits, conf=conf, javascript=conf.javascript.getOut())

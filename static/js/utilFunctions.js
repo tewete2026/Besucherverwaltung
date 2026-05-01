@@ -128,6 +128,14 @@ function add_To_Array(arr, value, condition=null) {
 }
 
 
+function initDomCurrency(elem) {
+  if (!elem.value) {
+    elem.value = "0,00";
+    getDomField(elem);
+  }
+}
+
+
 function storageAvailable(type) {
   let storage;
   try {
@@ -147,6 +155,13 @@ function storageAvailable(type) {
       storage.length !== 0
     );
   }
+}
+
+
+function validateCurrency(number, strict=false) {
+  if (!number) return !strict;
+  const re = /^\d+([.,]\d{2})?$/;
+  return re.test(number);
 }
 
 
@@ -255,6 +270,7 @@ function showAlertsAfterInit() {
     const last_stored = extStorage.getItem("last_stored");
     const last_mode = extStorage.getItem("last_stored_mode");
     const last_kdnr = extStorage.getItem("last_stored_kdnr");
+    const hint_list = extStorage.retrieveHints();
     const lastItem = last_kdnr ? last_kdnr : extStorage.getItem("last_stored_id");
     const nbr_text = last_kdnr ? "Kunden-Nr." : "Nr.";
     if (last_stored) {
@@ -284,6 +300,11 @@ function showAlertsAfterInit() {
         appendAlert('Das letzte Speichern war nicht erfolgreich.', 'danger');
         extStorage.setItem("last_stored", "RESET");
       }
+      if (hint_list) {
+        for (const hint of hint_list) {
+          appendAlert(hint, 'info');
+        }
+      }
     }
   } else {
     appendError("STORAGE_NOT_AVAILABLE", "init_err");
@@ -299,31 +320,14 @@ function showAlertsAfterInit() {
 function static_coaches_rows (fieldname, data_index, html_options, tr_elem, data_index_remove="-1") {
   tr_elem.innerHTML = `<td><select class="form-select" name="frm-main-${fieldname}" data-init-frm="false" data-collect="tb-${fieldname}" \
     data-index="${data_index}" style="font-size: 0.9rem;" required>${html_options}</select></td><td style="width: 2em;"><figure class="text-body-secondary \
-    frm-main-${fieldname}-remove d-none" data-index="${data_index_remove}" title="Eintrag entfernen"> \
-    <svg class="bi" width="1.5em" height="1.5em" title="Eintrag entfernen"><use xlink:href="#bi-trash-fill" title="Eintrag entfernen"/></svg></figure></td>`;
-}
-
-
-function static_coaches_list (row, tr_elem, data_index_remove="-1") {
-  tr_elem.innerHTML = `<td>${row[1]} ${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td> \
-    <td><figure class="text-body-secondary" data-id="${row[0]}" data-index="${data_index_remove}" title="Eintrag entfernen"> \
-    <svg class="bi" width="1em" height="1em" title="Eintrag entfernen"><use xlink:href="#bi-trash-fill" title="Eintrag entfernen"/></svg></figure></td>`;
+    frm-main-${fieldname}-remove d-none" data-index="${data_index_remove}" title="Eintrag entfernen"><svg class="bi" width="1.5em" height="1.5em" title="Eintrag entfernen"><use xlink:href="#bi-trash-fill" title="Eintrag entfernen"/></svg></figure></td>`;
 }
  
 
 function static_visiter (dbdata, tr_elem, data_index_remove="-1") {
-  tr_elem.innerHTML = `<td>${dbdata.vorname}<br>${dbdata.nachname}</td><td>${dbdata.telefon}<br>${dbdata.email}</td> \
-    <td><input type="number" class="form-control" name="frm-main-spende" data-collect="tb-visiter" data-id="${dbdata.id}" value="0" step="5" style="font-size: 0.7rem; width: 6em;" required></td> \
-    <td><select class="form-select" name="frm-main-thema" data-collect="tb-visiter" data-id="${dbdata.id}" style="font-size: 0.7rem; width: 13em;" required> \
-    <option value="-1">keine Auswahl</option> \
-    ${SERVER_OPTIONS.themes} \
-    </select></td> \
-    <td><select class="form-select" name="frm-main-geraet" data-collect="tb-visiter" data-id="${dbdata.id}" style="font-size: 0.7rem; width: 12em;" required> \
-    <option value="-1">keine Auswahl</option> \
-    ${SERVER_OPTIONS.devices} \
-    </select></td> \
-    <td><figure class="text-body-secondary frm-main-besucher-remove" data-id="${dbdata.id}" data-index="${data_index_remove}" title="Eintrag entfernen"> \
-    <svg class="bi" width="1em" height="1em" title="Eintrag entfernen"><use xlink:href="#bi-trash-fill" title="Eintrag entfernen"/></svg></figure></td>`;
+  tr_elem.innerHTML = `<td>${dbdata.nachname}</td><td>${dbdata.vorname}</td><td>${dbdata.telefon}</td><td>${dbdata.email}</td> \
+    <td class="d-none"><input type="hidden" class="form-control text-end" name="frm-main-spende" data-collect="tb-visiter" data-id="${dbdata.id}" value="0,00" style="font-size: 0.7rem; width: 6em;" required></td> \
+    <td><figure class="text-body-secondary frm-main-besucher-remove" data-id="${dbdata.id}" data-index="${data_index_remove}" title="Eintrag entfernen"><svg class="bi" width="1em" height="1em" title="Eintrag entfernen"><use xlink:href="#bi-trash-fill" title="Eintrag entfernen"/></svg></figure></td>`;
 }
 
 
@@ -336,7 +340,6 @@ function static_event (id, dbdata, tr_elem, data_index_remove="-1", wl=null) {
     ind = 4;
   }
   tr_elem.innerHTML = `<td${cell_bg}>${id}</td><td${cell_bg}>${dbdata[1]}</td><td${cell_bg}>${dbdata[2]}</td>${td3} \
-    <td${cell_bg}><figure class="text-body-secondary" data-id="${id}" data-index="${data_index_remove}" data-rowid="${dbdata[0]}" title="Eintrag entfernen"> \
-    <svg class="bi" width="1em" height="1em" title="Eintrag entfernen"><use xlink:href="#bi-trash-fill" title="Eintrag entfernen"/></svg></figure></td>`;
+    <td${cell_bg}><figure class="text-body-secondary" data-id="${id}" data-index="${data_index_remove}" data-rowid="${dbdata[0]}" title="Eintrag entfernen"><svg class="bi" width="1em" height="1em" title="Eintrag entfernen"><use xlink:href="#bi-trash-fill" title="Eintrag entfernen"/></svg></figure></td>`;
   return ind;
 }

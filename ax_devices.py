@@ -13,18 +13,14 @@ bp = Blueprint("ax_devices", __name__)
 
 @bp.route("/ax-get-devices-edit/", methods=['POST'])
 def ax_get_devices_edit():
-    queries={}
-    queries['coached_devices'] = {'sql':"SELECT a.id,a.BeraterID,b.Vorname,b.Nachname,IFNULL(b.Telefon,'--') as Telefon,IFNULL(b.EMail,'--') as EMail FROM tBeraterGer a \
-                     join tBerater b on b.id=a.BeraterID WHERE GeraeteID=?"}
-    return mx_get_edit(request, current_app, table_name="tGeraete", data_key="device", queries=queries, select_field="Bezeichnung")
+    return mx_get_edit(request, current_app, table_name="tGeraete", data_key="device", select_field="Bezeichnung")
 
 
 @bp.route("/ax-get-devices-overview/", methods=['POST'])
 def ax_get_devices_overview():
     rc_code = mx_get_overview(request, current_app, html_template_body="verwGeraete_body.html", 
-                              sql=["SELECT a.id,a.Bezeichnung,IFNULL(c.anzahl_berater,'--') as anzahl_berater from tGeraete a \
-                    left join (select GeraeteID,count(BeraterID) as anzahl_berater from tBeraterGer group by GeraeteID) c on c.GeraeteID=a.id", 
-                    "ORDER BY a.Bezeichnung"], search_field=["a.Bezeichnung"])
+                              sql=["SELECT a.id,a.Bezeichnung from tGeraete a \
+                    ORDER BY a.Bezeichnung"], search_field=["a.Bezeichnung"])
     return rc_code
 
 
@@ -43,12 +39,9 @@ def ax_submit_devices():
     try:
         item_id = None
         item_timestamp = None
-        coaches_remove = None
         for pkey, parm in result:
             if pkey == "bezeichnung":
                 bezeichnung = parm
-            elif pkey == "coaches-remove":
-                coaches_remove = parm
             elif pkey == "main-id":
                 item_id = parm
             elif pkey == "item-timestamp":
@@ -70,10 +63,6 @@ def ax_submit_devices():
                 timestamp = str(row_data["sperre"])
                 if timestamp == item_timestamp:
                     cur.execute("update tGeraete set sperre=null,Bezeichnung=? where id=?", (bezeichnung, item_id))
-                    if len(coaches_remove) > 0:
-                        search = ",".join(coaches_remove)
-                        cur.execute(f"delete from tBeraterGer where id in ({search})")
-                        current_app.logger.debug("Entfernt ID=%s aus tBeraterGer für Gerät=%s: RowCount=%s, Warnings=%s", search, item_id, cur.rowcount, cur.warnings)
                 elif timestamp == "INVALID":
                     update_allowed = False
                     rc_code["status"] = "INVALID"

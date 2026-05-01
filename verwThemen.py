@@ -15,7 +15,7 @@ def main():
         return redirect(url_for("internal_server_error"))
 
     conf = Configure(request, current_app, title="Verwalten Themen", header=["Thema Nr.", "Neues Thema erfassen"], prefix="05", app='theme',
-                     link='link-verwthemen', label="Themen", category="Themen", overview="Übersicht Themen", pag_search="oder Titel eingeben")
+                     link='link-verwthemen', label="Themen", category="Themen", overview="Übersicht Themen", pag_search="Titel eingeben")
 
     return render_template("verwThemen.html", conf=conf, javascript=conf.javascript.getOut())
 

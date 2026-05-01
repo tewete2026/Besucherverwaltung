@@ -103,8 +103,7 @@ figure {
   cursor: pointer;
 }
 
-table#coaches-set figure,
-table#tb-visiter figure {
+table#coaches-set figure {
   margin-top: 1em;
 }
 
@@ -115,4 +114,19 @@ table#tb-visiter figure {
 .text-body-emphasis {
   font-size: 0.8em;
   opacity: 0.6;
+}
+
+.form-control:disabled {
+  color: inherit;
+}
+
+.mod-exports button {
+  padding: 0.2rem;
+  font-size: 70%;
+}
+.mod-exports button.btn-primary {
+  max-width: 55px;
+}
+.mod-exports button.btn-secondary {
+  max-width: 85px;
 }

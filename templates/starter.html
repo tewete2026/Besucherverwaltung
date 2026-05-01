@@ -1,1 +1,32 @@
 {% extends "base_start.html" %}
+{% block content %}
+<div class="col-md-6">
+    <p>Bitte einen der gewünschten Menüpunkte auswählen:</p>
+    <ul class="list-unstyled ps-0">
+        <li>
+            <a class="icon-link mb-1" href="{{ url_for('main.index') }}" rel="noopener" target="_blank">
+                <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
+                Veranstaltungen
+            </a>
+        </li>
+        <li>
+            <a class="icon-link mb-1" href="{{ url_for('verwBerater.main') }}" rel="noopener" target="_blank">
+                <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
+                Berater
+            </a>
+        </li>
+        <li>
+            <a class="icon-link mb-1" href="{{ url_for('verwBesucher.main') }}" rel="noopener" target="_blank">
+                <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
+                Besucher
+            </a>
+        </li>
+        <li>
+            <a class="icon-link mb-1" href="{{ url_for('verwThemen.main') }}" rel="noopener" target="_blank">
+                <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
+                Themen
+            </a>
+        </li>
+    </ul>
+</div>
+{% endblock %}

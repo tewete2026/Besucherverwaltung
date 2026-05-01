@@ -13,13 +13,13 @@ bp = Blueprint("ax_themes", __name__)
 
 @bp.route("/ax-get-theme-edit/", methods=['POST'])
 def ax_get_theme_edit():
-    return mx_get_edit(request, current_app, table_name="tThemen", data_key="theme", select_field="Thema as bezeichnung")
+    return mx_get_edit(request, current_app, table_name="tThemen", data_key="theme", select_field="Thema as bezeichnung,GruppenID")
 
 
 @bp.route("/ax-get-theme-overview/", methods=['POST'])
 def ax_get_theme_overview():
     rc_code = mx_get_overview(request, current_app, html_template_body="verwThemen_body.html", 
-                              sql=["SELECT a.id,a.Thema as bezeichnung from tThemen a", "ORDER BY a.Thema"], search_field=["a.Thema"])
+                              sql=["SELECT id,IF(GruppenID=10,CONCAT('✆ ',Thema),Thema) as bezeichnung from tThemen", "ORDER BY GruppenID,Thema", "WHERE GruppenID in(10,20)"], search_field=["Thema"])
     return rc_code
 
 
@@ -69,7 +69,7 @@ def ax_submit_theme():
                     update_allowed = False
                     rc_code["status"] = "NOTALWD"
             else:
-                cur.execute("insert into tThemen(Thema) values(?)", (theme_bezeichnung,))
+                cur.execute("insert into tThemen(Thema,GruppenID) values(?,?)", (theme_bezeichnung, 20))
                 last_id = cur.lastrowid
                 rc_code["id"] = last_id
 

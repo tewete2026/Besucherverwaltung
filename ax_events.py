@@ -1,4 +1,5 @@
 import mariadb, sys
+from icalendar.prop import vDDDTypes, vText
 from caldav import davclient
 from flask import Blueprint
 from flask import current_app
@@ -16,9 +17,9 @@ bp = Blueprint("ax_events", __name__)
 def ax_get_veranst_edit():
     queries={}
     queries['berater'] = {'sql':"SELECT id,BeraterID FROM tBeraterVer WHERE VeranstID=?"}
-    queries['besucher'] = {'sql':"SELECT id,BesucherID,IFNULL(ThemenID,-1) as ThemenID,IFNULL(GeraeteID,-1) as GeraeteID,spende,IF(BesucherWL=true,true,false) as BesucherWL \
+    queries['besucher'] = {'sql':"SELECT id,BesucherID,REPLACE(FORMAT(spende,2,'de_DE'),'.','') as spende,IF(BesucherWL=true,true,false) as BesucherWL \
                     FROM tBesuche WHERE VeranstID=?"}
-    select_field = "typ,IFNULL(ort,-1) as ort,DATE_FORMAT(DATE(datum),'%Y-%m-%d') as datum,von,bis,dauer,IFNULL(thema,-1) as thema"
+    select_field = "typ,REPLACE(FORMAT(spenden,2,'de_DE'),'.','') as spenden,IFNULL(ort,-1) as ort,DATE_FORMAT(DATE(datum),'%Y-%m-%d') as datum,von,bis,dauer,IFNULL(thema,-1) as thema,IFNULL(cal_uid,'') as cal_uid"
     return mx_get_edit(request, current_app, table_name="tVeranst", data_key="veranst", queries=queries, select_field=select_field)
 
 
@@ -106,8 +107,12 @@ def ax_submit_veranst():
                     veranst_zeit_dauer = parm
                 elif pkey == "veranst-typ":
                     veranst_typ = parm
+                elif pkey == "veranst-spende":
+                    veranst_spende = float(parm.replace(",", '.'))
                 elif pkey == "veranst-ort":
                     veranst_ort = parm
+                elif pkey == "veranst-cal_uid":
+                    veranst_cal_uid = parm
                 elif pkey == "veranst-thema":
                     veranst_thema = parm
                 elif pkey == "main-id":
@@ -133,7 +138,7 @@ def ax_submit_veranst():
                 cur.execute("SELECT IFNULL(sperre,'INVALID') as sperre FROM tVeranst WHERE id=? FOR UPDATE", (veranst_id,))
                 timestamp = str(cur.fetchone()["sperre"])
                 if timestamp == veranst_timestamp:
-                    cur.execute("update tVeranst set sperre=null,typ=?,ort=?,thema=NULLIF(?,-1),datum=?,von=?,bis=?,dauer=?,bezeichnung=? where id=?", (veranst_typ, veranst_ort, veranst_thema, veranst_datum, veranst_zeit_von, veranst_zeit_bis, veranst_zeit_dauer, bezeichnung, veranst_id))
+                    cur.execute("update tVeranst set sperre=null,typ=?,ort=NULLIF(?,-1),spenden=?,thema=NULLIF(?,-1),datum=?,von=?,bis=?,dauer=?,bezeichnung=? where id=?", (veranst_typ, veranst_ort, veranst_spende, veranst_thema, veranst_datum, veranst_zeit_von, veranst_zeit_bis, veranst_zeit_dauer, bezeichnung, veranst_id))
                     cur.execute("delete from tBeraterVer where VeranstID=?", (veranst_id,))
                     last_id = veranst_id
                     rc_code["id"] = veranst_id
@@ -146,7 +151,7 @@ def ax_submit_veranst():
                     rc_code["status"] = "NOTALWD"
                     rc_code["id"] = veranst_id
             else:
-                cur.execute("insert into tVeranst(typ,ort,thema,datum,von,bis,dauer,bezeichnung) values(?,?,NULLIF(?,-1),?,?,?,?,?)", (veranst_typ, veranst_ort, veranst_thema, veranst_datum, veranst_zeit_von, veranst_zeit_bis, veranst_zeit_dauer, bezeichnung))
+                cur.execute("insert into tVeranst(typ,ort,spenden,thema,datum,von,bis,dauer,bezeichnung) values(?,NULLIF(?,-1),?,NULLIF(?,-1),?,?,?,?,?)", (veranst_typ, veranst_ort, veranst_spende, veranst_thema, veranst_datum, veranst_zeit_von, veranst_zeit_bis, veranst_zeit_dauer, bezeichnung))
                 last_id = cur.lastrowid
                 rc_code["id"] = last_id
                 insert_done = True
@@ -155,23 +160,38 @@ def ax_submit_veranst():
                 for berId in berater:
                     cur.execute("insert into tBeraterVer(BeraterID,VeranstID) values(?,?)", (berId, last_id))
                 for besId, besParm in besucher.items():
+                    spende = float(besParm["spende"].replace(",", '.'))
                     if "id" in besParm:
                         if besParm["wl-prev"] != besParm["wl"]:
-                            cur.execute(f"insert into tBesucheLOG(Action,BesucherID,VeranstID,ThemenID,GeraeteID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL) \
-                                        select 'change-wl-by-event',BesucherID,VeranstID,ThemenID,GeraeteID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL from tBesuche where id=?", (besParm["id"],))
-                        cur.execute("UPDATE tBesuche set BesucherID=?,VeranstID=?,ThemenID=NULLIF(?,-1),GeraeteID=NULLIF(?,-1),Spende=?,BesucherWL=? WHERE id=?", (besId, last_id, besParm["thema"], besParm["geraet"], besParm["spende"], besParm["wl"], besParm["id"]))
+                            cur.execute(f"insert into tBesucheLOG(Action,BesucherID,VeranstID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL) \
+                                        select 'change-wl-by-event',BesucherID,VeranstID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL from tBesuche where id=?", (besParm["id"],))
+                        cur.execute("UPDATE tBesuche set BesucherID=?,VeranstID=?,Spende=?,BesucherWL=? WHERE id=?", (besId, last_id, spende, besParm["wl"], besParm["id"]))
                         current_app.logger.debug("Ersetzt in tBesuche: RowCount=%s, Warnings=%s, ID=%s, Bes.ID=%s, VeranstID=%s", cur.rowcount, cur.warnings, besParm["id"], besId, last_id)
+                        cur.execute("UPDATE tBesucher set LetztDatum=? WHERE id=? && (LetztDatum<? || LetztDatum is null)", (veranst_datum, besId, veranst_datum))
+                        current_app.logger.debug("Letztes Veranst-Datum in tBesucher: RowCount=%s, Warnings=%s, Bes.ID=%s, VeranstDat=%s", cur.rowcount, cur.warnings, besId, veranst_datum)
                     else:
-                        cur.execute("insert into tBesuche(BesucherID,VeranstID,ThemenID,GeraeteID,Spende,BesucherWL,TagInt,Monat,Jahr) values(?,?,NULLIF(?,-1),NULLIF(?,-1),?,?,?,?,?)", (besId, last_id, besParm["thema"], besParm["geraet"], besParm["spende"], besParm["wl"], today_day, today_month, today_year))
+                        cur.execute("insert into tBesuche(BesucherID,VeranstID,Spende,BesucherWL,TagInt,Monat,Jahr) values(?,?,?,?,?,?,?)", (besId, last_id, spende, besParm["wl"], today_day, today_month, today_year))
                         row_id = cur.lastrowid
                         current_app.logger.debug("Eingefügt in tBesuche: RowCount=%s, Warnings=%s, Bes.ID=%s, VeranstID=%s, ID=%s", cur.rowcount, cur.warnings, besId, last_id, row_id)
-                        cur.execute(f"insert into tBesucheLOG(BesucherID,VeranstID,ThemenID,GeraeteID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL) \
-                                    select BesucherID,VeranstID,ThemenID,GeraeteID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL from tBesuche where id=?", (row_id,))
+                        cur.execute(f"insert into tBesucheLOG(BesucherID,VeranstID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL) \
+                                    select BesucherID,VeranstID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL from tBesuche where id=?", (row_id,))
+                        cur.execute("UPDATE tBesucher set LetztDatum=? WHERE id=? && (LetztDatum<? || LetztDatum is null)", (veranst_datum, besId, veranst_datum))
+                        current_app.logger.debug("Letztes Veranst-Datum in tBesucher: RowCount=%s, Warnings=%s, Bes.ID=%s, VeranstDat=%s", cur.rowcount, cur.warnings, besId, veranst_datum)
                 for itemId in besucher_remove:
-                    cur.execute(f"insert into tBesucheLOG(Action,BesucherID,VeranstID,ThemenID,GeraeteID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL) \
-                                select 'delete-by-event',BesucherID,VeranstID,ThemenID,GeraeteID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL from tBesuche where id=?", (itemId,))
+                    cur.execute(f"insert into tBesucheLOG(Action,BesucherID,VeranstID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL) \
+                                select 'delete-by-event',BesucherID,VeranstID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL from tBesuche where id=?", (itemId,))
+                    cur.execute("SELECT BesucherID from tBesuche where id=?", (itemId,))
+                    row = cur.fetchone()
+                    besId = row['BesucherID']
+                    current_app.logger.debug("Vor Entfernen holen BesucherID aus tBesuche: RowCount=%s, Warnings=%s, ID=%s, BesucherID=%s", cur.rowcount, cur.warnings, itemId, besId)
                     cur.execute("DELETE from tBesuche where id=?", (itemId,))
                     current_app.logger.debug("Entfernt aus tBesuche: RowCount=%s, Warnings=%s, ID=%s, VeranstID=%s", cur.rowcount, cur.warnings, itemId, last_id)
+                    cur.execute("select max(b.Datum) as maxdatum from tBesuche a join tVeranst b on a.VeranstID=b.id where a.BesucherID=?", (besId,))
+                    row = cur.fetchone()
+                    letztDat = row['maxdatum']
+                    current_app.logger.debug("Letztes Datum Besuch aus tBesuche: RowCount=%s, Warnings=%s, BesucherID=%s, Datum=%s", cur.rowcount, cur.warnings, besId, letztDat)
+                    cur.execute("UPDATE tBesucher set LetztDatum=? WHERE id=?", (letztDat, besId))
+                    current_app.logger.debug("Letztes Veranst-Datum in tBesucher: RowCount=%s, Warnings=%s, Bes.ID=%s, VeranstDat=%s", cur.rowcount, cur.warnings, besId, letztDat)
 
                 if veranst_id is not None:
                     current_app.logger.info("Datensatz aktualisiert: ID=%s, Bezeichnung=%s", veranst_id, bezeichnung)
@@ -180,39 +200,67 @@ def ax_submit_veranst():
                     current_app.logger.info("Datensatz hinzugefügt: ID=%s, Bezeichnung=%s", last_id, bezeichnung)
                     rc_code["mode"] = "INS"
             
-            if add_calevent and insert_done:
+            if add_calevent:
                 try:
                     # Verbindung herstellen
-                    if not current_app.config['TEST_RUN']: url = credentials.Passwords.NC_URL
-                    else: url = credentials.Passwords.NC_URL_DEV
-                    username = credentials.Passwords.NC_USER
-                    password = credentials.Passwords.NC_PWD
+                    if not current_app.config['TEST_RUN']: 
+                        # Production
+                        url = credentials.Passwords.NC_URL
+                        username = credentials.Passwords.NC_USER
+                        password = credentials.Passwords.NC_PWD
+                    else: 
+                        # Development
+                        url = credentials.Passwords.NC_URL_DEV
+                        username = credentials.Passwords.NC_USER_DEV
+                        password = credentials.Passwords.NC_PWD_DEV
                     client = davclient.DAVClient(url, username=username, password=password)
                     # Benutzer auswählen
                     principal = client.get_principal()
-                    print(principal)
                     calendars = principal.get_calendars()
-                    print(calendars)
                     # Den 2.Kalender=Terminplanung auswählen
                     calendar = calendars[1]
-                    print(calendar)
+                    current_app.logger.info("Kalender '%s' von '%s' gefunden.", calendar.get_display_name(), principal.get_display_name())
                     # Termin-Daten erstellen
-                    (datfrom, datto) = ts.convert(veranst_datum, veranst_zeit_von, veranst_zeit_bis)
-                    print(datfrom, datto)
+                    (datfrom, datto, tzid) = ts.convert(veranst_datum, veranst_zeit_von, veranst_zeit_bis)
+                    if veranst_ort == '-1':
+                        veranst_ort_text = "Noch nicht ausgewählt."
+                    else:
+                        cur.execute("SELECT Bezeichnung from tOrte where id=?", (veranst_ort,))
+                        row = cur.fetchone()
+                        if cur.rowcount > 0:
+                            veranst_ort_text = row['Bezeichnung']
+                        else:
+                            veranst_ort_text = "Veranstaltungsort nicht gefunden."
                     # Termin zum Kalender hinzufügen
-                    cal_event = calendar.add_event(dtstart=datfrom, dtend=datto, summary=bezeichnung, description="Von Besucherverwaltung automatisch angelegt", location=veranst_ort)
-                    print(cal_event)
-                    # ID des Events zur Veranstaltung hinzufügen
-                    cur.execute("update tVeranst set cal_uid=? where id=?", (cal_event.id, last_id))
-                    current_app.logger.debug("Cal_Event_Id in tVeranst eingefügt: RowCount=%s, Warnings=%s, VeranstID=%s", cur.rowcount, cur.warnings, last_id)
-                    current_app.logger.info("Termin erfolgreich erstellt: %s %s %s %s", bezeichnung, veranst_datum, veranst_zeit_von, veranst_zeit_bis)
+                    if insert_done:
+                        cal_event = calendar.add_event(dtstart=datfrom, dtend=datto, summary=bezeichnung, description=f"Von Besucherverwaltung automatisch angelegt, ID={last_id}", location=veranst_ort_text, categories="Bildung")
+                        print(cal_event.get_data())
+                        # ID des Events zur Veranstaltung hinzufügen
+                        cur.execute("update tVeranst set cal_uid=? where id=?", (cal_event.id, last_id))
+                        current_app.logger.info("Cal_Event_Id in tVeranst eingefügt: RowCount=%s, Warnings=%s, VeranstID=%s, Cal-ID=%s", cur.rowcount, cur.warnings, last_id, cal_event.id)
+                        current_app.logger.info("Termin erfolgreich in %s von %s erstellt: %s %s %s %s", calendar.get_display_name(), principal.get_display_name(), bezeichnung, veranst_datum, veranst_zeit_von, veranst_zeit_bis)
+                    elif veranst_cal_uid != '':
+                        # ID des Events zur Veranstaltung aktualisieren
+                        cal_event = calendar.get_event_by_uid(veranst_cal_uid)
+                        print(cal_event.get_data(), cal_event.component)
+                        cal_event.component['DTSTART'] = vDDDTypes(datfrom, params={'TZID':tzid})
+                        cal_event.component['DTEND'] = vDDDTypes(datto, params={'TZID':tzid})
+                        cal_event.component['SUMMARY'] = vText(bezeichnung)
+                        cal_event.component['LOCATION'] = vText(veranst_ort_text)
+                        cal_event.component['LAST-MODIFIED'] = vDDDTypes(ts.todaytime_utc())
+                        cal_event.save()
+                        print(cal_event.get_data(), cal_event.component)
+                        current_app.logger.info("Termin erfolgreich in %s von %s geändert: %s %s %s %s", calendar.get_display_name(), principal.get_display_name(), bezeichnung, veranst_datum, veranst_zeit_von, veranst_zeit_bis)
+                    else:
+                        current_app.logger.info("Termin nicht in %s von %s gefunden: %s %s %s %s", calendar.get_display_name(), principal.get_display_name(), bezeichnung, veranst_datum, veranst_zeit_von, veranst_zeit_bis)
+                    client.close()
                 except:
                     (type, value, traceback) = sys.exc_info()
-                    current_app.logger.critical("Unexpected error: Type=%s; Exception=%s; Trace-Line=%s",type, value, traceback.tb_lineno)
+                    current_app.logger.critical("Calendar-Event-Unexpected error: Type=%s; Exception=%s; Trace-Line=%s",type, value, traceback.tb_lineno)
                     rc_code["status"] = "ERR"
                     db.rollback()
                     db.close()
-                    current_app.logger.error("Datenbank-Rollback")
+                    current_app.logger.error("Calendar-Event-Datenbank-Rollback")
 
             db.commit()
             cur.close()

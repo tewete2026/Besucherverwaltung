@@ -14,32 +14,9 @@ bp = Blueprint("verwBerater", __name__)
 def main():
     if current_app.config["NO_POOL_AVAILABLE"]:
         return redirect(url_for("internal_server_error"))
-    
-    dbdata={}
-    try:
-        db = get_db()
-        if not db:
-            raise mariadb.PoolError()
-        cur = db.cursor(dictionary=True)
-
-        cur.execute("SELECT id,thema as bezeichnung FROM tThemen ORDER BY thema")
-        dbdata.update({"themes":cur.fetchall()})
-
-        cur.execute("SELECT id,bezeichnung FROM tGeraete ORDER BY bezeichnung")
-        dbdata.update({"devices":cur.fetchall()})
-
-        cur.close()
-        db.close()
-    except mariadb.PoolError as err:
-        current_app.logger.error("Pool-Fehler: %s/%s", bp.name, err)
-        abort(500)
-    except mariadb.Error as err:
-        db.close()
-        current_app.logger.error("Datenbank-Fehler: %s/%s", bp.name, err)
-        abort(500)
 
     conf = Configure(request, current_app, title="Verwalten Berater", header=["Beraterin/Berater Nr.", "Neuen Beraterin/Berater erfassen"], prefix="03", app='coaches',
                      link='link-verwberater', label="Berater", category="Beraterin/Berater", overview="Übersicht Beraterin/Berater", pag_search="oder Suchbegriff eingeben")
 
-    return render_template("verwBerater.html", dbdata=dbdata, conf=conf, javascript=conf.javascript.getOut())
+    return render_template("verwBerater.html", conf=conf, javascript=conf.javascript.getOut())
 

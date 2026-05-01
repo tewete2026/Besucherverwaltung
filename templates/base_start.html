@@ -15,59 +15,42 @@
     <!-- Custom styles for this template -->
     <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
   </head>
-  <body>
+<body>
   <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
     <symbol id="arrow-right-circle" viewBox="0 0 16 16">
       <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
     </symbol>
+    <symbol id="eye-fill" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+      <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+      <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>
+    </symbol>
+    <symbol id="download" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+      <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+      <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+    </symbol>
+    <symbol id="eye" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+      <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+      <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+    </symbol>
   </svg>
-
-<div class="col-lg-8 mx-auto p-4 py-md-5">
-  <header class="d-flex align-items-center pb-3 mb-3 border-bottom">
-    <a href="/" class="d-flex align-items-center text-body-emphasis text-decoration-none">
-      <img src="{{ url_for('static', filename='Logo_PCafe.png') }}" alt="Logo_PCafe">
-      <span class="fs-4 ms-5">PC@fé - Besucherverwaltung</span>
-    </a>
-  </header>
-
-  <main>
-    <div class="row g-5">
-      <div class="col-md-6">
-        <p>Bitte einen der gewünschten Menüpunkte auswählen:</p>
-        <ul class="list-unstyled ps-0">
-          <li>
-            <a class="icon-link mb-1" href="{{ url_for('main.index') }}" rel="noopener" target="_blank">
-              <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
-              Veranstaltungen
-            </a>
-          </li>
-          <li>
-            <a class="icon-link mb-1" href="{{ url_for('verwBerater.main') }}" rel="noopener" target="_blank">
-              <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
-              Berater
-            </a>
-          </li>
-          <li>
-            <a class="icon-link mb-1" href="{{ url_for('verwBesucher.main') }}" rel="noopener" target="_blank">
-              <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
-              Besucher
-            </a>
-          </li>
-          <li>
-            <a class="icon-link mb-1" href="{{ url_for('verwThemen.main') }}" rel="noopener" target="_blank">
-              <svg class="bi" width="16" height="16"><use xlink:href="#arrow-right-circle"/></svg>
-              Themen
-            </a>
-          </li>
-        </ul>
+  <div class="col-lg-8 mx-auto p-4 py-md-5">
+    <header class="d-flex align-items-center pb-3 mb-3 border-bottom">
+      <a href="/" class="d-flex align-items-center text-body-emphasis text-decoration-none">
+        <img src="{{ url_for('static', filename='Logo_PCafe.png') }}" alt="Logo_PCafe">
+        <span class="fs-4 ms-5">PC@fé - Besucherverwaltung</span>
+      </a>
+    </header>
+    <main>
+      <h1 class="mb-3">{{ credits["headline"] }}</h1>
+      {% block header %}{% endblock %}
+      <div class="row g-5">
+      {% block content %}{% endblock %}
       </div>
-    </div>
-  </main>
-  <footer class="my-2 text-body-secondary border-top">
-    &copy; by Thomas Wachler-Thomsen &middot; 2026
-  </footer>
-</div>
-<script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-
+    </main>
+    <footer class="my-2 text-body-secondary border-top">
+      &copy; PCafé - Norderstedt · Version: {{ credits["version"] }} · Erstellt: {{ credits["created"] }}
+    </footer>
+  </div>
+  <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 </body>
 </html>

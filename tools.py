@@ -35,7 +35,6 @@ def setVisiterWL(cur, veranst_list=[], force=False):
                     wl = False
                     if pos > max_Bes:
                         wl = True
-                    print("setVisiterWL", row, wl)
                     if wl != row["BesucherWL"] or force:
                         row["BesucherWL"] = wl
                         result_list.append(row)

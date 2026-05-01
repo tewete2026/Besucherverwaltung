@@ -31,11 +31,12 @@ class SessionStorage {
     this.has_storage = has_storage;
     this.prefix_str = prefix_str;
   }
-  getItem(key, default_value="") {
+  getItem(key, default_value="", clear=false) {
     if (this.has_storage) {
       const storedKey = this.prefix_str + key;
       const value = window.sessionStorage.getItem(storedKey);
       if (value) {
+        if (clear) window.sessionStorage.removeItem(storedKey);
         if (["true", "false"].includes(value)) {
           if (value == "true") return true;
              else return false;
@@ -67,18 +68,61 @@ class SessionStorage {
       this.inner_map.set(key, value);
     }
   }
+  appendItem(key, value) {
+    if (this.has_storage && this.write_storage) {
+      try {
+        const storedKey = this.prefix_str + key;
+        const prevalue = window.sessionStorage.getItem(storedKey);
+        if (prevalue) {
+          window.sessionStorage.setItem(storedKey, prevalue + ";" + value);
+        } else {
+          window.sessionStorage.setItem(storedKey, value);
+        }
+      } catch (e) {
+        appendError("Fehler bei sessionStorage.setItem: " + e);
+        const prevalue = this.inner_map.get(key);
+        if (prevalue) {
+          this.inner_map.set(key, prevalue + ";" + value);
+          this.write_storage = false;
+        } else {
+          this.inner_map.set(key, value);
+          this.write_storage = false;
+        }
+      }
+    } else {
+      const prevalue = this.inner_map.get(key);
+      if (prevalue) {
+        this.inner_map.set(key, prevalue + ";" + value);
+        this.write_storage = false;
+      } else {
+        this.inner_map.set(key, value);
+        this.write_storage = false;
+      }
+    }
+  }
   removeItem(key) {
     if (this.has_storage && this.write_storage) {
       try {
         const storedKey = this.prefix_str + key;
         window.sessionStorage.removeItem(storedKey);
       } catch (e) {
-        appendError("Fehler bei sessionStorage.setItem: " + e);
+        appendError("Fehler bei sessionStorage.removeItem: " + e);
         this.inner_map.delete(key);
         this.write_storage = false;
       }
     } else {
       this.inner_map.delete(key);
+    }
+  }
+  addHint(hint) {
+    this.appendItem("hints", hint);
+  }
+  retrieveHints() {
+    const hints = this.getItem("hints", null, true);
+    if (hints) {
+      return hints.split(";");
+    } else {
+      return null;
     }
   }
   keys(prefix=true) {
@@ -140,6 +184,7 @@ const frm_main = this.document.getElementById("frm-main");
 const frm_main_caption = this.document.getElementById("frm-main-caption");
 const main_errors_flashed = this.document.getElementById("main-errors-flashed");
 const frm_pag_search = this.document.getElementById("frm-pag-search");
+const frm_pag_search_nbr = this.document.getElementById("frm-pag-search-nbr");
 const btn_frm_pag_search = this.document.getElementById("btn-frm-pag-search");
 const page_pag_back = this.document.getElementById("page-pag-back");
 const page_pag_forw = this.document.getElementById("page-pag-forw");

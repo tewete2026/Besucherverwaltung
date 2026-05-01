@@ -13,10 +13,7 @@ bp = Blueprint("ax_targets", __name__)
 
 @bp.route("/ax-get-targets-edit/", methods=['POST'])
 def ax_get_targets_edit():
-    queries={}
-    queries['events'] = {'sql':"SELECT id,IFNULL(Bezeichnung,'--') as Bezeichnung,DATE_FORMAT(DATE(Datum),'%d.%m.%Y') as datum \
-                    FROM tVeranst WHERE Ort=? ORDER BY Bezeichnung"}
-    return mx_get_edit(request, current_app, table_name="tOrte", data_key="target", queries=queries, select_field="Bezeichnung,IFNULL(MaxBesucher,'') as MaxBesucher")
+    return mx_get_edit(request, current_app, table_name="tOrte", data_key="target", select_field="Bezeichnung,IFNULL(MaxBesucher,'') as MaxBesucher")
 
 
 @bp.route("/ax-get-targets-overview/", methods=['POST'])
@@ -43,14 +40,11 @@ def ax_submit_targets():
     try:
         item_id = None
         item_timestamp = None
-        events_remove = None
         for pkey, parm in result:
             if pkey == "bezeichnung":
                 bezeichnung = parm
             elif pkey == "maxbesucher":
                 maxbesucher = parm
-            elif pkey == "veranst-remove":
-                events_remove = parm
             elif pkey == "main-id":
                 item_id = parm
             elif pkey == "item-timestamp":
@@ -72,15 +66,6 @@ def ax_submit_targets():
                 timestamp = str(row_data["sperre"])
                 if timestamp == item_timestamp:
                     cur.execute("update tOrte set sperre=null,Bezeichnung=?,MaxBesucher=NULLIF(?,'') where id=?", (bezeichnung, maxbesucher, item_id))
-                    if len(events_remove) > 0:
-                        remove_verId = []
-                        remove_rowId = []
-                        for verId, rowId in events_remove:
-                            remove_verId.append(verId)
-                            remove_rowId.append(rowId)
-                        search = ",".join(remove_rowId)
-                        cur.execute(f"update tVeranst set Ort=null where id in ({search})")
-                        current_app.logger.debug("Entfernt ID=%s aus tVeranst für Ort=%s: RowCount=%s, Warnings=%s", search, item_id, cur.rowcount, cur.warnings)
                 elif timestamp == "INVALID":
                     update_allowed = False
                     rc_code["status"] = "INVALID"

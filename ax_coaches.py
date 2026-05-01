@@ -40,8 +40,8 @@ def ax_get_coaches_edit():
             
         cur.execute("UPDATE tBerater SET Sperre=? WHERE Sperre IS NULL AND id=?", (timestamp_N, coache_id))
         db.commit()
-        cur.execute("SELECT id,sperre,Nachname,Vorname,IFNULL(EMail,'') as EMail,Telefon,IFNULL(Mobil,'') as Mobil,\
-                    IF(Aktiv=TRUE,TRUE,FALSE) as Aktiv,IF(TdM=TRUE,TRUE,FALSE) as TdM,IF(BerExt=TRUE,TRUE,FALSE) as BerExt \
+        cur.execute("SELECT id,sperre,Nachname,Vorname,IFNULL(EMail,'') as EMail,IFNULL(Telefon,'') as Telefon,IFNULL(Mobil,'') as Mobil, \
+                    IF(Aktiv=TRUE,TRUE,FALSE) as Aktiv \
                     FROM tBerater WHERE id=?", (coache_id,))
         dbdata.update({"coache":cur.fetchone()})
 
@@ -53,15 +53,6 @@ def ax_get_coaches_edit():
             dbdata.update({"timestamp":timestamp_P})
         else:
             dbdata.update({"status":"LCK"})
-        
-        cur.execute("SELECT id,ThemenID FROM tBeraterthem WHERE BeraterID=?", (coache_id,))
-        dbdata.update({"coached_themes":cur.fetchall()})
-        
-        cur.execute("SELECT id,ThemenID FROM tBeraterInfo WHERE BeraterID=?", (coache_id,))
-        dbdata.update({"info_themes":cur.fetchall()})
-        
-        cur.execute("SELECT id,GeraeteID FROM tBeraterGer WHERE BeraterID=?", (coache_id,))
-        dbdata.update({"coached_devices":cur.fetchall()})
 
         cur.close()
         db.close()
@@ -79,8 +70,8 @@ def ax_get_coaches_edit():
 @bp.route("/ax-get-coaches-overview/", methods=['POST'])
 def ax_get_coaches_overview():
     rc_code = mx_get_overview(request, current_app, html_template_body="verwBerater_body.html", 
-                              sql=["SELECT a.id,Vorname,Nachname,IF(Telefon='','--',Telefon) as Telefon,IFNULL(EMail,'--') as EMail,IFNULL(Mobil,'--') as Mobil,IF(Aktiv=TRUE,'**','-') as Aktiv from tBerater a", 
-                                   "ORDER BY a.Nachname, a.Vorname"], search_field=["Vorname", "Nachname"])
+                              sql=["SELECT a.id,Vorname,Nachname,IFNULL(Telefon,'--') as Telefon,IFNULL(EMail,'--') as EMail,IFNULL(Mobil,'--') as Mobil,IF(Aktiv=TRUE,'✓','') as Aktiv from tBerater a ", 
+                                   "ORDER BY a.Vorname, a.Nachname"], search_field=["Vorname", "Nachname"])
     return rc_code
 
 
@@ -99,9 +90,6 @@ def ax_submit_coaches():
     try:
         item_id = None
         item_timestamp = None
-        coached_themes = []
-        info_themes = []
-        coached_devices = []
         for pkey, parm in result:
             if pkey == "vorname":
                 berater_vorname = parm
@@ -113,18 +101,8 @@ def ax_submit_coaches():
                 berater_telefon = parm
             elif pkey == "mobil":
                 berater_mobil = parm
-            elif pkey == "tdm":
-                berater_tdm = parm
-            elif pkey == "ext":
-                berater_ext = parm
             elif pkey == "aktiv":
                 berater_aktiv = parm
-            elif pkey == "coached-themes":
-                coached_themes = parm
-            elif pkey == "info-themes":
-                info_themes = parm
-            elif pkey == "coached-devices":
-                coached_devices = parm
             elif pkey == "main-id":
                 item_id = parm
             elif pkey == "item-timestamp":
@@ -145,14 +123,8 @@ def ax_submit_coaches():
                 row_data = cur.fetchone()
                 timestamp = str(row_data["sperre"])
                 if timestamp == item_timestamp:
-                    cur.execute("update tBerater set sperre=null,Nachname=?,Vorname=?,EMail=NULLIF(?,''),Telefon=?,Mobil=NULLIF(?,''),Aktiv=?,TdM=?,BerExt=? where id=?", 
-                                (berater_nachname, berater_vorname, berater_email, berater_telefon, berater_mobil, berater_aktiv, berater_tdm, berater_ext, item_id))
-                    cur.execute("delete from tBeraterGer where BeraterID=?", (item_id,))
-                    current_app.logger.debug("Datensätze tBeraterGer gelöscht: BeraterID=%s, Anzahl=%s", item_id, cur.rowcount)
-                    cur.execute("delete from tBeraterInfo where BeraterID=?", (item_id,))
-                    current_app.logger.debug("Datensätze tBeraterInfo gelöscht: BeraterID=%s, Anzahl=%s", item_id, cur.rowcount)
-                    cur.execute("delete from tBeraterthem where BeraterID=?", (item_id,))
-                    current_app.logger.debug("Datensätze tBeraterthem gelöscht: BeraterID=%s, Anzahl=%s", item_id, cur.rowcount)
+                    cur.execute("update tBerater set sperre=null,Nachname=?,Vorname=?,EMail=NULLIF(?,''),Telefon=?,Mobil=NULLIF(?,''),Aktiv=? where id=?", 
+                                (berater_nachname, berater_vorname, berater_email, berater_telefon, berater_mobil, berater_aktiv, item_id))
                 elif timestamp == "INVALID":
                     update_allowed = False
                     rc_code["status"] = "INVALID"
@@ -160,22 +132,13 @@ def ax_submit_coaches():
                     update_allowed = False
                     rc_code["status"] = "NOTALWD"
             else:
-                cur.execute("insert into tBerater(Nachname,Vorname,EMail,Telefon,Mobil,Aktiv,TdM,BerExt) \
-                            values(?,?,NULLIF(?,''),?,NULLIF(?,''),?,?,?)", 
-                            (berater_nachname, berater_vorname, berater_email, berater_telefon, berater_mobil, berater_aktiv, berater_tdm, berater_ext))
+                cur.execute("insert into tBerater(Nachname,Vorname,EMail,Telefon,Mobil,Aktiv) \
+                            values(?,?,NULLIF(?,''),?,NULLIF(?,''),?)", 
+                            (berater_nachname, berater_vorname, berater_email, berater_telefon, berater_mobil, berater_aktiv))
                 last_id = cur.lastrowid
                 rc_code["id"] = last_id
 
             if update_allowed:
-                for themeId in coached_themes:
-                    cur.execute("insert into tBeraterthem(BeraterID,ThemenID) values(?,?)", (last_id, themeId))
-                    current_app.logger.debug("Datensätze tBeraterthem hinzugefügt: BeraterID=%s, ThemenID=%s, ID=%s, Anzahl=%s", last_id, themeId, cur.lastrowid, cur.rowcount)
-                for themeId in info_themes:
-                    cur.execute("insert into tBeraterInfo(BeraterID,ThemenID) values(?,?)", (last_id, themeId))
-                    current_app.logger.debug("Datensätze tBeraterInfo hinzugefügt: BeraterID=%s, ThemenID=%s, ID=%s, Anzahl=%s", last_id, themeId, cur.lastrowid, cur.rowcount)
-                for devId in coached_devices:
-                    cur.execute("insert into tBeraterGer(BeraterID,GeraeteID) values(?,?)", (last_id, devId))
-                    current_app.logger.debug("Datensätze tBeraterGer hinzugefügt: BeraterID=%s, GeraeteID=%s, ID=%s, Anzahl=%s", last_id, devId, cur.lastrowid, cur.rowcount)
                 if item_id is not None:
                     current_app.logger.info("Datensatz aktualisiert: ID=%s, Name=%s %s", last_id, berater_vorname, berater_nachname)
                     rc_code["mode"] = "CHG"

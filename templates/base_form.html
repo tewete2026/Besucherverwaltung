@@ -69,49 +69,17 @@
             <li><a id="link-verwberater" href="{{ url_for('verwBerater.main') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Berater</a></li>
             <li><a id="link-verwveransttyp" href="{{ url_for('verwVeranstTyp.main') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungsarten</a></li>
             <li><a id="link-verwveranstort" href="{{ url_for('verwOrte.main') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungsorte</a></li>
-            <li><a id="link-verwthemen" href="{{ url_for('verwThemen.main') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Beratungsthemen/<br>Info-Veranstaltungen</a></li>
-            <li><a id="link-verwgeraete" href="{{ url_for('verwGeraete.main') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Geräte</a></li>
+            <li><a id="link-verwthemen" href="{{ url_for('verwThemen.main') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungsthemen</a></li>
           </ul>
         </div>
       </li>
       <li class="mb-1">
-        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#services-collapse" aria-expanded="false">
-          Services
-        </button>
-        <div class="collapse" id="services-collapse">
-          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">E-Mails versenden</a></li>
-          </ul>
-        </div>
-      </li>
-      <li class="mb-1">
-        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#orders-collapse" aria-expanded="false">
-          Berichte
-        </button>
-        <div class="collapse" id="orders-collapse">
-          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Besucher-Warteliste</a></li>
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Besuche</a></li>
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungen</a></li>
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Beratungsthemen</a></li>
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Info-Veranstaltungen</a></li>
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Hardware/Geräte</a></li>
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Berater-Kompetenzen</a></li>
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungen nach Art</a></li>
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungen/Berater</a></li>
-          </ul>
-        </div>
-      </li>
-      <li class="mb-1">
-        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#export-collapse" aria-expanded="false">
+        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" data-bs-target="#export-collapse" aria-expanded="true">
           Exportieren
         </button>
-        <div class="collapse" id="export-collapse">
+        <div class="collapse show" id="export-collapse">
           <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Berater</a></li>
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Besucher</a></li>
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Besuche</a></li>
-            <li><a href="{{ url_for('main.kommtNoch') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Veranstaltungen</a></li>
+            <li><a href="{{ url_for('main.exports') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">CSV-Exporte</a></li>
           </ul>
         </div>
       </li>
@@ -121,7 +89,7 @@
     <p class="d-flex align-items-center flex-shrink-0 text-decoration-none bg-secondary text-white rounded-3 p-1">
       <span class="fs-5 fw-semibold">{{ conf.overview }}</span>
     </p>
-    <table id="tb-overview-{{ conf.credits["app"] }}" class="table table-bordered table-hover" style="font-size: 0.8em; line-height: 0.6em;">
+    <table id="tb-overview-{{ conf.credits["app"] }}" class="table table-bordered table-hover" style="font-size: 0.8em; line-height: 0.95em;">
       {% block overview %}{% endblock %}
       <tbody>
       </tbody>
@@ -133,8 +101,9 @@
         <li id="page-pag-current" class="page-item" title="Aktuelle Seite"><a class="page-link">1</a></li>
         <li id="page-pag-forw" class="page-item" title="Eine Seite weiter"><a class="page-link" style="cursor: pointer;"><svg class="bi" width="16" height="16" title="Eine Seite weiter"><use xlink:href="#bi bi-chevron-right" title="Eine Seite weiter"/></svg></a></li>
       </ul>
-      <form class="d-flex" id="frm-pag" role="search" novalidate autocomplete="off" onsubmit="return false" style="height: 2.4em; width: 60%;">
-        <label for="frm-pag-search" style="width: 100%; margin-top: 0.5em; margin-left: 1.5em; margin-right: 0.5em; text-align: right;">{{ conf.pag_search }} ...</label>
+      <form class="d-flex" id="frm-pag" role="search" novalidate autocomplete="off" onsubmit="return false" style="height: 2.4em; width: 70%;">
+        {% block searchfield %}{% endblock %}
+        <label for="frm-pag-search" style="width: 100%; margin-top: 0.5em; margin-left: 1.0em; margin-right: 0.5em; text-align: right;">{{ conf.pag_search }} ...</label>
         <input class="form-control me-2 w-50" type="{{ conf.pag_type }}" name="frm-pag-search" id="frm-pag-search" autocomplete="off">
         <button class="btn btn-outline-success" id="btn-frm-pag-search" type="button" title="Suche starten"><svg class="bi" width="16" height="16" title="Suche starten"><use xlink:href="#bi-search" title="Suche starten"/></svg></button>
       </form>
@@ -166,7 +135,7 @@
       <figure class="mb-3 me-2 mb-md-0">
         <img src="{{ url_for('static', filename='Logo_PCafe.png') }}" alt="Logo_PCafe">
       </figure>
-      <span class="mb-3 mb-md-0 text-body-secondary">&copy; PCafé - Norderstedt ** Version: {{ conf.credits["version"] }} ** Erstellt: {{ conf.credits["created"] }} ** {{ conf.credits["author"] }}<br>Remote-IP: {{ conf.credits["addr"] }} - Host Name: {{ conf.credits["hostname"] }}</span>
+      <span class="mb-3 mb-md-0 text-body-secondary">&copy; PCafé - Norderstedt · Version: {{ conf.credits["version"] }} · Erstellt: {{ conf.credits["created"] }} · {{ conf.credits["author"] }}<br>Remote-IP: {{ conf.credits["addr"] }} - Host Name: {{ conf.credits["hostname"] }}</span>
     </div>
     {# <!--ul class="nav justify-content-end list-unstyled d-flex">
     <li class="ms-3"><a class="text-body-secondary" href="{{ url_for('main.kommtNoch') }}"><svg class="bi" width="24" height="24"><use xlink:href="#bi-youtube"/></svg></a></li>

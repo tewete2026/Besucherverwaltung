@@ -15,7 +15,7 @@ def main():
         return redirect(url_for("internal_server_error"))
 
     conf = Configure(request, current_app, title="Verwalten Geräte", header=["Gerät Nr.", "Neues Gerät erfassen"], prefix="04", app='devices',
-                     link='link-verwgeraete', label="Berater", category="Geräte", overview="Übersicht Geräte", pag_search="oder Suchbegriff eingeben")
+                     link='link-verwgeraete', label="Berater", category="Geräte", overview="Übersicht Geräte", pag_search="Suchbegriff eingeben")
 
     return render_template("verwGeraete.html", conf=conf, javascript=conf.javascript.getOut())
 
