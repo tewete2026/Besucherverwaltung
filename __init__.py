@@ -152,6 +152,7 @@ def create_app(test_config="DEV"):
                 current_app.logger.debug("Connection-ID %s cleared at end of context", id)
 
     app.logger.info("Name=%s; Version detected=%s; Created=%s", version.Configs.APP_NAME, version.Configs.APP_VERSION, version.Configs.APP_CREATED)
+    app.logger.info("Root-Path=%s", app.root_path)
 
     if test_config == "DEV":
         app.config.from_mapping(TEST_RUN=True)
