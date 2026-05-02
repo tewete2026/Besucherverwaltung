@@ -18,7 +18,29 @@
                 <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
                 Herunterladen
             </button>
-            <span>Anzahl der Gesamtbesucher im PCafé pro Monat und Jahr mit Spendensumme</span>
+            <span class="text-primary-emphasis">Anzahl der Besucher im PCafé pro Monat und Jahr</span>
+        </li>
+        <li class="icon-link mb-3 p-2 bg-body-secondary">
+            <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-events/store-no')">
+                <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
+                Ansehen
+            </button>
+            <button type="button" class="btn btn-secondary me-2" onclick="performExport(this,'ax-qy-events/store-yes', true)">
+                <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
+                Herunterladen
+            </button>
+            <span class="text-primary-emphasis">Anzahl der Veranstaltungen pro Art/Typ im PCafé pro Monat und Jahr mit Spendensumme</span>
+        </li>
+        <li class="icon-link mb-3 p-2 bg-body-secondary">
+            <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-events-theme/store-no')">
+                <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
+                Ansehen
+            </button>
+            <button type="button" class="btn btn-secondary me-2" onclick="performExport(this,'ax-qy-events-theme/store-yes', true)">
+                <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
+                Herunterladen
+            </button>
+            <span class="text-primary-emphasis">Anzahl der Veranstaltungen pro Art/Typ pro Thema im PCafé pro Monat und Jahr mit Spendensumme</span>
         </li>
         <li class="icon-link mb-3 p-2 bg-body-secondary">
             <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-visiter-info/store-no')">
@@ -29,7 +51,7 @@
                 <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
                 Herunterladen
             </button>
-            <span>Anzahl der Besucher bei Infoveranstaltungen gesamt + Anzahl der Besucher pro Thema</span>
+            <span class="text-primary-emphasis">Anzahl der Besucher bei Infoveranstaltungen pro Thema</span>
         </li>
         <li class="icon-link mb-3 p-2 bg-body-secondary">
             <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-visiter-ext/store-no')">
@@ -40,7 +62,7 @@
                 <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
                 Herunterladen
             </button>
-            <span>Anzahl der Besucher der externen Orte pro Monat und Jahr</span>
+            <span class="text-primary-emphasis">Anzahl der Besucher der externen Orte pro Monat und Jahr</span>
         </li>
         <li class="icon-link mb-3 p-2 bg-body-secondary">
             <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-visiter-last/store-no')">
@@ -51,7 +73,7 @@
                 <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
                 Herunterladen
             </button>
-            <span>Besucher mit Anzahl Veranstaltungen und letzter Besuch</span>
+            <span class="text-primary-emphasis">Besucher mit Anzahl Veranstaltungen und letzter Besuch</span>
         </li>
     </ul>
 </div>
@@ -67,7 +89,7 @@
                 <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
                 Herunterladen
             </button>
-            <span>Veranstaltungen im PCafé mit Besuchern</span>
+            <span class="text-primary-emphasis">Veranstaltungen im PCafé mit Besuchern</span>
         </li>
         <li class="icon-link mb-3 p-2 bg-body-secondary">
             <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-coaches-events/store-no')">
@@ -78,7 +100,7 @@
                 <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
                 Herunterladen
             </button>
-            <span>Veranstaltungen im PCafé mit Beratern</span>
+            <span class="text-primary-emphasis">Veranstaltungen im PCafé mit Beratern</span>
         </li>
     </ul>
 </div>

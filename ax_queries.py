@@ -16,16 +16,52 @@ def ax_qy_visiter(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "Jahr;Monat;Anzahl Besucher;Summe Spenden\n"
+        output = "Jahr;Monat;Anzahl Besucher\n"
         for row in rc_code['result_list']:
-            (year, month, vis, spen) = row
-            output += f"{year};{month};{vis};{spen}\n"
+            (year, month, vis) = row
+            output += f"{year};{month};{vis}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
         output = rc_code['result_list']
     return send_response(output, store, "Besucher_Gesamt_im_Monat.csv")
+
+@bp.route("/ax-qy-events/<store>", methods=['GET'])
+def ax_qy_events(store):
+    sql_file = "qy_events.sql"
+    if store == 'store-yes':
+        rc_code = db_collect(sql_file)
+        if rc_code['status'] == 'ERR':
+            abort(500)
+        output = "Bezeichnung;Jahr;Monat;Anzahl Veranst;Spenden\n"
+        for row in rc_code['result_list']:
+            (typ, year, month, vis, amount) = row
+            output += f"{typ};{year};{month};{vis};{amount}\n"
+    else:
+        rc_code = mariadb_client(sql_file)
+        if rc_code['status'] == 'ERR':
+            abort(500)
+        output = rc_code['result_list']
+    return send_response(output, store, "Veranstaltungen_Gesamt_im_Monat.csv")
+
+@bp.route("/ax-qy-events-theme/<store>", methods=['GET'])
+def ax_qy_events_theme(store):
+    sql_file = "qy_events_theme.sql"
+    if store == 'store-yes':
+        rc_code = db_collect(sql_file)
+        if rc_code['status'] == 'ERR':
+            abort(500)
+        output = "Bezeichnung;Thema;Jahr;Monat;Anzahl Veranst;Spenden\n"
+        for row in rc_code['result_list']:
+            (typ, theme, year, month, vis, amount) = row
+            output += f"{typ};{theme};{year};{month};{vis};{amount}\n"
+    else:
+        rc_code = mariadb_client(sql_file)
+        if rc_code['status'] == 'ERR':
+            abort(500)
+        output = rc_code['result_list']
+    return send_response(output, store, "Veranstaltungen_Gesamt_im_Monat.csv")
 
 
 @bp.route("/ax-qy-visiter-info/<store>", methods=['GET'])
@@ -35,7 +71,7 @@ def ax_qy_visiter_info(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "Anzahl Besucher;Thema\n"
+        output = "Anzahl Besucher;Info Thema\n"
         for row in rc_code['result_list']:
             (vis, thema) = row
             output += f"{vis};{thema}\n"
@@ -73,10 +109,10 @@ def ax_qy_visiter_events(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "Nr;Bezeichnung;Jahr;Monat;Tag;Von;Bis;Dauer;Spenden;Nachname;Vorname;Newsletter;AufnDatum;LetzterBesuch;Telefon;EMail;Aktiv\n"
+        output = "Nr;Bezeichnung;Jahr;Monat;Tag;Von;Bis;Dauer;Nachname;Vorname;Newsletter;AufnDatum;LetzterBesuch;Telefon;EMail;Aktiv\n"
         for row in rc_code['result_list']:
-            (id, text, year, month, day, f, t, d, amount, n, v, nl, ad, ld, tl, e, a) = row
-            output += f"{id};{text};{year};{month};{day};{f};{t};{d};{amount};{n};{v};{nl};{ad};{ld};{tl};{e};{a}\n"
+            (id, text, year, month, day, f, t, d, n, v, nl, ad, ld, tl, e, a) = row
+            output += f"{id};{text};{year};{month};{day};{f};{t};{d};{n};{v};{nl};{ad};{ld};{tl};{e};{a}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
@@ -92,10 +128,10 @@ def ax_qy_coaches_events(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "Nr;Bezeichnung;Jahr;Monat;Tag;Von;Bis;Dauer;Spenden;Vorname;Nachname;Telefon;Mobil;EMail;Aktiv\n"
+        output = "Nr;Bezeichnung;Jahr;Monat;Tag;Von;Bis;Dauer;Vorname;Nachname;Telefon;Mobil;EMail;Aktiv\n"
         for row in rc_code['result_list']:
-            (id, text, year, month, day, f, t, d, amount, v, n, tl, mob, e, a) = row
-            output += f"{id};{text};{year};{month};{day};{f};{t};{d};{amount};{v};{n};{tl};{mob};{e};{a}\n"
+            (id, text, year, month, day, f, t, d, v, n, tl, mob, e, a) = row
+            output += f"{id};{text};{year};{month};{day};{f};{t};{d};{v};{n};{tl};{mob};{e};{a}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
