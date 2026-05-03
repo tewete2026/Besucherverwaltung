@@ -9,7 +9,7 @@
 <div class="col-md-6 mod-exports">
     <h5>Bitte eine der gewünschten verdichteten Listen auswählen:</h5>
     <ul class="list-unstyled ps-0">
-        <li class="icon-link mb-3 p-2 bg-body-secondary">
+        <li class="icon-link mb-3 p-2 col-12 bg-body-secondary">
             <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-visiter/store-no')">
                 <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
                 Ansehen
@@ -20,7 +20,7 @@
             </button>
             <span class="text-primary-emphasis">Anzahl der Besucher im PCafé pro Monat und Jahr</span>
         </li>
-        <li class="icon-link mb-3 p-2 bg-body-secondary">
+        <li class="icon-link mb-3 p-2 col-12 bg-body-secondary">
             <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-events/store-no')">
                 <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
                 Ansehen
@@ -31,7 +31,7 @@
             </button>
             <span class="text-primary-emphasis">Anzahl der Veranstaltungen pro Art/Typ im PCafé pro Monat und Jahr mit Spendensumme</span>
         </li>
-        <li class="icon-link mb-3 p-2 bg-body-secondary">
+        <li class="icon-link mb-3 p-2 col-12 bg-body-secondary">
             <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-events-theme/store-no')">
                 <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
                 Ansehen
@@ -42,7 +42,7 @@
             </button>
             <span class="text-primary-emphasis">Anzahl der Veranstaltungen pro Art/Typ pro Thema im PCafé pro Monat und Jahr mit Spendensumme</span>
         </li>
-        <li class="icon-link mb-3 p-2 bg-body-secondary">
+        <li class="icon-link mb-3 p-2 col-12 bg-body-secondary">
             <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-visiter-info/store-no')">
                 <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
                 Ansehen
@@ -53,7 +53,7 @@
             </button>
             <span class="text-primary-emphasis">Anzahl der Besucher bei Infoveranstaltungen pro Thema</span>
         </li>
-        <li class="icon-link mb-3 p-2 bg-body-secondary">
+        <li class="icon-link mb-3 p-2 col-12 bg-body-secondary">
             <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-visiter-ext/store-no')">
                 <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
                 Ansehen
@@ -64,7 +64,7 @@
             </button>
             <span class="text-primary-emphasis">Anzahl der Besucher der externen Orte pro Monat und Jahr</span>
         </li>
-        <li class="icon-link mb-3 p-2 bg-body-secondary">
+        <li class="icon-link mb-3 p-2 col-12 bg-body-secondary">
             <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-visiter-last/store-no')">
                 <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
                 Ansehen
@@ -75,12 +75,23 @@
             </button>
             <span class="text-primary-emphasis">Besucher mit Anzahl Veranstaltungen und letzter Besuch</span>
         </li>
+        <li class="icon-link mb-3 p-2 col-12 bg-danger-subtle">
+            <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-visiter-double/store-no')">
+                <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
+                Ansehen
+            </button>
+            <button type="button" class="btn btn-secondary me-2" onclick="performExport(this,'ax-qy-visiter-double/store-yes', true)">
+                <svg class="bi bi-download" width="16" height="16"><use xlink:href="#download"/></svg>
+                Herunterladen
+            </button>
+            <span class="text-primary-emphasis">Doppelte Einträge in Besucher-Tabelle</span>
+        </li>
     </ul>
 </div>
 <div class="col-md-6 mod-exports">
     <h5>Bitte eine der gewünschten detaillierten Listen auswählen:</h5>
     <ul class="list-unstyled ps-0">
-        <li class="icon-link mb-3 p-2 bg-body-secondary">
+        <li class="icon-link mb-3 p-2 col-12 bg-body-secondary">
             <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-visiter-events/store-no')">
                 <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
                 Ansehen
@@ -91,7 +102,7 @@
             </button>
             <span class="text-primary-emphasis">Veranstaltungen im PCafé mit Besuchern</span>
         </li>
-        <li class="icon-link mb-3 p-2 bg-body-secondary">
+        <li class="icon-link mb-3 p-2 col-12 bg-body-secondary">
             <button type="button" class="btn btn-primary" onclick="performExport(this,'ax-qy-coaches-events/store-no')">
                 <svg class="bi bi-eye" width="16" height="16"><use xlink:href="#eye"/></svg>
                 Ansehen

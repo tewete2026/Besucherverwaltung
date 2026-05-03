@@ -147,16 +147,35 @@ def ax_qy_visiter_last(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "KundenNr;Nachname;Vorname;Anzahl_Besuche;Letzter_Besuch;Telefon;EMail\n"
+        output = "ID;KundenNr;Nachname;Vorname;Anzahl_Besuche;Aufname_Datum;Letzter_Besuch;Telefon;EMail\n"
         for row in rc_code['result_list']:
-            (kd, n, v, an, ld, t, e) = row
-            output += f"{kd};{n};{v};{an};{ld};{t};{e}\n"
+            (id, kd, n, v, an, ad, ld, t, e) = row
+            output += f"{id};{kd};{n};{v};{an};{ad};{ld};{t};{e}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
         output = rc_code['result_list']
     return send_response(output, store, "Besucher_Letztes_Datum.csv")
+
+
+@bp.route("/ax-qy-visiter-double/<store>", methods=['GET'])
+def ax_qy_visiter_double(store):
+    sql_file = "qy_visiter_double.sql"
+    if store == 'store-yes':
+        rc_code = db_collect(sql_file)
+        if rc_code['status'] == 'ERR':
+            abort(500)
+        output = "v_n_t;v_n_e;v_n_t_e;id;KundenNr;Anrede;Nachname;Vorname;Telefon;EMail;Aktiv;AufnDatum;LetztBesuch\n"
+        for row in rc_code['result_list']:
+            (vnt, vne, vnte, id, kd, anr, n, v, t, e, a, ad, ld) = row
+            output += f"{vnt};{vne};{vnte};{id};{kd};{anr};{n};{v};{t};{e};{a};{ad};{ld}\n"
+    else:
+        rc_code = mariadb_client(sql_file)
+        if rc_code['status'] == 'ERR':
+            abort(500)
+        output = rc_code['result_list']
+    return send_response(output, store, "Besucher_Doppelte_Eintraege.csv")
 
 
 def db_collect(sql_file):
