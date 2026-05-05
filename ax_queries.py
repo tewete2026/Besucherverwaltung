@@ -4,6 +4,7 @@ from flask import render_template
 from flask import current_app
 from flask import request, make_response
 from werkzeug.exceptions import abort
+from difflib import SequenceMatcher
 
 from .db import get_db, credentials
 
@@ -147,10 +148,22 @@ def ax_qy_visiter_last(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "ID;KundenNr;Nachname;Vorname;Anzahl_Besuche;Aufname_Datum;Letzter_Besuch;Telefon;EMail\n"
+        output = "ID;KundenNr;Ähnlich;Nachname;Vorname;Anzahl_Besuche;Aufname_Datum;Letzter_Besuch;Telefon;EMail\n"
+        # Voriger Vorname + Nachname
+        nx = ''
         for row in rc_code['result_list']:
             (id, kd, n, v, an, ad, ld, t, e) = row
-            output += f"{id};{kd};{n};{v};{an};{ad};{ld};{t};{e}\n"
+            # Vorname + Nachname
+            nm = v + n
+            ratio = ''
+            if len(nx) > 0:
+                # Vergleichen Vorname + Nachname mit vorigen Namen. Ratio = Faktor: 0=keine Ähnlichkeit bis 1=identisch
+                r = SequenceMatcher(a=nx, b=nm).ratio()
+                # Nur Ähnlichkeiten ab Ratio-Faktor 0,85
+                if r >= 0.85: ratio = f'{r:.2f}'.replace(".", ",") # deutsches Dezimalkomma
+            # Merken vorigen Vorname + Nachname
+            nx = nm
+            output += f"{id};{kd};{ratio};{n};{v};{an};{ad};{ld};{t};{e}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
