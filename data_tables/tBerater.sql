@@ -33,8 +33,12 @@ CREATE TABLE `tBerater` (
   `TdM` bit(1) DEFAULT NULL,
   `BerExt` bit(1) DEFAULT NULL,
   `Sperre` decimal(20,0) unsigned DEFAULT NULL COMMENT 'Enthält Timestamp, wenn Satz gesperrt ist',
+  `username` varchar(20) DEFAULT NULL COMMENT 'Login Benutzername',
+  `password` varchar(255) DEFAULT NULL,
+  `authMods` varchar(255) DEFAULT NULL COMMENT 'Berechtigungen für Module',
+  `passChange` bit(1) DEFAULT b'0' COMMENT 'Soll das Passwort neu eingegeben werden=1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -46,4 +50,4 @@ CREATE TABLE `tBerater` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-04-23 10:55:57
+-- Dump completed on 2026-05-11 18:49:53
