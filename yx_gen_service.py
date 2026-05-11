@@ -43,30 +43,31 @@ def yx_reload_config():
 @bp.route("/yx-gen-berater-passwd/", methods=['GET'])
 def yx_gen_berater_passwd():
     c_list = {
-        7:["Kuhrt", "3871", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        8:["Meyer-Wiechmann", "1942", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        21:["Wachler-Thomsen", "8461", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        23:["Kühl", "5391", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        26:["Düßler", "2741", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        29:["Härtling", "2931", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        31:["Schulte", "3744", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        39:["Eilhardt", "2261", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        40:["Kamann", "2819", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        44:["Lorenzen", "8923", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        51:["Oldag", "9171", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        52:["Plat", "2425", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        53:["Scherf", "3738", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        56:["Beyer", "9391", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        57:["Porsch", "2855", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        58:["Luther", "5621", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        59:["Schumacher", "8292", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        60:["Becker", "9911", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        61:["Münch", "2288", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        62:["Bülow", "6723", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        64:["Torres", "7632", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        65:["Prosch", "9278", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
-        66:["Aurast", "9897", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        7:["Kuhrt", "3871"],
+        8:["Meyer-Wiechmann", "1942"],
+        21:["Wachler-Thomsen", "8461"],
+        23:["Kühl", "5391"],
+        26:["Düßler", "2741"],
+        29:["Härtling", "2931"],
+        31:["Schulte", "3744"],
+        39:["Eilhardt", "2261"],
+        40:["Kamann", "2819"],
+        44:["Lorenzen", "8923"],
+        51:["Oldag", "9171"],
+        52:["Plat", "2425"],
+        53:["Scherf", "3738"],
+        56:["Beyer", "9391"],
+        57:["Porsch", "2855"],
+        58:["Luther", "5621"],
+        59:["Schumacher", "8292"],
+        60:["Becker", "9911"],
+        61:["Münch", "2288"],
+        62:["Bülow", "6723"],
+        64:["Torres", "7632"],
+        65:["Prosch", "9278"],
+        66:["Aurast", "9897"],
     }
+    c_authMods = '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",0]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",0]],["07",["Veranstaltungsorte",0]]]'
     rc_code = {'status':"OK"}
     try:
         db = get_db()
@@ -77,7 +78,7 @@ def yx_gen_berater_passwd():
         for c_id, c_name in c_list.items():
             hash_value = hashlib.sha256(c_name[1].encode())
             hashed_password = hash_value.hexdigest()
-            cur.execute("UPDATE tBerater set username=?, authMods=?, password=? WHERE id=?", (c_name[0].lower(), c_name[2], hashed_password, c_id))
+            cur.execute("UPDATE tBerater set username=?, authMods=?, password=? WHERE id=?", (c_name[0].lower(), c_authMods, hashed_password, c_id))
             c_name.append(cur.rowcount)
             c_name.append(hashed_password)
         rc_code['db_data'] = c_list
