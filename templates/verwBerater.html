@@ -48,5 +48,13 @@
               <input type="checkbox" class="form-check-input storaged-elem" name="frm-main-aktiv" id="frm-main-aktiv" checked>
             </div>
           </div>
+          <hr class="my-2">
+          <h5>Zuordnen Schreibrechte für folgende Module</h5>{% for row in conf.mod_list %}
+          <div class="row">
+            <div class="ms-4 form-check" style="width: 98%;">
+              <label class="form-check-label-{{ row[0] }}" for="frm-main-auth-{{ row[0] }}">{{ row[1] }}</label>
+              <input type="checkbox" class="form-check-input storaged-elem" name="frm-main-auth-{{ row[0] }}" id="frm-main-auth-{{ row[0] }}" {{ row[2] }}>
+            </div>
+          </div>{% endfor %}
         </div>
 {% endblock %}

@@ -1,6 +1,6 @@
 import mariadb
 from flask import Blueprint
-from flask import current_app
+from flask import current_app, session
 from flask import request
 from flask import render_template
 from flask import redirect, url_for
@@ -14,7 +14,7 @@ def main():
     if current_app.config["NO_POOL_AVAILABLE"]:
         return redirect(url_for("internal_server_error"))
 
-    conf = Configure(request, current_app, title="Verwalten Geräte", header=["Gerät Nr.", "Neues Gerät erfassen"], prefix="04", app='devices',
+    conf = Configure(request, current_app, title="Verwalten Geräte", header=["Gerät Nr.", "Neues Gerät erfassen"], prefix="04", app='devices', username=session['coach_name'],
                      link='link-verwgeraete', label="Berater", category="Geräte", overview="Übersicht Geräte", pag_search="Suchbegriff eingeben")
 
     return render_template("verwGeraete.html", conf=conf, javascript=conf.javascript.getOut())

@@ -2,8 +2,7 @@ import os
 from flask import Flask, url_for, send_from_directory
 from flask import render_template, g, current_app, session, redirect, request
 from logging.config import dictConfig
-from . import version, credentials
-from .db import TimeSet
+from . import version, credentials, db
 
 def create_app(test_config="DEV"):
     """Create and configure an instance of the Flask application.
@@ -52,23 +51,32 @@ def create_app(test_config="DEV"):
         }
     })
     app = Flask(version.Configs.APP_NAME, instance_relative_config=False, static_url_path="/src")
+    if test_config == "DEV":
+        modname = "/"
+    else:
+        modname = f"/{version.Configs.APP_NAME}"
     app.config.from_mapping(
         # a default secret that should be overridden by instance config
         SECRET_KEY=credentials.Passwords.SECRET_KEY,
         SESSION_COOKIE_NAME="drk-bv-session",
-        TS=TimeSet("Europe/Berlin"),
-        HOSTNAME = os.uname().nodename,
+        SESSION_COOKIE_PATH=modname,
+        TS=db.TimeSet("Europe/Berlin"),
+        HOSTNAME=os.uname().nodename,
         TEST_RUN=False,
         DB_POOL=None,
         NO_POOL_AVAILABLE=False,
-        COOKIE_PREFIX='drk-bv'
+        COOKIE_PREFIX='drk-bv-',
+        COOKIE_LOGIN='is-logged-in-TEST'
     )
 
     @app.before_request
     def check_login():
-        if request.method == 'GET' and not current_app.config['COOKIE_PREFIX'] + '-is-logged-in-TEST' in request.cookies:
+        if request.method == 'GET' and not db.get_config('COOKIE_LOGIN', is_cookie=True) in request.cookies:
             lurl = request.url.rsplit('/')
             uri = lurl.pop()
+            ind = ["store-no", "store-yes"].count(uri)
+            if ind > 0:
+                uri = f"{lurl.pop()}/{uri}"
             if current_app.config['TEST_RUN']: module = ''
             else: module = lurl.pop()
             if len(uri) > 0 and not uri.startswith('nc-'):
@@ -165,7 +173,6 @@ def create_app(test_config="DEV"):
         app.logger.info("Production active")
 
     # register the database commands
-    from . import db
     with app.app_context():
         if db.init_app(app) == "ERR":
             app.config.from_mapping(NO_POOL_AVAILABLE=True)

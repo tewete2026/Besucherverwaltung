@@ -1,11 +1,11 @@
 import mariadb
 from flask import Blueprint
-from flask import current_app
+from flask import current_app, session
 from flask import request
 from flask import render_template
 from flask import redirect, url_for
 from werkzeug.exceptions import abort
-from .db import get_db, Javascript, Configure
+from .db import get_db, Javascript, Configure, get_config, get_session_entry
 from . import version
 
 bp = Blueprint("main", __name__)
@@ -69,9 +69,13 @@ def index():
         db.close()
         current_app.logger.error("Datenbank-Fehler: %s/%s", bp.name, err)
         abort(500)
-
-    conf = Configure(request, current_app, title="Verwalten Veranstaltungen", header=["Veranstaltung Nr.", "Neue Veranstaltung erfassen"], prefix="01", app='events',
+    conf = Configure(request, current_app, title="Verwalten Veranstaltungen", header=["Veranstaltung Nr.", "Neue Veranstaltung erfassen"], prefix="01", app='events', username=session['coach_name'],
                      link='link-main', label="Veranstaltungen", category="Veranstaltung", overview="Übersicht Veranstaltungen", pag_search="oder Datum-bis", pag_type="date")
+    
+    usedMods = get_session_entry('authMods', as_dict=True)
+    valid_mod = 0
+    if conf.prefix in usedMods: valid_mod = usedMods[conf.prefix][1]
+    conf.javascript.add({'valid_Mod':valid_mod})
 
     vis_max_arr = []
     # for vis_elem in dbdata["targets"]:

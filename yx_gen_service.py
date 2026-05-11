@@ -1,4 +1,4 @@
-import mariadb
+import mariadb, hashlib
 from flask import Blueprint, current_app
 from .db import get_db
 from . import tools
@@ -40,37 +40,55 @@ def yx_reload_config():
 
 
 
-@bp.route("/yx-gen-berater-make/", methods=['GET'])
-def yx_gen_berater_make():
-    rc_code = "OK"
+@bp.route("/yx-gen-berater-passwd/", methods=['GET'])
+def yx_gen_berater_passwd():
+    c_list = {
+        7:["Kuhrt", "3871", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        8:["Meyer-Wiechmann", "1942", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        21:["Wachler-Thomsen", "8461", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        23:["Kühl", "5391", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        26:["Düßler", "2741", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        29:["Härtling", "2931", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        31:["Schulte", "3744", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        39:["Eilhardt", "2261", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        40:["Kamann", "2819", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        44:["Lorenzen", "8923", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        51:["Oldag", "9171", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        52:["Plat", "2425", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        53:["Scherf", "3738", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        56:["Beyer", "9391", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        57:["Porsch", "2855", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        58:["Luther", "5621", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        59:["Schumacher", "8292", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        60:["Becker", "9911", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        61:["Münch", "2288", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        62:["Bülow", "6723", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        64:["Torres", "7632", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        65:["Prosch", "9278", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+        66:["Aurast", "9897", '[["01",["Veranstaltungen",1]],["02",["Besucher",1]],["03",["Berater",1]],["05",["Veranstaltungsthemen",1]],["06",["Veranstaltungsarten",1]],["07",["Veranstaltungsorte",1]]]'],
+    }
+    rc_code = {'status':"OK"}
     try:
         db = get_db()
         if not db:
             raise mariadb.PoolError()
         db.begin()
-        cur_i = db.cursor(dictionary=True)
-        cur_o = db.cursor(dictionary=True)
-
-        cur_i.execute("SELECT id,berater1,berater2,berater3,berater4,berater5 FROM tVeranst order by id")
-        while True:
-            row = cur_i.next()
-            if row:
-                v_id = row["id"]
-                v_ber = [row["berater1"], row["berater2"], row["berater3"], row["berater4"], row["berater5"]]
-                for ber in v_ber:
-                    if ber and ber.isnumeric():
-                        cur_o.execute("insert into tBeraterVer(VeranstID,BeraterID) values(?,?)", (v_id, ber))
-            else:
-                break
+        cur = db.cursor(dictionary=True)
+        for c_id, c_name in c_list.items():
+            hash_value = hashlib.sha256(c_name[1].encode())
+            hashed_password = hash_value.hexdigest()
+            cur.execute("UPDATE tBerater set username=?, authMods=?, password=? WHERE id=?", (c_name[0].lower(), c_name[2], hashed_password, c_id))
+            c_name.append(cur.rowcount)
+            c_name.append(hashed_password)
+        rc_code['db_data'] = c_list
 
         db.commit()
-        cur_i.close()
-        cur_o.close()
+        cur.close()
         db.close()
     except mariadb.PoolError as err:
-        rc_code = "ERR - Datenbankfehler: {}".format(err)
+        rc_code['status'] = "ERR - Datenbankfehler: {}".format(err)
     except mariadb.Error as err:
-        rc_code = "ERR - Datenbankfehler: {}".format(err)
+        rc_code['status'] = "ERR - Datenbankfehler: {}".format(err)
         db.rollback()
         db.close()
 

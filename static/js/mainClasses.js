@@ -477,3 +477,36 @@ class Events_Elements {
   }
   
 }
+
+
+class Used_Modules {
+  map;
+  modified=false;
+  
+  constructor(source) {
+    this.map = new Map(JSON.parse(source));
+  }
+  has(key) {
+    return this.map.has(key);
+  }
+  get(key) {
+    return this.map.get(key);
+  }
+  setAuth(key, onOff) {
+    if (this.has(key)) {
+      const value_arr = this.map.get(key);
+      value_arr[1] = onOff ? 1 : 0;
+      this.modified = true;
+    }
+  }
+  size() {
+    return this.map.length;
+  }
+  is_empty() {
+    if (this.size() == 0) return true;
+      else return false;
+  }
+  commit() {
+    return JSON.stringify(arrayifyMap(this.map));
+  }
+}

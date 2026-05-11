@@ -33,8 +33,10 @@
         <input type="password" name="password" class="form-control" id="floatingPassword">
         <label for="floatingPassword">Passwort</label>
     </div>
+    <div class="alert alert-danger {{ error['class'] }}" role="alert">
+      {{ error['userfault'] }}
+    </div>
     <button class="btn btn-primary w-100 py-2" type="submit">Absenden</button>
-    <p class="mt-5 mb-3 text-body-secondary">&copy; 2026</p>
   </form>
 {% endif %}
 
@@ -46,7 +48,7 @@
         <p class="lead mb-4">Ein erneutes Anmelden kann erst nach einem Abmelden erfolgen.</p>
         <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
             <a href="{{ url_for('index') }}" class="px-4 gap-3">Zur Startseite</a>
-            <a href="{{ url_for('index') }}" class="px-4 gap-3">Abmelden</a>
+            <a href="{{ url_for('login.logout') }}" class="px-4 gap-3">Abmelden</a>
         </div>
     </div>
     </div>
@@ -54,6 +56,7 @@
 
 </main>
 <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sign-in.js') }}"></script>
 
 </body>
 </html>

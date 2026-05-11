@@ -1,7 +1,7 @@
 import mariadb
 from datetime import datetime, timedelta
-import pytz
-from flask import current_app, g
+import pytz, json
+from flask import current_app, g, session
 from dateutil.relativedelta import relativedelta
 from . import version, credentials
 
@@ -29,11 +29,13 @@ class Javascript:
     
 
 class Configure:
-    def __init__(self, request, current_app, title:str, header:list, prefix:str, app:str, link:str, label:str, category:str, overview:str,
+    def __init__(self, request, current_app, title:str, header:list, prefix:str, app:str, link:str, label:str, category:str, overview:str, username:str,
                  pag_search:str, pag_type:str="text", btn_type:str="button"):
+        self.prefix = prefix
         self.credits = {
             "title":title,
             "header":header,
+            "username":username,
             "app":app,
             "user":request.remote_user,
             "addr":request.remote_addr,
@@ -119,6 +121,21 @@ class TimeSet:
         # tmto_ical = tmto.strftime('%Y%m%dT%H%M%S')
         return (tmfrom, tmto, self.__tzid)
 
+
+def get_config(value:str, is_cookie:bool=False, as_dict:bool=False):
+    entry = current_app.config[value]
+    if is_cookie: entry = current_app.config['COOKIE_PREFIX'] + entry
+    if as_dict: entry = dict(json.loads(entry))
+    return entry
+
+
+def get_session_entry(value:str, is_cookie:bool=False, as_dict:bool=False):
+    entry = session[value]
+    if is_cookie: entry = current_app.config['COOKIE_PREFIX'] + entry
+    if as_dict: entry = dict(json.loads(entry))
+    return entry
+
+
 def get_db():
     try:
         pool=current_app.config["DB_POOL"]
@@ -165,7 +182,7 @@ def init_app(app):
                 raise mariadb.PoolError("Fehler bei get_connection().")
             cur = db.cursor()
             """ Einlesen Konfigurations-Elemente aus der Datenbanktabelle _Config """
-            cur.execute("select item,value from _Config order by id")
+            cur.execute("select item,value from _Config order by item")
             app.config.update(cur.fetchall())
             cur.close()
             db.close()

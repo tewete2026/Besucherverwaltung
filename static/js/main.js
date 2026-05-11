@@ -45,6 +45,7 @@ const visiter_elem_map = new Visiter_Elements(tb_visiter);
 const coaches_elem_map = new Coaches_Elements(frm_main_berater, coaches_set);
 const events_elem_map = new Events_Elements(tb_events);
 
+const used_modules_map = typeof SERVER_OPTIONS.used_mods === 'undefined' ? null : new Used_Modules(SERVER_OPTIONS.used_mods);
 const max_visiter_map = typeof SERVER_OPTIONS.max_visiters === 'undefined' ? null : new Map(JSON.parse(SERVER_OPTIONS.max_visiters));
 
 const von_value = this.document.getElementById("frm-main-zeit-von");
@@ -179,6 +180,10 @@ async function env_init() {
   showAlertsAfterInit();
 
   /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
+  // Speicher-Button disabeln wenn keine Berechtigung für dieses Modul vorhanden
+  const valid_Mod = SERVER_OPTIONS.valid_Mod;
+  if (valid_Mod == 0) btn_main_store.setAttribute("disabled", true);
+  
   const item_id_head = extStorage.getItem("frm-main-kdnr") ? extStorage.getItem("frm-main-kdnr") : extStorage.getItem("frm-main-id");
   const header = eval(SERVER_OPTIONS.header);
   if (item_id_head) {
@@ -594,10 +599,15 @@ async function performSubmit(event) {
           besucher_inhalt_map.set("wl", wl);
           besucher_inhalt_map.set("wl-prev", wl_prev);
         }
+        else if (elem.name.startsWith("frm-main-auth")) {
+          pref = elem.name.slice(-2);
+          used_modules_map.setAuth(pref, elem.checked);
+        }
       }
     }
     if (berater_arr.length > 0) submit_map.add("berater", berater_arr);
     if (besucher_map.size > 0) submit_map.add("besucher", besucher_map);
+    if (used_modules_map.modified) submit_map.add("used-modules", used_modules_map.commit());
     if (visiter_elem_map.init) submit_map.add("besucher-remove", visiter_elem_map.map_remove);
     if (events_elem_map.init) submit_map.add("veranst-remove", events_elem_map.map_remove);
     const item_timestamp = extStorage.getItem("timestamp");
@@ -1073,6 +1083,15 @@ async function setClickForEdit(event) {
       extStorage.setItem("frm-main-mobil", result_data.coache.Mobil);
       extStorage.setItem("frm-main-telefon", result_data.coache.Telefon);
       extStorage.setItem("frm-main-aktiv", result_data.coache.Aktiv);
+      let authMods;
+      if (result_data.coache.authMods) {
+        authMods = new Used_Modules(result_data.coache.authMods);
+      } else {
+        authMods = new Used_Modules(SERVER_OPTIONS.used_mods);
+      }
+      authMods.map.forEach((value, key) => {
+        extStorage.setItem("frm-main-auth-" + key, value[1]);
+      })
     }
     if (typeof result_data.visiter !== 'undefined') {
       extStorage.setItem("last_stored_kdnr", result_data.visiter.KundenNr);

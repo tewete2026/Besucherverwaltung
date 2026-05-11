@@ -83,6 +83,16 @@
           </ul>
         </div>
       </li>
+      <li class="mb-1">
+        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" data-bs-target="#export-collapse" aria-expanded="true">
+          Abmelden
+        </button>
+        <div class="collapse show" id="export-collapse">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <li><a href="{{ url_for('login.logout') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Log-Out</a></li>
+          </ul>
+        </div>
+      </li>
     </ul>
   </section>
   <section id="sec-overview" class="d-flex flex-column align-items-stretch p-3 ms-2 mt-2 flex-shrink-0 bg-white rounded-5" style="width: 44%;">
@@ -135,7 +145,7 @@
       <figure class="mb-3 me-2 mb-md-0">
         <img src="{{ url_for('static', filename='Logo_PCafe.png') }}" alt="Logo_PCafe">
       </figure>
-      <span class="mb-3 mb-md-0 text-body-secondary">&copy; PCafé - Norderstedt · Version: {{ conf.credits["version"] }} · Erstellt: {{ conf.credits["created"] }} · {{ conf.credits["author"] }}<br>Remote-IP: {{ conf.credits["addr"] }} - Host Name: {{ conf.credits["hostname"] }}</span>
+      <span class="mb-3 mb-md-0 text-body-secondary">&copy; PCafé - Norderstedt · Version: {{ conf.credits["version"] }} · Erstellt: {{ conf.credits["created"] }} · {{ conf.credits["author"] }}<br>Remote-IP: {{ conf.credits["addr"] }} - Host Name: {{ conf.credits["hostname"] }} - Benutzer angemeldet: {{ conf.credits["username"] }}</span>
     </div>
     {# <!--ul class="nav justify-content-end list-unstyled d-flex">
     <li class="ms-3"><a class="text-body-secondary" href="{{ url_for('main.kommtNoch') }}"><svg class="bi" width="24" height="24"><use xlink:href="#bi-youtube"/></svg></a></li>
