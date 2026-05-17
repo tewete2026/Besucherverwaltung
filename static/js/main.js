@@ -258,7 +258,8 @@ function fillCoaches(is_collect, elem_map, frm_main_nbr, table_source, static_na
     let index = max_ids;
     for (const Id of Ids) {
       const newtr = table_source.insertRow(0);
-      static_coaches_rows(static_name, --index, html_options, newtr, index);
+      const data_id = elem_map.map.get(Id);
+      static_coaches_rows(static_name, --index, html_options, newtr, index, data_id);
       const newsel = newtr.cells[0].firstElementChild;
       newsel.value = Id;
       newsel.setAttribute("data-init-frm", "true");
@@ -557,7 +558,7 @@ async function performSubmit(event) {
     spinner_btn_store.classList.remove("d-none");
     const submit_map = new SubmitParm();
     const besucher_map = new Map();
-    const berater_arr = new Array();
+    const berater_map = new Map();
     for (const elem of frm_main.elements) {
       if (["BUTTON", "FIELDSET"].includes(elem.nodeName)) continue;
       const data_id = elem.getAttribute("data-id");
@@ -581,8 +582,7 @@ async function performSubmit(event) {
         submit_map.add_if("bezeichnung", elem, "frm-main-bezeichnung") ||
         submit_map.add_if("maxbesucher", elem, "frm-main-maxbesucher") ||
         submit_map.add_if("newsl", elem, "frm-main-newsl") ||
-        submit_map.add_if("aktiv", elem, "frm-main-aktiv") ||
-        add_To_Array(berater_arr, elem.value, elem.name == "frm-main-berater")
+        submit_map.add_if("aktiv", elem, "frm-main-aktiv")
       if (!chk) {
         if (elem.name == "frm-main-spende") {
           if (!besucher_map.has(data_id)) besucher_map.set(data_id, new Map());
@@ -603,12 +603,16 @@ async function performSubmit(event) {
           pref = elem.name.slice(-2);
           used_modules_map.setAuth(pref, elem.checked);
         }
+        else if (elem.name == "frm-main-berater") {
+          if (elem.value != '-1') berater_map.set(elem.value, data_id);
+        }
       }
     }
-    if (berater_arr.length > 0) submit_map.add("berater", berater_arr);
+    if (berater_map.size > 0) submit_map.add("berater", berater_map);
     if (besucher_map.size > 0) submit_map.add("besucher", besucher_map);
-    if (used_modules_map.modified) submit_map.add("used-modules", used_modules_map.commit());
+    if (used_modules_map !== null) submit_map.add("used-modules", used_modules_map.commit());
     if (visiter_elem_map.init) submit_map.add("besucher-remove", visiter_elem_map.map_remove);
+    if (coaches_elem_map.init) submit_map.add("berater-remove", coaches_elem_map.map_remove);
     if (events_elem_map.init) submit_map.add("veranst-remove", events_elem_map.map_remove);
     const item_timestamp = extStorage.getItem("timestamp");
     if (item_id_head) submit_map.add("main-id", item_id_head);
@@ -905,7 +909,7 @@ async function setChangeEvent(event) {
 function setCoachesChangeEvent(target, index, init_attr, elem_value, elem_map, frm_main_nbr, table_source, static_name, setClickEvent) {
   if (elem_value == "-1" || !elem_map.has(elem_value)) {
     if (init_attr == "false" && elem_value != "-1") {
-      elem_map.append(elem_value);
+      elem_map.append(elem_value, '-1');
     }
     else {
       elem_map.replaceByIndex(index, elem_value);
@@ -1062,7 +1066,7 @@ async function setClickForEdit(event) {
       extStorage.setItem("frm-main-veranst-cal_uid", result_data.veranst.cal_uid);
       coaches_elem_map.clear();
       for (const elem of result_data.berater) {
-        coaches_elem_map.append(elem.BeraterID);
+        coaches_elem_map.append(elem.BeraterID, elem.id.toString());
       }
       coaches_elem_map.commit();
       visiter_elem_map.clear();

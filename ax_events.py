@@ -3,7 +3,7 @@ from icalendar.prop import vDDDTypes, vText
 from caldav import davclient
 from flask import Blueprint
 from flask import current_app
-from flask import request
+from flask import request, session
 from flask import render_template
 from dateutil import parser
 
@@ -79,7 +79,8 @@ def ax_submit_veranst():
     result = request.get_json()
     current_app.logger.info("Empfangene Daten: " + request.headers.get('Content-Type') + "; Remote-Addr=" + request.remote_addr + "; Method=" + request.method + "; Content-length=" + str(request.content_length) + "; Remote-User=" + str(request.remote_user))
     rc_code = {"status":"OK", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
-    berater = []
+    changeUser = session['coach_name']
+    berater = {}
     besucher = {}
     ts = current_app.config["TS"]
     add_calevent = bool(current_app.config["add-new-calevent"] == '1')
@@ -92,7 +93,8 @@ def ax_submit_veranst():
         veranst_timestamp = None
         for pkey, parm in result:
             if pkey == "berater":
-                berater.extend(parm)
+                for besId, besParm in parm:
+                    berater.update({besId : besParm})
             elif pkey == "besucher":
                 for besId, besParm in parm:
                     besucher.update({besId : dict(besParm)})
@@ -121,6 +123,8 @@ def ax_submit_veranst():
                     veranst_timestamp = parm
                 elif pkey == "besucher-remove":
                     besucher_remove = parm
+                elif pkey == "berater-remove":
+                    berater_remove = parm
         try:
             db = get_db()
             if not db:
@@ -138,8 +142,8 @@ def ax_submit_veranst():
                 cur.execute("SELECT IFNULL(sperre,'INVALID') as sperre FROM tVeranst WHERE id=? FOR UPDATE", (veranst_id,))
                 timestamp = str(cur.fetchone()["sperre"])
                 if timestamp == veranst_timestamp:
-                    cur.execute("update tVeranst set sperre=null,typ=?,ort=NULLIF(?,-1),spenden=?,thema=NULLIF(?,-1),datum=?,von=?,bis=?,dauer=?,bezeichnung=? where id=?", (veranst_typ, veranst_ort, veranst_spende, veranst_thema, veranst_datum, veranst_zeit_von, veranst_zeit_bis, veranst_zeit_dauer, bezeichnung, veranst_id))
-                    cur.execute("delete from tBeraterVer where VeranstID=?", (veranst_id,))
+                    cur.execute("update tVeranst set sperre=null,typ=?,ort=NULLIF(?,-1),spenden=?,thema=NULLIF(?,-1),datum=?,von=?,bis=?,dauer=?,bezeichnung=?, AnlageUser=? where id=?", 
+                                (veranst_typ, veranst_ort, veranst_spende, veranst_thema, veranst_datum, veranst_zeit_von, veranst_zeit_bis, veranst_zeit_dauer, bezeichnung, changeUser, veranst_id))
                     last_id = veranst_id
                     rc_code["id"] = veranst_id
                 elif timestamp == "INVALID":
@@ -151,14 +155,36 @@ def ax_submit_veranst():
                     rc_code["status"] = "NOTALWD"
                     rc_code["id"] = veranst_id
             else:
-                cur.execute("insert into tVeranst(typ,ort,spenden,thema,datum,von,bis,dauer,bezeichnung) values(?,NULLIF(?,-1),?,NULLIF(?,-1),?,?,?,?,?)", (veranst_typ, veranst_ort, veranst_spende, veranst_thema, veranst_datum, veranst_zeit_von, veranst_zeit_bis, veranst_zeit_dauer, bezeichnung))
+                cur.execute("insert into tVeranst(typ,ort,spenden,thema,datum,von,bis,dauer,bezeichnung,AnlageUser) values(?,NULLIF(?,-1),?,NULLIF(?,-1),?,?,?,?,?,?)", 
+                            (veranst_typ, veranst_ort, veranst_spende, veranst_thema, veranst_datum, veranst_zeit_von, veranst_zeit_bis, veranst_zeit_dauer, bezeichnung, changeUser))
                 last_id = cur.lastrowid
                 rc_code["id"] = last_id
                 insert_done = True
 
             if update_allowed:
-                for berId in berater:
-                    cur.execute("insert into tBeraterVer(BeraterID,VeranstID) values(?,?)", (berId, last_id))
+                cur.execute("select Thema from tThemen where id=?", (veranst_thema,))
+                verThema = cur.fetchone()
+                Thema = ''
+                if cur.rowcount > 0:
+                    Thema = verThema['Thema']
+                for itemId in berater_remove:
+                    cur.execute("delete from tBeraterVer where id=?", (itemId,))
+                    current_app.logger.debug("Entfernt in tBeraterVer: RowCount=%s, Warnings=%s, ID=%s, VeranstID=%s", cur.rowcount, cur.warnings, itemId, last_id)
+                for berId, verId in berater.items():
+                    if verId != '-1':
+                        cur.execute("update tBeraterVer set BeraterID=?,VeranstID=? where id=?", (berId, last_id, verId))
+                        current_app.logger.debug("Ersetzt in tBeraterVer: RowCount=%s, Warnings=%s, ID=%s, Ber.ID=%s, VeranstID=%s", cur.rowcount, cur.warnings, verId, berId, last_id)
+                    else:
+                        cur.execute("select Nachname,Vorname from tBerater where id=?", (berId,))
+                        berName = cur.fetchone()
+                        Nachname = Vorname = ''
+                        if cur.rowcount > 0:
+                            Nachname = berName['Nachname']
+                            Vorname = berName['Vorname']
+                        cur.execute("insert into tBeraterVer(BeraterID,VeranstID,AnlageUser,Nachname,Vorname,VeranstThema,VeranstBez) values(?,?,?,NULLIF(?,''),NULLIF(?,''),NULLIF(?,''),NULLIF(?,''))", 
+                                    (berId, last_id, changeUser, Nachname, Vorname, Thema, bezeichnung))
+                        ins_id = cur.lastrowid
+                        current_app.logger.debug("Eingefügt in tBeraterVer: RowCount=%s, Warnings=%s, ID=%s, Ber.ID=%s, VeranstID=%s", cur.rowcount, cur.warnings, ins_id, berId, last_id)
                 for besId, besParm in besucher.items():
                     spende = float(besParm["spende"].replace(",", '.'))
                     if "id" in besParm:
@@ -170,7 +196,14 @@ def ax_submit_veranst():
                         cur.execute("UPDATE tBesucher set LetztDatum=? WHERE id=? && (LetztDatum<? || LetztDatum is null)", (veranst_datum, besId, veranst_datum))
                         current_app.logger.debug("Letztes Veranst-Datum in tBesucher: RowCount=%s, Warnings=%s, Bes.ID=%s, VeranstDat=%s", cur.rowcount, cur.warnings, besId, veranst_datum)
                     else:
-                        cur.execute("insert into tBesuche(BesucherID,VeranstID,Spende,BesucherWL,TagInt,Monat,Jahr) values(?,?,?,?,?,?,?)", (besId, last_id, spende, besParm["wl"], today_day, today_month, today_year))
+                        cur.execute("select Nachname,Vorname from tBesucher where id=?", (besId,))
+                        besName = cur.fetchone()
+                        Nachname = Vorname = ''
+                        if cur.rowcount > 0:
+                            Nachname = besName['Nachname']
+                            Vorname = besName['Vorname']
+                        cur.execute("insert into tBesuche(BesucherID,VeranstID,Spende,BesucherWL,AnlageUser,Nachname,Vorname,VeranstThema,VeranstBez) values(?,?,?,?,?,NULLIF(?,''),NULLIF(?,''),NULLIF(?,''),NULLIF(?,''))", 
+                                    (besId, last_id, spende, besParm["wl"], changeUser, Nachname, Vorname, Thema, bezeichnung))
                         row_id = cur.lastrowid
                         current_app.logger.debug("Eingefügt in tBesuche: RowCount=%s, Warnings=%s, Bes.ID=%s, VeranstID=%s, ID=%s", cur.rowcount, cur.warnings, besId, last_id, row_id)
                         cur.execute(f"insert into tBesucheLOG(BesucherID,VeranstID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL) \

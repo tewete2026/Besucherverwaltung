@@ -85,11 +85,11 @@
       </li>
       <li class="mb-1">
         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" data-bs-target="#export-collapse" aria-expanded="true">
-          Abmelden
+          Aktionen
         </button>
         <div class="collapse show" id="export-collapse">
           <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-            <li><a href="{{ url_for('login.logout') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Log-Out</a></li>
+            <li><a href="{{ url_for('login.logout') }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Abmelden</a></li>
           </ul>
         </div>
       </li>
@@ -99,7 +99,7 @@
     <p class="d-flex align-items-center flex-shrink-0 text-decoration-none bg-secondary text-white rounded-3 p-1">
       <span class="fs-5 fw-semibold">{{ conf.overview }}</span>
     </p>
-    <table id="tb-overview-{{ conf.credits["app"] }}" class="table table-bordered table-hover" style="font-size: 0.8em; line-height: 0.95em;">
+    <table id="tb-overview-{{ conf.credits['app'] }}" class="table table-bordered table-hover" style="font-size: 0.8em; line-height: 0.95em;">
       {% block overview %}{% endblock %}
       <tbody>
       </tbody>

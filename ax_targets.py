@@ -2,7 +2,7 @@ import mariadb, sys
 from flask import Blueprint
 from flask import render_template
 from flask import current_app
-from flask import request
+from flask import request, session
 
 from .ax_default import mx_get_overview, mx_submit_release, mx_get_edit
 from .db import get_db
@@ -36,6 +36,7 @@ def ax_submit_targets():
     result = request.get_json()
     current_app.logger.info("Empfangene Daten: " + request.headers.get('Content-Type') + "; Remote-Addr=" + request.remote_addr + "; Method=" + request.method + "; Content-length=" + str(request.content_length) + "; Remote-User=" + str(request.remote_user))
     rc_code = {"status":"OK", "id":"(Neu)", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
+    changeUser = session['coach_name']
 
     try:
         item_id = None
@@ -65,7 +66,7 @@ def ax_submit_targets():
                 row_data = cur.fetchone()
                 timestamp = str(row_data["sperre"])
                 if timestamp == item_timestamp:
-                    cur.execute("update tOrte set sperre=null,Bezeichnung=?,MaxBesucher=NULLIF(?,'') where id=?", (bezeichnung, maxbesucher, item_id))
+                    cur.execute("update tOrte set sperre=null,Bezeichnung=?,MaxBesucher=NULLIF(?,''),AnlageUser=? where id=?", (bezeichnung, maxbesucher, changeUser, item_id))
                 elif timestamp == "INVALID":
                     update_allowed = False
                     rc_code["status"] = "INVALID"
@@ -73,7 +74,7 @@ def ax_submit_targets():
                     update_allowed = False
                     rc_code["status"] = "NOTALWD"
             else:
-                cur.execute("insert into tOrte(Bezeichnung,MaxBesucher) values(?,NULLIF(?,''))", (bezeichnung, maxbesucher))
+                cur.execute("insert into tOrte(Bezeichnung,MaxBesucher,AnlageUser) values(?,NULLIF(?,''),?)", (bezeichnung, maxbesucher, changeUser))
                 last_id = cur.lastrowid
                 rc_code["id"] = last_id
 

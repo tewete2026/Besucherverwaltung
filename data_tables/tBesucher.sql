@@ -40,10 +40,12 @@ CREATE TABLE `tBesucher` (
   `LetztDatum` datetime DEFAULT NULL COMMENT 'Letztes Datum Besuch',
   `Gesendet` bit(1) DEFAULT NULL,
   `Sperre` decimal(20,0) unsigned DEFAULT NULL COMMENT 'Enthält Timestamp, wenn Satz gesperrt ist',
+  `AnlageUser` varchar(100) DEFAULT NULL COMMENT 'Durchführender Benutzer',
+  `AnlageDatum` datetime DEFAULT current_timestamp() COMMENT 'Datum der Anlage',
   PRIMARY KEY (`id`),
   UNIQUE KEY `KundenNr` (`KundenNr`),
   KEY `personal_date` (`AufnDatum`)
-) ENGINE=InnoDB AUTO_INCREMENT=1976 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1987 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -55,4 +57,4 @@ CREATE TABLE `tBesucher` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-05-11 18:49:53
+-- Dump completed on 2026-05-16 18:40:45

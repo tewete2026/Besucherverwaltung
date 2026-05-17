@@ -2,7 +2,7 @@ import mariadb, sys
 from flask import Blueprint
 from flask import render_template
 from flask import current_app
-from flask import request
+from flask import request, session
 
 from .db import get_db
 from .ax_default import mx_get_overview, mx_submit_release, mx_get_edit
@@ -34,6 +34,7 @@ def ax_submit_veransttyp():
     result = request.get_json()
     current_app.logger.info("Empfangene Daten: " + request.headers.get('Content-Type') + "; Remote-Addr=" + request.remote_addr + "; Method=" + request.method + "; Content-length=" + str(request.content_length) + "; Remote-User=" + str(request.remote_user))
     rc_code = {"status":"OK", "id":"(Neu)", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
+    changeUser = session['coach_name']
 
     try:
         item_id = None
@@ -61,7 +62,7 @@ def ax_submit_veransttyp():
                 row_data = cur.fetchone()
                 timestamp = str(row_data["sperre"])
                 if timestamp == item_timestamp:
-                    cur.execute("update tVeranstTyp set sperre=null,Bezeichnung=? where id=?", (type_bezeichnung, item_id))
+                    cur.execute("update tVeranstTyp set sperre=null,Bezeichnung=?,AnlageUser=? where id=?", (type_bezeichnung, changeUser, item_id))
                 elif timestamp == "INVALID":
                     update_allowed = False
                     rc_code["status"] = "INVALID"
@@ -69,7 +70,7 @@ def ax_submit_veransttyp():
                     update_allowed = False
                     rc_code["status"] = "NOTALWD"
             else:
-                cur.execute("insert into tVeranstTyp(Bezeichnung) values(?)", (type_bezeichnung,))
+                cur.execute("insert into tVeranstTyp(Bezeichnung,AnlageUser) values(?,?)", (type_bezeichnung, changeUser))
                 last_id = cur.lastrowid
                 rc_code["id"] = last_id
 

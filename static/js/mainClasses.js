@@ -347,32 +347,29 @@ class Coaches_Elements {
     if (!val) val = "-1";
     return val;
   }
-  remove(value) {
-    if (this.has(value)) {
-      const ind = this.map_order.indexOf(value);
+  remove(key) {
+    if (this.has(key)) {
+      const ind = this.map_order.indexOf(key);
       this.removeByIndex(ind);
-      if (this.map.has(value)) {
-        this.map.delete(value);
-        this.map_remove.push(value);
+      if (this.map.has(key)) {
+        this.map.delete(key);
+        this.map_remove.push(key);
       }
     }
   }
   removeByIndex(index) {
     if (this.size() > index) {
+      const key = this.map_order[index];
+      const id = this.map.get(key);
+      if (id && id != '-1') this.map_remove.push(id);
+      this.map.delete(key);
       this.map_order.splice(index, 1);
     }
   }
   append(key, value) {
-    if (typeof value === 'undefined') {
-      if (!this.has(key.toString())) {
-        this.map_order.push(key.toString());
-      }
-    }
-    else {
-      if (!this.map.has(key.toString())) {
-        this.map.set(key.toString(), value);
-        this.map_order.push(key.toString());
-      }
+    if (!this.map.has(key.toString())) {
+      this.map.set(key.toString(), value);
+      this.map_order.push(key.toString());
     }
   }
   replace(key, value) {

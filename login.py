@@ -12,13 +12,6 @@ from . import version
 bp = Blueprint("login", __name__)
 
 
-@bp.after_request
-def add_security_headers(response):
-    response.headers['Cache-Control']='no-cache'
-    response.headers['Pragma']='no-cache'
-    return response
-
-
 @bp.route("/login", methods=['GET', 'POST'])
 def login():
     ts = current_app.config["TS"]
@@ -41,7 +34,9 @@ def login():
                     raise mariadb.PoolError()
                 cur = db.cursor(dictionary=True)
 
-                cur.execute("SELECT Vorname,Nachname,authMods from tBerater where username=? && password=?", (form_data['username'], hashed_password))
+                # cur.execute("SELECT Vorname,Nachname,authMods from tBerater where username=? && password=?", (form_data['username'].lower(), hashed_password))
+                # Temporär zunächst ohne Passwort
+                cur.execute("SELECT Vorname,Nachname,authMods from tBerater where username=?", (form_data['username'].lower(),))
                 result = cur.fetchone()
                 if cur.rowcount < 1:
                     dbdata['status'] = 'NotFound'

@@ -5,8 +5,8 @@
   <tr>
     <th scope="col" style="width: 6%">Nr.</th>
     <th scope="col" style="width: 10%">Datum</th>
-    <th scope="col" style="width: 80%">Bezeichnung</th>
-    <th scope="col" style="line-height: 1em; width: 8%">Anzahl Plätze</th>
+    <th scope="col" style="width: 88%">Bezeichnung</th>
+    {# <!--<th scope="col" style="line-height: 1em; width: 8%">Anzahl Plätze</th>--> #}
     <th scope="col" style="line-height: 1em; width: 8%">Anzahl Besucher</th>
     <th scope="col" style="line-height: 1em; width: 8%">Anzahl Berater</th>
     <th scope="col" style="line-height: 1em; width: 4%">Än- dern</th>
@@ -78,7 +78,7 @@
                 <tbody>
                   <tr>
                     <td>
-                      <select id="frm-main-berater" class="form-select" name="frm-main-berater" data-init-frm="false" data-collect="tb-berater" data-index="0" style="font-size: 0.9rem;" required>
+                      <select id="frm-main-berater" class="form-select" name="frm-main-berater" data-init-frm="false" data-collect="tb-berater" data-index="0" data-id="-1" style="font-size: 0.9rem;" required>
                         <option value="-1">Bitte auswählen ...</option>{% for row in dbdata["coaches"] %}
                         <option value="{{ row['id'] }}">{{ row['name'] }}</option>{% endfor %}
                       </select>

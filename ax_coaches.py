@@ -2,7 +2,7 @@ import mariadb, sys
 from flask import Blueprint
 from flask import render_template
 from flask import current_app
-from flask import request
+from flask import request, session
 
 from .ax_default import mx_get_overview, mx_submit_release
 from .db import get_db
@@ -86,7 +86,8 @@ def ax_submit_coaches():
     result = request.get_json()
     current_app.logger.info("Empfangene Daten: " + request.headers.get('Content-Type') + "; Remote-Addr=" + request.remote_addr + "; Method=" + request.method + "; Content-length=" + str(request.content_length) + "; Remote-User=" + str(request.remote_user))
     rc_code = {"status":"OK", "id":"(Neu)", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
-
+    changeUser = session['coach_name']
+    
     try:
         item_id = None
         item_timestamp = None
@@ -125,8 +126,8 @@ def ax_submit_coaches():
                 row_data = cur.fetchone()
                 timestamp = str(row_data["sperre"])
                 if timestamp == item_timestamp:
-                    cur.execute("update tBerater set sperre=null,Nachname=?,Vorname=?,EMail=NULLIF(?,''),Telefon=?,Mobil=NULLIF(?,''),Aktiv=?, authMods=? where id=?", 
-                                (berater_nachname, berater_vorname, berater_email, berater_telefon, berater_mobil, berater_aktiv, used_modules, item_id))
+                    cur.execute("update tBerater set sperre=null,Nachname=?,Vorname=?,EMail=NULLIF(?,''),Telefon=?,Mobil=NULLIF(?,''),Aktiv=?, authMods=?, AnlageUser=? where id=?", 
+                                (berater_nachname, berater_vorname, berater_email, berater_telefon, berater_mobil, berater_aktiv, used_modules, changeUser, item_id))
                 elif timestamp == "INVALID":
                     update_allowed = False
                     rc_code["status"] = "INVALID"
@@ -134,9 +135,8 @@ def ax_submit_coaches():
                     update_allowed = False
                     rc_code["status"] = "NOTALWD"
             else:
-                cur.execute("insert into tBerater(Nachname,Vorname,EMail,Telefon,Mobil,Aktiv,authMods) \
-                            values(?,?,NULLIF(?,''),?,NULLIF(?,''),?,?)", 
-                            (berater_nachname, berater_vorname, berater_email, berater_telefon, berater_mobil, berater_aktiv, used_modules))
+                cur.execute("insert into tBerater(Nachname,Vorname,EMail,Telefon,Mobil,Aktiv,authMods,AnlageUser) values(?,?,NULLIF(?,''),?,NULLIF(?,''),?,?,?)", 
+                            (berater_nachname, berater_vorname, berater_email, berater_telefon, berater_mobil, berater_aktiv, used_modules, changeUser))
                 last_id = cur.lastrowid
                 rc_code["id"] = last_id
 

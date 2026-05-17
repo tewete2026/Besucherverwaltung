@@ -37,8 +37,11 @@ CREATE TABLE `tBerater` (
   `password` varchar(255) DEFAULT NULL,
   `authMods` varchar(255) DEFAULT NULL COMMENT 'Berechtigungen für Module',
   `passChange` bit(1) DEFAULT b'0' COMMENT 'Soll das Passwort neu eingegeben werden=1',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+  `AnlageUser` varchar(100) DEFAULT NULL COMMENT 'Durchführender Benutzer',
+  `AnlageDatum` datetime DEFAULT current_timestamp() COMMENT 'Datum der Anlage',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -50,4 +53,4 @@ CREATE TABLE `tBerater` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-05-11 18:49:53
+-- Dump completed on 2026-05-16 18:40:45

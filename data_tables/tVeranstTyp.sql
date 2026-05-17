@@ -26,6 +26,8 @@ CREATE TABLE `tVeranstTyp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `Bezeichnung` varchar(100) DEFAULT NULL,
   `Sperre` decimal(20,0) unsigned DEFAULT NULL COMMENT 'Enthält Timestamp, wenn Satz gesperrt ist',
+  `AnlageUser` varchar(100) DEFAULT NULL COMMENT 'Durchführender Benutzer',
+  `AnlageDatum` datetime DEFAULT current_timestamp() COMMENT 'Datum der Anlage',
   PRIMARY KEY (`id`),
   KEY `types_descr` (`Bezeichnung`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
@@ -40,4 +42,4 @@ CREATE TABLE `tVeranstTyp` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-05-11 18:49:53
+-- Dump completed on 2026-05-16 18:40:45

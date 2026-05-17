@@ -317,10 +317,12 @@ function showAlertsAfterInit() {
 /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
 /* -----HTML-Funktionen-----------------------------------------------------------------------------------------------------------------------------*/
 /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
-function static_coaches_rows (fieldname, data_index, html_options, tr_elem, data_index_remove="-1") {
-  tr_elem.innerHTML = `<td><select class="form-select" name="frm-main-${fieldname}" data-init-frm="false" data-collect="tb-${fieldname}" \
-    data-index="${data_index}" style="font-size: 0.9rem;" required>${html_options}</select></td><td style="width: 2em;"><figure class="text-body-secondary \
-    frm-main-${fieldname}-remove d-none" data-index="${data_index_remove}" title="Eintrag entfernen"><svg class="bi" width="1.5em" height="1.5em" title="Eintrag entfernen"><use xlink:href="#bi-trash-fill" title="Eintrag entfernen"/></svg></figure></td>`;
+function static_coaches_rows (fieldname, data_index, html_options, tr_elem, data_index_remove="-1", data_id="-1") {
+  tr_elem.innerHTML = `<td><select class="form-select" name="frm-main-${fieldname}" data-init-frm="false" data-collect="tb-${fieldname}" data-index="${data_index}" data-id="${data_id}" style="font-size: 0.9rem;" required>${html_options}</select></td> \
+    <td style="width: 2em;"><figure class="text-body-secondary \
+    frm-main-${fieldname}-remove d-none" data-index="${data_index_remove}" title="Eintrag entfernen"> \
+    <svg class="bi" width="1.5em" height="1.5em" title="Eintrag entfernen"><use xlink:href="#bi-trash-fill" title="Eintrag entfernen"/></svg> \
+    </figure></td>`;
 }
  
 

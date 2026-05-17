@@ -2,7 +2,7 @@ import mariadb, sys
 from flask import Blueprint
 from flask import render_template
 from flask import current_app
-from flask import request
+from flask import request, session
 
 from .ax_default import mx_get_overview, mx_submit_release, mx_get_edit
 from .db import get_db
@@ -152,6 +152,7 @@ def ax_submit_visiter():
     result = request.get_json()
     current_app.logger.info("Empfangene Daten: " + request.headers.get('Content-Type') + "; Remote-Addr=" + request.remote_addr + "; Method=" + request.method + "; Content-length=" + str(request.content_length) + "; Remote-User=" + str(request.remote_user))
     rc_code = {"status":"OK", "id":"(Neu)", "kdnr":"(Neu)", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
+    changeUser = session['coach_name']
 
     try:
         item_id = None
@@ -199,8 +200,8 @@ def ax_submit_visiter():
                 timestamp = str(row_data["sperre"])
                 rc_code["kdnr"] = str(row_data["KundenNr"])
                 if timestamp == item_timestamp:
-                    cur.execute("update tBesucher set sperre=null,Nachname=?,Vorname=?,Anrede=NULLIF(?,-1),EMail=NULLIF(?,''),Telefon=?,Aktiv=?,Newsletter=?,Bemerkung=NULLIF(?,''),AufnDatum=? where id=?", 
-                                (besucher_nachname, besucher_vorname, besucher_anrede, besucher_email, besucher_telefon, besucher_aktiv, besucher_newsl, besucher_bemerkung, besucher_datum, item_id))
+                    cur.execute("update tBesucher set sperre=null,Nachname=?,Vorname=?,Anrede=NULLIF(?,-1),EMail=NULLIF(?,''),Telefon=?,Aktiv=?,Newsletter=?,Bemerkung=NULLIF(?,''),AufnDatum=?,AnlageUser=? where id=?", 
+                                (besucher_nachname, besucher_vorname, besucher_anrede, besucher_email, besucher_telefon, besucher_aktiv, besucher_newsl, besucher_bemerkung, besucher_datum, changeUser, item_id))
                     if len(veranst_remove) > 0:
                         remove_verId = []
                         remove_rowId = []
@@ -231,9 +232,9 @@ def ax_submit_visiter():
                 is_unlocked = cur.fetchone()
                 if is_unlocked["unlocked"] == 0:
                     current_app.logger.error("Für Datensatz: ID=%s, Name=%s %s, Kd-Nr=%s, konnte kein RELEASE_LOCK ausgeführt werden.", last_id, besucher_vorname, besucher_nachname, max_kdnr)
-                cur.execute("insert into tBesucher(KundenNr,Nachname,Vorname,Anrede,EMail,Telefon,Aktiv,Newsletter,Bemerkung,AufnDatum) \
-                            values(?,?,?,?,NULLIF(?,''),NULLIF(?,''),NULLIF(?,''),NULLIF(?,''),?,?,?,NULLIF(?,''),?)", 
-                            (max_kdnr, besucher_nachname, besucher_vorname, besucher_anrede, besucher_email, besucher_telefon, besucher_aktiv, besucher_newsl, besucher_bemerkung, besucher_datum))
+                cur.execute("insert into tBesucher(KundenNr,Nachname,Vorname,Anrede,EMail,Telefon,Aktiv,Newsletter,Bemerkung,AufnDatum,AnlageUser) \
+                            values(?,?,?,?,NULLIF(?,''),NULLIF(?,''),NULLIF(?,''),NULLIF(?,''),?,?,?,NULLIF(?,''),?,?)", 
+                            (max_kdnr, besucher_nachname, besucher_vorname, besucher_anrede, besucher_email, besucher_telefon, besucher_aktiv, besucher_newsl, besucher_bemerkung, besucher_datum, changeUser))
                 last_id = cur.lastrowid
                 rc_code["id"] = last_id
                 rc_code["kdnr"] = max_kdnr

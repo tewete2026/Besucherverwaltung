@@ -37,10 +37,16 @@ CREATE TABLE `tBesuche` (
   `Entf` bit(1) DEFAULT NULL,
   `EMail` bit(1) DEFAULT NULL,
   `BesucherWL` bit(1) DEFAULT b'0' COMMENT 'Besucher auf der Warteliste',
+  `Nachname` varchar(50) DEFAULT NULL COMMENT 'Nachname des anwesenden Besuchers',
+  `Vorname` varchar(50) DEFAULT NULL COMMENT 'Vorname des anwesenden Besuchers',
+  `AnlageDatum` datetime DEFAULT current_timestamp() COMMENT 'Datum der Anlage',
+  `AnlageUser` varchar(100) DEFAULT NULL COMMENT 'Durchführender Benutzer',
+  `VeranstBez` varchar(255) DEFAULT NULL COMMENT 'Veranstaltung durchgeführte Bezeichnung',
+  `VeranstThema` varchar(255) DEFAULT NULL COMMENT 'Veranstaltung durchgeführtes Thema ',
   PRIMARY KEY (`id`),
   KEY `besucher_ids` (`BesucherID`),
   KEY `veranst_ids` (`VeranstID`)
-) ENGINE=InnoDB AUTO_INCREMENT=20597 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20672 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -52,4 +58,4 @@ CREATE TABLE `tBesuche` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-05-11 18:49:53
+-- Dump completed on 2026-05-16 18:40:45
