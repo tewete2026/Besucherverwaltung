@@ -62,7 +62,7 @@ def ax_submit_veransttyp():
                 row_data = cur.fetchone()
                 timestamp = str(row_data["sperre"])
                 if timestamp == item_timestamp:
-                    cur.execute("update tVeranstTyp set sperre=null,Bezeichnung=?,AnlageUser=? where id=?", (type_bezeichnung, changeUser, item_id))
+                    cur.execute("update tVeranstTyp set sperre=null,Bezeichnung=?,AnlageUser=?,AnlageDatum=current_timestamp() where id=?", (type_bezeichnung, changeUser, item_id))
                 elif timestamp == "INVALID":
                     update_allowed = False
                     rc_code["status"] = "INVALID"

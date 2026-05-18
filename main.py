@@ -5,7 +5,7 @@ from flask import request
 from flask import render_template
 from flask import redirect, url_for
 from werkzeug.exceptions import abort
-from .db import get_db, Javascript, Configure, get_config, get_session_entry
+from .db import get_db, Configure, checkPermissions
 from . import version
 
 bp = Blueprint("main", __name__)
@@ -35,7 +35,7 @@ def exports():
 @bp.route("/Verwalten-Veranstaltungen")
 def index():
     if current_app.config["NO_POOL_AVAILABLE"]:
-        return redirect(url_for("internal_server_error"))
+        abort(500)
     
     dbdata={}
     try:
@@ -69,13 +69,10 @@ def index():
         db.close()
         current_app.logger.error("Datenbank-Fehler: %s/%s", bp.name, err)
         abort(500)
-    conf = Configure(request, current_app, title="Verwalten Veranstaltungen", header=["Veranstaltung Nr.", "Neue Veranstaltung erfassen"], prefix="01", app='events', username=session['coach_name'],
+    conf = Configure(request, current_app, session, title="Verwalten Veranstaltungen", header=["Veranstaltung Nr.", "Neue Veranstaltung erfassen"], prefix="01", app='events',
                      link='link-main', label="Veranstaltungen", category="Veranstaltung", overview="Übersicht Veranstaltungen", pag_search="oder Datum-bis", pag_type="date")
     
-    usedMods = get_session_entry('authMods', as_dict=True)
-    valid_mod = 0
-    if conf.prefix in usedMods: valid_mod = usedMods[conf.prefix][1]
-    conf.javascript.add({'valid_Mod':valid_mod})
+    checkPermissions(conf)
 
     vis_max_arr = []
     # for vis_elem in dbdata["targets"]:

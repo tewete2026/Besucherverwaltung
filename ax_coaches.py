@@ -87,7 +87,7 @@ def ax_submit_coaches():
     current_app.logger.info("Empfangene Daten: " + request.headers.get('Content-Type') + "; Remote-Addr=" + request.remote_addr + "; Method=" + request.method + "; Content-length=" + str(request.content_length) + "; Remote-User=" + str(request.remote_user))
     rc_code = {"status":"OK", "id":"(Neu)", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
     changeUser = session['coach_name']
-    
+
     try:
         item_id = None
         item_timestamp = None
@@ -126,7 +126,7 @@ def ax_submit_coaches():
                 row_data = cur.fetchone()
                 timestamp = str(row_data["sperre"])
                 if timestamp == item_timestamp:
-                    cur.execute("update tBerater set sperre=null,Nachname=?,Vorname=?,EMail=NULLIF(?,''),Telefon=?,Mobil=NULLIF(?,''),Aktiv=?, authMods=?, AnlageUser=? where id=?", 
+                    cur.execute("update tBerater set sperre=null,Nachname=?,Vorname=?,EMail=NULLIF(?,''),Telefon=?,Mobil=NULLIF(?,''),Aktiv=?, authMods=?, AnlageUser=?,AnlageDatum=current_timestamp() where id=?", 
                                 (berater_nachname, berater_vorname, berater_email, berater_telefon, berater_mobil, berater_aktiv, used_modules, changeUser, item_id))
                 elif timestamp == "INVALID":
                     update_allowed = False

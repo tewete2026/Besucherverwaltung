@@ -62,7 +62,7 @@ def ax_submit_theme():
                 row_data = cur.fetchone()
                 timestamp = str(row_data["sperre"])
                 if timestamp == item_timestamp:
-                    cur.execute("update tThemen set sperre=null,Thema=?,AnlageUser=? where id=?", (theme_bezeichnung, changeUser, item_id))
+                    cur.execute("update tThemen set sperre=null,Thema=?,AnlageUser=?,AnlageDatum=current_timestamp() where id=?", (theme_bezeichnung, changeUser, item_id))
                 elif timestamp == "INVALID":
                     update_allowed = False
                     rc_code["status"] = "INVALID"

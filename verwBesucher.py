@@ -5,7 +5,7 @@ from flask import request
 from flask import render_template
 from flask import redirect, url_for
 from werkzeug.exceptions import abort
-from .db import get_db, Configure, get_session_entry
+from .db import get_db, Configure, checkPermissions
 from . import version
 
 bp = Blueprint("verwBesucher", __name__)
@@ -13,7 +13,7 @@ bp = Blueprint("verwBesucher", __name__)
 @bp.route("/Verwalten-Besucher", methods=['GET', 'POST'])
 def main():
     if current_app.config["NO_POOL_AVAILABLE"]:
-        return redirect(url_for("internal_server_error"))
+        abort(500)
     
     dbdata={}
     try:
@@ -33,14 +33,11 @@ def main():
         current_app.logger.error("Datenbank-Fehler: %s/%s", bp.name, err)
         abort(500)
 
-    conf = Configure(request, current_app, title="Verwalten Besucher", header=["Besucherin/Besucher Kund.-Nr.", "Neuen Besucherin/Besucher erfassen"], prefix="02", app='visiter', username=session['coach_name'],
+    conf = Configure(request, current_app, session, title="Verwalten Besucher", header=["Besucherin/Besucher Kund.-Nr.", "Neue[n] Besucherin/Besucher erfassen"], prefix="02", app='visiter', 
                      link='link-verwbesucher', label="Besucher", category="Besucherin/Besucher", overview="Übersicht Besucherin/Besucher", pag_search="Suchbegriff eingeben")
     conf.javascript.add({'style_bg_visiter_wl':current_app.config["style-bg-visiter-wl"]})
     
-    usedMods = get_session_entry('authMods', as_dict=True)
-    valid_mod = 0
-    if conf.prefix in usedMods: valid_mod = usedMods[conf.prefix][1]
-    conf.javascript.add({'valid_Mod':valid_mod})
+    checkPermissions(conf)
 
     return render_template("verwBesucher.html", dbdata=dbdata, credits=conf.credits, conf=conf, javascript=conf.javascript.getOut())
 

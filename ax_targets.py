@@ -66,7 +66,7 @@ def ax_submit_targets():
                 row_data = cur.fetchone()
                 timestamp = str(row_data["sperre"])
                 if timestamp == item_timestamp:
-                    cur.execute("update tOrte set sperre=null,Bezeichnung=?,MaxBesucher=NULLIF(?,''),AnlageUser=? where id=?", (bezeichnung, maxbesucher, changeUser, item_id))
+                    cur.execute("update tOrte set sperre=null,Bezeichnung=?,MaxBesucher=NULLIF(?,''),AnlageUser=?,AnlageDatum=current_timestamp() where id=?", (bezeichnung, maxbesucher, changeUser, item_id))
                 elif timestamp == "INVALID":
                     update_allowed = False
                     rc_code["status"] = "INVALID"

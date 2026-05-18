@@ -4,6 +4,7 @@ from flask import current_app, session
 from flask import request
 from flask import render_template
 from flask import redirect, url_for
+from werkzeug.exceptions import abort
 from .db import Configure
 from . import version
 
@@ -12,9 +13,9 @@ bp = Blueprint("verwGeraete", __name__)
 @bp.route("/Verwalten-Geraete", methods=['GET', 'POST'])
 def main():
     if current_app.config["NO_POOL_AVAILABLE"]:
-        return redirect(url_for("internal_server_error"))
+        abort(500)
 
-    conf = Configure(request, current_app, title="Verwalten Geräte", header=["Gerät Nr.", "Neues Gerät erfassen"], prefix="04", app='devices', username=session['coach_name'],
+    conf = Configure(request, current_app, session, title="Verwalten Geräte", header=["Gerät Nr.", "Neues Gerät erfassen"], prefix="04", app='devices', 
                      link='link-verwgeraete', label="Berater", category="Geräte", overview="Übersicht Geräte", pag_search="Suchbegriff eingeben")
 
     return render_template("verwGeraete.html", conf=conf, javascript=conf.javascript.getOut())

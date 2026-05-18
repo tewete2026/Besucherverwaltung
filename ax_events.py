@@ -84,9 +84,6 @@ def ax_submit_veranst():
     besucher = {}
     ts = current_app.config["TS"]
     add_calevent = bool(current_app.config["add-new-calevent"] == '1')
-    today_day = ts.todaydate().day
-    today_month = ts.todaydate().month
-    today_year = ts.todaydate().year
 
     try:
         veranst_id = None
@@ -142,7 +139,7 @@ def ax_submit_veranst():
                 cur.execute("SELECT IFNULL(sperre,'INVALID') as sperre FROM tVeranst WHERE id=? FOR UPDATE", (veranst_id,))
                 timestamp = str(cur.fetchone()["sperre"])
                 if timestamp == veranst_timestamp:
-                    cur.execute("update tVeranst set sperre=null,typ=?,ort=NULLIF(?,-1),spenden=?,thema=NULLIF(?,-1),datum=?,von=?,bis=?,dauer=?,bezeichnung=?, AnlageUser=? where id=?", 
+                    cur.execute("update tVeranst set sperre=null,typ=?,ort=NULLIF(?,-1),spenden=?,thema=NULLIF(?,-1),datum=?,von=?,bis=?,dauer=?,bezeichnung=?, AnlageUser=?,AnlageDatum=current_timestamp() where id=?", 
                                 (veranst_typ, veranst_ort, veranst_spende, veranst_thema, veranst_datum, veranst_zeit_von, veranst_zeit_bis, veranst_zeit_dauer, bezeichnung, changeUser, veranst_id))
                     last_id = veranst_id
                     rc_code["id"] = veranst_id
@@ -162,46 +159,49 @@ def ax_submit_veranst():
                 insert_done = True
 
             if update_allowed:
+                for itemId in berater_remove:
+                    cur.execute("delete from tBeraterVer where id=?", (itemId,))
+                    current_app.logger.debug("Entfernt in tBeraterVer: RowCount=%s, Warnings=%s, ID=%s, VeranstID=%s", cur.rowcount, cur.warnings, itemId, last_id)
                 cur.execute("select Thema from tThemen where id=?", (veranst_thema,))
                 verThema = cur.fetchone()
                 Thema = ''
                 if cur.rowcount > 0:
                     Thema = verThema['Thema']
-                for itemId in berater_remove:
-                    cur.execute("delete from tBeraterVer where id=?", (itemId,))
-                    current_app.logger.debug("Entfernt in tBeraterVer: RowCount=%s, Warnings=%s, ID=%s, VeranstID=%s", cur.rowcount, cur.warnings, itemId, last_id)
                 for berId, verId in berater.items():
+                    cur.execute("select Nachname,Vorname from tBerater where id=?", (berId,))
+                    berName = cur.fetchone()
+                    Nachname = Vorname = ''
+                    if cur.rowcount > 0:
+                        Nachname = berName['Nachname']
+                        Vorname = berName['Vorname']
                     if verId != '-1':
-                        cur.execute("update tBeraterVer set BeraterID=?,VeranstID=? where id=?", (berId, last_id, verId))
+                        cur.execute("update tBeraterVer set BeraterID=?,VeranstID=?,AnlageUser=?,AnlageDatum=current_timestamp(),Nachname=NULLIF(?,''),Vorname=NULLIF(?,''),VeranstThema=NULLIF(?,''),VeranstBez=NULLIF(?,'') where id=?", 
+                                    (berId, last_id, changeUser, Nachname, Vorname, Thema, bezeichnung, verId))
                         current_app.logger.debug("Ersetzt in tBeraterVer: RowCount=%s, Warnings=%s, ID=%s, Ber.ID=%s, VeranstID=%s", cur.rowcount, cur.warnings, verId, berId, last_id)
                     else:
-                        cur.execute("select Nachname,Vorname from tBerater where id=?", (berId,))
-                        berName = cur.fetchone()
-                        Nachname = Vorname = ''
-                        if cur.rowcount > 0:
-                            Nachname = berName['Nachname']
-                            Vorname = berName['Vorname']
                         cur.execute("insert into tBeraterVer(BeraterID,VeranstID,AnlageUser,Nachname,Vorname,VeranstThema,VeranstBez) values(?,?,?,NULLIF(?,''),NULLIF(?,''),NULLIF(?,''),NULLIF(?,''))", 
                                     (berId, last_id, changeUser, Nachname, Vorname, Thema, bezeichnung))
                         ins_id = cur.lastrowid
                         current_app.logger.debug("Eingefügt in tBeraterVer: RowCount=%s, Warnings=%s, ID=%s, Ber.ID=%s, VeranstID=%s", cur.rowcount, cur.warnings, ins_id, berId, last_id)
                 for besId, besParm in besucher.items():
-                    spende = float(besParm["spende"].replace(",", '.'))
+                    # spende = float(besParm["spende"].replace(",", '.'))
+                    spende = 0.00
+                    cur.execute("select Nachname,Vorname from tBesucher where id=?", (besId,))
+                    besName = cur.fetchone()
+                    Nachname = Vorname = ''
+                    if cur.rowcount > 0:
+                        Nachname = besName['Nachname']
+                        Vorname = besName['Vorname']
                     if "id" in besParm:
                         if besParm["wl-prev"] != besParm["wl"]:
                             cur.execute(f"insert into tBesucheLOG(Action,BesucherID,VeranstID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL) \
                                         select 'change-wl-by-event',BesucherID,VeranstID,Spende,TagInt,Monat,Jahr,EMail,BesucherWL from tBesuche where id=?", (besParm["id"],))
-                        cur.execute("UPDATE tBesuche set BesucherID=?,VeranstID=?,Spende=?,BesucherWL=? WHERE id=?", (besId, last_id, spende, besParm["wl"], besParm["id"]))
+                        cur.execute("UPDATE tBesuche set BesucherID=?,VeranstID=?,Spende=?,BesucherWL=?,AnlageUser=?,AnlageDatum=current_timestamp(),Nachname=NULLIF(?,''),Vorname=NULLIF(?,''),VeranstThema=NULLIF(?,''),VeranstBez=NULLIF(?,'') WHERE id=?", 
+                                    (besId, last_id, spende, besParm["wl"], changeUser, Nachname, Vorname, Thema, bezeichnung, besParm["id"]))
                         current_app.logger.debug("Ersetzt in tBesuche: RowCount=%s, Warnings=%s, ID=%s, Bes.ID=%s, VeranstID=%s", cur.rowcount, cur.warnings, besParm["id"], besId, last_id)
                         cur.execute("UPDATE tBesucher set LetztDatum=? WHERE id=? && (LetztDatum<? || LetztDatum is null)", (veranst_datum, besId, veranst_datum))
                         current_app.logger.debug("Letztes Veranst-Datum in tBesucher: RowCount=%s, Warnings=%s, Bes.ID=%s, VeranstDat=%s", cur.rowcount, cur.warnings, besId, veranst_datum)
                     else:
-                        cur.execute("select Nachname,Vorname from tBesucher where id=?", (besId,))
-                        besName = cur.fetchone()
-                        Nachname = Vorname = ''
-                        if cur.rowcount > 0:
-                            Nachname = besName['Nachname']
-                            Vorname = besName['Vorname']
                         cur.execute("insert into tBesuche(BesucherID,VeranstID,Spende,BesucherWL,AnlageUser,Nachname,Vorname,VeranstThema,VeranstBez) values(?,?,?,?,?,NULLIF(?,''),NULLIF(?,''),NULLIF(?,''),NULLIF(?,''))", 
                                     (besId, last_id, spende, besParm["wl"], changeUser, Nachname, Vorname, Thema, bezeichnung))
                         row_id = cur.lastrowid

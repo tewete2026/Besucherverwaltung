@@ -29,13 +29,13 @@ class Javascript:
     
 
 class Configure:
-    def __init__(self, request, current_app, title:str, header:list, prefix:str, app:str, link:str, label:str, category:str, overview:str, username:str,
+    def __init__(self, request, current_app, session, title:str, header:list, prefix:str, app:str, link:str, label:str, category:str, overview:str,
                  pag_search:str, pag_type:str="text", btn_type:str="button"):
         self.prefix = prefix
         self.credits = {
             "title":title,
             "header":header,
-            "username":username,
+            "username":session['coach_name'],
             "app":app,
             "user":request.remote_user,
             "addr":request.remote_addr,
@@ -134,6 +134,13 @@ def get_session_entry(value:str, is_cookie:bool=False, as_dict:bool=False):
     if is_cookie: entry = current_app.config['COOKIE_PREFIX'] + entry
     if as_dict: entry = dict(json.loads(entry))
     return entry
+
+
+def checkPermissions(conf):
+    usedMods = get_session_entry('authMods', as_dict=True)
+    valid_mod = 0
+    if conf.prefix in usedMods: valid_mod = usedMods[conf.prefix][1]
+    conf.javascript.add({'valid_Mod':valid_mod})
 
 
 def get_db():

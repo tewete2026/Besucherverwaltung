@@ -76,6 +76,7 @@ def ax_submit_quick_visiter():
     rc_code = {"status":"OK", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
     result = request.get_json()
     result_map = dict(result)
+    changeUser = session['coach_name']
     ts = current_app.config["TS"]
     today=ts.todaydate()
     newsletter = True
@@ -92,8 +93,9 @@ def ax_submit_quick_visiter():
         cur.execute("select MAX(KundenNr)+1 as KundenNr from tBesucher")
         max_kdnr = cur.fetchone()["KundenNr"]
 
-        cur.execute("insert into tBesucher(KundenNr,Vorname,Nachname,Telefon,EMail,Aktiv,Newsletter,AufnDatum) \
-                    values(?,?,?,?,NULLIF(?,''),?,?,?)", (max_kdnr, result_map["vorname"], result_map["nachname"], result_map["telefon"], result_map["email"], True, newsletter, today))
+        cur.execute("insert into tBesucher(KundenNr,Vorname,Nachname,Telefon,EMail,Aktiv,Newsletter,AufnDatum,AnlageUser) \
+                    values(?,?,?,?,NULLIF(?,''),?,?,?,?)", 
+                    (max_kdnr, result_map["vorname"], result_map["nachname"], result_map["telefon"], result_map["email"], True, newsletter, today, changeUser))
         last_id = cur.lastrowid
         rc_code["last_id"] = last_id
         rc_code.update(result_map)
@@ -200,7 +202,7 @@ def ax_submit_visiter():
                 timestamp = str(row_data["sperre"])
                 rc_code["kdnr"] = str(row_data["KundenNr"])
                 if timestamp == item_timestamp:
-                    cur.execute("update tBesucher set sperre=null,Nachname=?,Vorname=?,Anrede=NULLIF(?,-1),EMail=NULLIF(?,''),Telefon=?,Aktiv=?,Newsletter=?,Bemerkung=NULLIF(?,''),AufnDatum=?,AnlageUser=? where id=?", 
+                    cur.execute("update tBesucher set sperre=null,Nachname=?,Vorname=?,Anrede=NULLIF(?,-1),EMail=NULLIF(?,''),Telefon=?,Aktiv=?,Newsletter=?,Bemerkung=NULLIF(?,''),AufnDatum=?,AnlageUser=?,AnlageDatum=current_timestamp() where id=?", 
                                 (besucher_nachname, besucher_vorname, besucher_anrede, besucher_email, besucher_telefon, besucher_aktiv, besucher_newsl, besucher_bemerkung, besucher_datum, changeUser, item_id))
                     if len(veranst_remove) > 0:
                         remove_verId = []
