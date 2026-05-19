@@ -179,6 +179,7 @@ const btn_overview_edit = this.document.getElementsByClassName("frm-main-overvie
 const btn_main_store = this.document.getElementById("btn-frm-main-store");
 const btn_main_reset = this.document.getElementById("btn-frm-main-reset");
 const spinner_btn_store = btn_main_store.firstElementChild;
+const spinner_btn_reset = btn_main_reset.firstElementChild;
 const frm_local_storage = this.document.getElementsByClassName("storaged-elem");
 const frm_main = this.document.getElementById("frm-main");
 const frm_main_caption = this.document.getElementById("frm-main-caption");

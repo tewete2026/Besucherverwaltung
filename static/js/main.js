@@ -320,11 +320,13 @@ async function performRelease(event) {
   const item_id_head = extStorage.getItem("frm-main-id");
   const item_timestamp = extStorage.getItem("timestamp");
   if (item_timestamp) {
+    spinner_btn_reset.classList.remove("d-none");
     const submit_map = new SubmitParm([["item-id", item_id_head], ["item-timestamp", item_timestamp]]);
     // Durchführen Release Sprerre
     const result_data = await execFetch(HTTP.getURL("ax-submit-" + SERVER_OPTIONS.APP + "-release/"), submit_map.getString());
     rt_code.status = result_data.status;
     rt_code.id = result_data.id;
+    spinner_btn_reset.classList.add("d-none");
   }
   extStorage.clear();
   extStorage.setItem("last_stored", "CLEAR");
