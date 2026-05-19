@@ -66,7 +66,7 @@ def create_app(test_config="DEV"):
         DB_POOL=None,
         NO_POOL_AVAILABLE=False,
         COOKIE_PREFIX='drk-bv-',
-        COOKIE_LOGIN='is-logged-in-TEST'
+        COOKIE_LOGIN='is-logged-in-01'
     )
 
     @app.before_request
