@@ -8,3 +8,6 @@ EXC:mysqldumpdata_bv_no_20260501125409.sql
 alter table tBerater add column (`username` varchar(20) DEFAULT NULL COMMENT 'Login Benutzername', `password` varchar(50) DEFAULT NULL COMMENT 'Login Passwort');
 -->=1.2.83
 EXC:mysqldumpdata_bv_no_20260517173818.sql
+-->=1.2.87
+EXC:mysqldumpdata_bv_no_20260519121244.sql
+
