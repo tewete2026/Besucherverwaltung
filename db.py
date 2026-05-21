@@ -35,7 +35,7 @@ class Configure:
         self.credits = {
             "title":title,
             "header":header,
-            "username":session['coach_name'],
+            "username":session['login_name'],
             "app":app,
             "user":request.remote_user,
             "addr":request.remote_addr,
@@ -122,25 +122,24 @@ class TimeSet:
         return (tmfrom, tmto, self.__tzid)
 
 
-def get_config(value:str, is_cookie:bool=False, as_dict:bool=False):
+def get_config(value:str, as_dict:bool=False):
     entry = current_app.config[value]
-    if is_cookie: entry = current_app.config['COOKIE_PREFIX'] + entry
     if as_dict: entry = dict(json.loads(entry))
     return entry
 
 
-def get_session_entry(value:str, is_cookie:bool=False, as_dict:bool=False):
+def get_session_entry(value:str, as_dict:bool=False):
     entry = session[value]
-    if is_cookie: entry = current_app.config['COOKIE_PREFIX'] + entry
     if as_dict: entry = dict(json.loads(entry))
     return entry
 
 
 def checkPermissions(conf):
-    usedMods = get_session_entry('authMods', as_dict=True)
+    authMods = get_session_entry('authMods', as_dict=True)
     valid_mod = 0
-    if conf.prefix in usedMods: valid_mod = usedMods[conf.prefix][1]
+    if conf.prefix in authMods: valid_mod = authMods[conf.prefix][1]
     conf.javascript.add({'valid_Mod':valid_mod})
+    session['valid_mod'] = valid_mod
 
 
 def get_db():

@@ -10,4 +10,3 @@ alter table tBerater add column (`username` varchar(20) DEFAULT NULL COMMENT 'Lo
 EXC:mysqldumpdata_bv_no_20260517173818.sql
 -->=1.2.87
 EXC:mysqldumpdata_bv_no_20260519121244.sql
-

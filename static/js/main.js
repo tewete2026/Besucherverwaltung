@@ -75,6 +75,7 @@ const table_overview = tb_overview_events ? tb_overview_events :
                        tb_overview_theme ? tb_overview_theme : 
                        tb_overview_type ? tb_overview_type : null;
 const table_overview_body = table_overview ? table_overview.tBodies[0] : null;
+const valid_Mod = SERVER_OPTIONS.valid_Mod;
 
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -97,7 +98,8 @@ window.addEventListener('load', () => {
   /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
   /* -----MAIN Submit---------------------------------------------------------------------------------------------------------------------------------*/
   /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
-  btn_main_store.addEventListener("click", performSubmit);
+  if (valid_Mod)
+    btn_main_store.addEventListener("click", performSubmit);
   
   /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
   if (btn_insert_visiter) btn_insert_visiter.addEventListener("click", registQuickInsertVisiter);
@@ -181,7 +183,6 @@ async function env_init() {
 
   /* -------------------------------------------------------------------------------------------------------------------------------------------------*/
   // Speicher-Button disabeln wenn keine Berechtigung für dieses Modul vorhanden
-  const valid_Mod = SERVER_OPTIONS.valid_Mod;
   if (valid_Mod == 0) btn_main_store.setAttribute("disabled", true);
   
   const item_id_head = extStorage.getItem("frm-main-kdnr") ? extStorage.getItem("frm-main-kdnr") : extStorage.getItem("frm-main-id");
@@ -648,6 +649,10 @@ async function performSubmit(event) {
     else if (result_data.status == "INVALID") {
       const result_id = typeof result_data.kdnr !== 'undefined' ? result_data.kdnr : result_data.id;
       appendAlert(`${SERVER_OPTIONS.category} Nr.${result_id} wurde inzwischen von jemand anderem bearbeitet, bitte neu zum Ändern auswählen.`, 'warning');
+      extStorage.setItem("last_stored", result_data.status);
+    }
+    else if (result_data.status == "NOPERMISSION") {
+      appendAlert(`${SERVER_OPTIONS.category} - Keine Berechtigung für diese Funktion.`, 'danger');
       extStorage.setItem("last_stored", result_data.status);
     }
     else {

@@ -74,9 +74,13 @@ def ax_get_visiter(pattern):
 @bp.route("/ax-submit-quick-visiter/", methods=['POST'])
 def ax_submit_quick_visiter():
     rc_code = {"status":"OK", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
+    valid_mod = session['valid_mod']
+    if not valid_mod:
+        rc_code['status'] = 'NOPERMISSION'
+        return rc_code
     result = request.get_json()
     result_map = dict(result)
-    changeUser = session['coach_name']
+    changeUser = session['login_name']
     ts = current_app.config["TS"]
     today=ts.todaydate()
     newsletter = True
@@ -154,7 +158,7 @@ def ax_submit_visiter():
     result = request.get_json()
     current_app.logger.info("Empfangene Daten: " + request.headers.get('Content-Type') + "; Remote-Addr=" + request.remote_addr + "; Method=" + request.method + "; Content-length=" + str(request.content_length) + "; Remote-User=" + str(request.remote_user))
     rc_code = {"status":"OK", "id":"(Neu)", "kdnr":"(Neu)", "contentlength":request.content_length, "contentype":request.content_type, "remoteaddr":request.remote_addr}
-    changeUser = session['coach_name']
+    changeUser = session['login_name']
 
     try:
         item_id = None

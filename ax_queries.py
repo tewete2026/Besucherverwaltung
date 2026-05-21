@@ -17,10 +17,10 @@ def ax_qy_visiter(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "Jahr;Monat;Anzahl Besucher\n"
+        output = "Jahr\tMonat\tAnzahl Besucher\n"
         for row in rc_code['result_list']:
             (year, month, vis) = row
-            output += f"{year};{month};{vis}\n"
+            output += f"{year}\t{month}\t{vis}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
@@ -35,10 +35,10 @@ def ax_qy_events(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "Bezeichnung;Jahr;Monat;Anzahl Veranst;Spenden\n"
+        output = "Bezeichnung\tJahr\tMonat\tAnzahl Veranst\tSpenden\n"
         for row in rc_code['result_list']:
             (typ, year, month, vis, amount) = row
-            output += f"{typ};{year};{month};{vis};{amount}\n"
+            output += f"{typ}\t{year}\t{month}\t{vis}\t{amount}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
@@ -53,10 +53,10 @@ def ax_qy_events_theme(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "Bezeichnung;Thema;Jahr;Monat;Anzahl Veranst;Spenden\n"
+        output = "Bezeichnung\tThema\tJahr\tMonat\tAnzahl Veranst\tSpenden\n"
         for row in rc_code['result_list']:
             (typ, theme, year, month, vis, amount) = row
-            output += f"{typ};{theme};{year};{month};{vis};{amount}\n"
+            output += f"{typ}\t{theme}\t{year}\t{month}\t{vis}\t{amount}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
@@ -72,10 +72,10 @@ def ax_qy_visiter_info(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "Anzahl Besucher;Info Thema\n"
+        output = "Anzahl Besucher\tInfo Thema\n"
         for row in rc_code['result_list']:
             (vis, thema) = row
-            output += f"{vis};{thema}\n"
+            output += f"{vis}\t{thema}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
@@ -91,10 +91,10 @@ def ax_qy_visiter_ext(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "Ort;Jahr;Monat;Anzahl Besucher\n"
+        output = "Ort\tJahr\tMonat\tAnzahl Besucher\n"
         for row in rc_code['result_list']:
             (ort, year, month, vis) = row
-            output += f"{ort};{year};{month};{vis}\n"
+            output += f"{ort}\t{year}\t{month}\t{vis}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
@@ -110,10 +110,10 @@ def ax_qy_visiter_events(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "Nr;Bezeichnung;Jahr;Monat;Tag;Von;Bis;Dauer;Nachname;Vorname;Newsletter;AufnDatum;LetzterBesuch;Telefon;EMail;Aktiv\n"
+        output = "Nr\tBezeichnung\tJahr\tMonat\tTag\tVon\tBis\tDauer\tNachname\tVorname\tNewsletter\tAufnDatum\tLetzterBesuch\tTelefon\tEMail\tAktiv\n"
         for row in rc_code['result_list']:
             (id, text, year, month, day, f, t, d, n, v, nl, ad, ld, tl, e, a) = row
-            output += f"{id};{text};{year};{month};{day};{f};{t};{d};{n};{v};{nl};{ad};{ld};{tl};{e};{a}\n"
+            output += f"{id}\t{text}\t{year}\t{month}\t{day}\t{f}\t{t}\t{d}\t{n}\t{v}\t{nl}\t{ad}\t{ld}\t{tl}\t{e}\t{a}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
@@ -129,10 +129,10 @@ def ax_qy_coaches_events(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "Nr;Bezeichnung;Jahr;Monat;Tag;Von;Bis;Dauer;Vorname;Nachname;Telefon;Mobil;EMail;Aktiv\n"
+        output = "Nr\tBezeichnung\tJahr\tMonat\tTag\tVon\tBis\tDauer\tVorname\tNachname\tTelefon\tMobil\tEMail\tAktiv\n"
         for row in rc_code['result_list']:
             (id, text, year, month, day, f, t, d, v, n, tl, mob, e, a) = row
-            output += f"{id};{text};{year};{month};{day};{f};{t};{d};{v};{n};{tl};{mob};{e};{a}\n"
+            output += f"{id}\t{text}\t{year}\t{month}\t{day}\t{f}\t{t}\t{d}\t{v}\t{n}\t{tl}\t{mob}\t{e}\t{a}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
@@ -148,7 +148,7 @@ def ax_qy_visiter_last(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "ID;KundenNr;Ähnlich;Nachname;Vorname;Anzahl_Besuche;Aufname_Datum;Letzter_Besuch;Telefon;EMail\n"
+        output = "ID\tKundenNr\tÄhnlich\tNachname\tVorname\tAnzahl_Besuche\tAufname_Datum\tLetzter_Besuch\tTelefon\tEMail\n"
         # Voriger Vorname + Nachname
         nx = ''
         for row in rc_code['result_list']:
@@ -163,7 +163,7 @@ def ax_qy_visiter_last(store):
                 if r >= 0.85: ratio = f'{r:.2f}'.replace(".", ",") # deutsches Dezimalkomma
             # Merken vorigen Vorname + Nachname
             nx = nm
-            output += f"{id};{kd};{ratio};{n};{v};{an};{ad};{ld};{t};{e}\n"
+            output += f"{id}\t{kd}\t{ratio}\t{n}\t{v}\t{an}\t{ad}\t{ld}\t{t}\t{e}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':
@@ -179,10 +179,10 @@ def ax_qy_visiter_double(store):
         rc_code = db_collect(sql_file)
         if rc_code['status'] == 'ERR':
             abort(500)
-        output = "v_n_t;v_n_e;v_n_t_e;id;KundenNr;Anrede;Nachname;Vorname;Telefon;EMail;Aktiv;AufnDatum;LetztBesuch\n"
+        output = "v_n_t\tv_n_e\tv_n_t_e\tid\tKundenNr\tAnrede\tNachname\tVorname\tTelefon\tEMail\tAktiv\tAufnDatum\tLetztBesuch\n"
         for row in rc_code['result_list']:
             (vnt, vne, vnte, id, kd, anr, n, v, t, e, a, ad, ld) = row
-            output += f"{vnt};{vne};{vnte};{id};{kd};{anr};{n};{v};{t};{e};{a};{ad};{ld}\n"
+            output += f"{vnt}\t{vne}\t{vnte}\t{id}\t{kd}\t{anr}\t{n}\t{v}\t{t}\t{e}\t{a}\t{ad}\t{ld}\n"
     else:
         rc_code = mariadb_client(sql_file)
         if rc_code['status'] == 'ERR':

@@ -37,13 +37,14 @@
       {{ error['userfault'] }}
     </div>
     <button class="btn btn-primary w-100 py-2" type="submit">Absenden</button>
+    <p class="mt-5 mb-3 text-body-secondary">Version: {{ credits['version'] }}</p>
   </form>
 {% endif %}
 
 {% if mode == 'yes' %}
     <div class="px-4 py-5 my-5 text-center">
     <img class="d-block mx-auto mb-4" src="{{ url_for('static', filename='Logo_PCafe.png') }}" alt="">
-    <h1 class="display-5 fw-bold text-body-emphasis">Du bist bereits angemeldet</h1>
+    <h1 class="display-5 fw-bold text-body-emphasis">Du bist bereits als<br>{{ credits['username'] }}<br> angemeldet</h1>
     <div class="col-lg-6 mx-auto">
         <p class="lead mb-4">Ein erneutes Anmelden kann erst nach einem Abmelden erfolgen.</p>
         <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">

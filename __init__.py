@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from flask import Flask, url_for, send_from_directory
 from flask import render_template, g, current_app, session, redirect, request
 from logging.config import dictConfig
@@ -60,18 +61,17 @@ def create_app(test_config="DEV"):
         SECRET_KEY=credentials.Passwords.SECRET_KEY,
         SESSION_COOKIE_NAME="drk-bv-session",
         SESSION_COOKIE_PATH=modname,
+        PERMANENT_SESSION_LIFETIME=timedelta(days=360),
         TS=db.TimeSet("Europe/Berlin"),
         HOSTNAME=os.uname().nodename,
         TEST_RUN=False,
         DB_POOL=None,
-        NO_POOL_AVAILABLE=False,
-        COOKIE_PREFIX='drk-bv-',
-        COOKIE_LOGIN='is-logged-in-01'
+        NO_POOL_AVAILABLE=False
     )
 
     @app.before_request
     def check_login():
-        if request.method == 'GET' and not db.get_config('COOKIE_LOGIN', is_cookie=True) in request.cookies:
+        if request.method == 'GET' and not 'login_name' in session:
             lurl = request.url.rsplit('/')
             uri = lurl.pop()
             ind = ["store-no", "store-yes"].count(uri)

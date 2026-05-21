@@ -1,12 +1,12 @@
 import mariadb, hashlib
 from flask import Blueprint
 from flask import current_app
-from flask import request, make_response, session
+from flask import request, session
 from flask import render_template
 from flask import redirect, url_for
 from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
-from .db import get_db, get_config
+from .db import get_db
 from . import version
 
 bp = Blueprint("login", __name__)
@@ -17,13 +17,13 @@ def login():
     ts = current_app.config["TS"]
     if current_app.config["NO_POOL_AVAILABLE"]:
         abort(500)
-    loggedInCK = get_config('COOKIE_LOGIN', is_cookie=True)
-    if loggedInCK in request.cookies: mode = 'yes'
-    else: mode = 'no'
+    session.permanent = True
+    if 'login_name' in session: is_loggedin = 'yes'
+    else: is_loggedin = 'no'
 
     dbdata={'status':'OK'}
     error={'class':'d-none'}
-    if request.method == "POST" and mode == 'no':
+    if request.method == "POST" and is_loggedin == 'no':
         form_data = request.form
         if 'username' in form_data and 'password' in form_data:
             hash_value = hashlib.sha256(form_data['password'].encode())
@@ -58,21 +58,19 @@ def login():
                 error['class'] = ''
             else: 
                 session['authMods'] = dbdata['authMods']
-                session['coach_name'] = dbdata['Vorname'] + " " + dbdata['Nachname']
-                resp = make_response(redirect(session['last-uri']))
-                # resp.set_cookie(loggedInCK, 'true', max_age=(60*60*24*360), path=session['last-modname'])
-                resp.set_cookie(loggedInCK, 'true', max_age=(60*60*24*5), path=session['last-modname'])
-                return resp
+                session['login_name'] = dbdata['Vorname'] + " " + dbdata['Nachname']
+                return redirect(session['last-uri'])
     
-    return render_template("signIn.html", mode=mode, error=error)
+    credits = {}
+    credits['version'] = f"{version.Configs.APP_VERSION} - {version.Configs.APP_CREATED}"
+    if is_loggedin == 'yes': credits['username'] = session['login_name']
+    return render_template("signIn.html", mode=is_loggedin, error=error, credits=credits)
 
 
 @bp.route("/logout", methods=['GET'])
 def logout():
-    loggedInCK = get_config('COOKIE_LOGIN', is_cookie=True)
-    resp = make_response(redirect(url_for('main.index')))
-    resp.delete_cookie(loggedInCK, path=session['last-modname'])
-    session['authMods'] = None
-    session['coach_name'] = None
-    session['last-uri'] = None
-    return resp
+    session.clear()
+    # session.pop('login_name', None)
+    # session.pop('authMods', None)
+    # session.pop('last-uri', None)
+    return redirect(url_for('main.index'))
